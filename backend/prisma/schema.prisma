@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  GOOGLE
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SENT
+  FAILED
+}
+
+model User {
+  id                String         @id @default(uuid())
+  email             String         @unique
+  name              String?
+  avatarUrl         String?
+  provider          AuthProvider   @default(GOOGLE)
+  providerAccountId String         @unique
+  cvs               UserCV[]
+  applications      Application[]
+  oauthTokens       OAuthToken?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model UserCV {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName     String
+  fileKey      String        // S3 object key or local path
+  fileSize     Int
+  mimeType     String
+  isActive     Boolean       @default(true)
+  applications Application[]
+  uploadedAt   DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("user_cvs")
+}
+
+model Application {
+  id             String            @id @default(uuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvId           String
+  cv             UserCV            @relation(fields: [cvId], references: [id])
+  jobDescription String            @db.Text
+  recruiterEmail String?
+  subject        String?
+  coverLetter    String?           @db.Text
+  status         ApplicationStatus @default(DRAFT)
+  errorMessage   String?           @db.Text
+  retryCount     Int               @default(0)
+  generatedAt    DateTime          @default(now())
+  sentAt         DateTime?
+  updatedAt      DateTime          @updatedAt
+
+  @@map("applications")
+}
+
+model OAuthToken {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String   @default("gmail")
+  accessToken  String   @db.Text
+  refreshToken String?  @db.Text
+  tokenExpiry  DateTime?
+  scope        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("oauth_tokens")
+}
