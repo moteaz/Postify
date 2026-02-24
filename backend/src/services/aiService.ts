@@ -12,7 +12,18 @@ const getAIClient = () => {
     if (provider === 'ollama') {
         return new OpenAI({
             baseURL: `${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}/v1`,
-            apiKey: 'ollama', // Ollama doesn't require a real key
+            apiKey: 'ollama',
+        });
+    }
+
+    if (provider === 'openrouter') {
+        return new OpenAI({
+            baseURL: 'https://openrouter.ai/api/v1',
+            apiKey: process.env.OPENROUTER_API_KEY,
+            defaultHeaders: {
+                'HTTP-Referer': process.env.CLIENT_URL || 'http://localhost:3000',
+                'X-Title': 'Postify',
+            }
         });
     }
 
@@ -22,9 +33,14 @@ const getAIClient = () => {
 };
 
 const aiClient = getAIClient();
-const model = process.env.AI_PROVIDER === 'ollama'
-    ? (process.env.OLLAMA_MODEL || 'llama3')
-    : 'gpt-4o';
+const getModel = () => {
+    const provider = process.env.AI_PROVIDER || 'openai';
+    if (provider === 'ollama') return process.env.OLLAMA_MODEL || 'llama3';
+    if (provider === 'openrouter') return process.env.OPENROUTER_MODEL || 'anthropic/claude-3-haiku';
+    return process.env.OPENAI_MODEL || 'gpt-4o';
+};
+
+const model = getModel();
 
 export interface GenerationResult {
     coverLetter: string;
@@ -71,29 +87,50 @@ export const generateApplicationContent = async (
     }
   `;
 
-    const response = await aiClient.chat.completions.create({
-        model: model,
-        messages: [
-            { role: 'system', content: 'You are a professional recruiting assistant. You always respond in valid JSON.' },
-            { role: 'user', content: prompt }
-        ],
-        // Only OpenAI supports strict json_object mode; Ollama/Llama 3 works better with clear prompt instructions
-        response_format: process.env.AI_PROVIDER === 'openai' ? { type: 'json_object' } : undefined,
-        temperature: 0.7,
-    });
-
-    const content = response.choices[0].message.content;
-    if (!content) throw new Error('AI generation returned empty content');
-
-    // If Ollama returns Markdown-wrapped JSON (common), clean it up
-    const cleanContent = content.startsWith('```json')
-        ? content.replace(/```json|```/g, '').trim()
-        : content.trim();
+    console.log(`[AI] Generating with provider: ${process.env.AI_PROVIDER || 'openai'}, model: ${model}`);
 
     try {
-        return JSON.parse(cleanContent) as GenerationResult;
-    } catch (e) {
-        console.error('Failed to parse AI JSON response:', cleanContent);
-        throw new Error('AI returned invalid JSON format');
+        const response = await aiClient.chat.completions.create({
+            model: model,
+            messages: [
+                { role: 'system', content: 'You are a professional recruiting assistant. You always respond in valid JSON.' },
+                { role: 'user', content: prompt }
+            ],
+            response_format: process.env.AI_PROVIDER === 'openai' ? { type: 'json_object' } : undefined,
+            temperature: 0.7,
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) throw new Error('AI generation returned empty content');
+
+        // Robust JSON extraction: Find the first { and the last }
+        const start = content.indexOf('{');
+        const end = content.lastIndexOf('}');
+
+        if (start === -1 || end === -1) {
+            console.error('[AI] Raw Content:', content);
+            throw new Error('AI response did not contain a valid JSON object');
+        }
+
+        const cleanContent = content.substring(start, end + 1).trim();
+
+        try {
+            return JSON.parse(cleanContent) as GenerationResult;
+        } catch (e) {
+            console.error('[AI] Extraction failed for:', cleanContent);
+            throw new Error('AI returned malformed JSON');
+        }
+    } catch (error: any) {
+        console.error('[AI] Generation Exception:', error);
+
+        if (error.code === 'ECONNREFUSED') {
+            throw new Error(`Connection refused to AI provider. Is ${process.env.AI_PROVIDER === 'ollama' ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`);
+        }
+
+        if (error.status === 404 && process.env.AI_PROVIDER === 'ollama') {
+            throw new Error(`Model '${model}' not found in Ollama. Run 'ollama pull ${model}' in your terminal.`);
+        }
+
+        throw new Error(`AI Provider Error: ${error.message}`);
     }
 };

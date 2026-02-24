@@ -36,7 +36,15 @@ router.get(
         // Issue JWT
         const token = signToken(user.id);
 
-        // Redirect back to frontend with token in URL
+        // Set HTTP-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // Redirect to callback page with token
         res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
     }
 );
@@ -46,6 +54,14 @@ router.get(
  */
 router.get('/me', protect, (req: any, res) => {
     res.json({ user: req.user });
+});
+
+/**
+ * Logout
+ */
+router.post('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ message: 'Logged out successfully' });
 });
 
 export default router;

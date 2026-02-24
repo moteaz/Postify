@@ -72,7 +72,7 @@ export const deleteCV = async (req: AuthRequest, res: Response) => {
         const { id } = req.params;
 
         const cv = await prisma.userCV.findFirst({
-            where: { id, userId: req.user.id },
+            where: { id: id as string, userId: req.user.id },
         });
 
         if (!cv) {
@@ -85,10 +85,43 @@ export const deleteCV = async (req: AuthRequest, res: Response) => {
             fs.unlinkSync(localPath);
         }
 
-        await prisma.userCV.delete({ where: { id } });
+        await prisma.userCV.delete({ where: { id: id as string } });
 
         res.json({ message: 'CV deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete CV' });
+    }
+};
+/**
+ * Set a CV as active and deactivate others
+ */
+export const setActiveCV = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const cv = await prisma.userCV.findFirst({
+            where: { id: id as string, userId },
+        });
+
+        if (!cv) {
+            return res.status(404).json({ message: 'CV not found' });
+        }
+
+        // Deactivate all CVs for this user
+        await prisma.userCV.updateMany({
+            where: { userId },
+            data: { isActive: false },
+        });
+
+        // Set this one as active
+        const updated = await prisma.userCV.update({
+            where: { id: id as string },
+            data: { isActive: true },
+        });
+
+        res.json({ message: 'Active CV updated', cv: updated });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update active CV' });
     }
 };

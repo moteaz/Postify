@@ -14,11 +14,11 @@ export default function AuthCallback() {
         const token = searchParams.get("token");
 
         if (token) {
-            localStorage.setItem("postify_token", token);
-
-            api.get("/auth/me")
+            api.get("/auth/me", {
+                headers: { Authorization: `Bearer ${token}` } // Pass manually for the first call
+            })
                 .then((res) => {
-                    setAuth(token, res.data.user);
+                    setAuth(res.data.user, token);
                     router.push("/dashboard");
                 })
                 .catch(() => {

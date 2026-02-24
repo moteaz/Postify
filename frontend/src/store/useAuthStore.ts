@@ -10,25 +10,24 @@ interface User {
 }
 
 interface AuthState {
-    token: string | null;
     user: User | null;
-    setAuth: (token: string, user: User) => void;
+    token: string | null;
+    setAuth: (user: User, token: string) => void;
+    setUser: (user: User | null) => void;
     logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
-            token: null,
             user: null,
-            setAuth: (token, user) => set({ token, user }),
-            logout: () => {
-                localStorage.removeItem("postify_token");
-                set({ token: null, user: null });
-            },
+            token: null,
+            setAuth: (user, token) => set({ user, token }),
+            setUser: (user) => set({ user }),
+            logout: () => set({ user: null, token: null }),
         }),
         {
-            name: "postify-auth",
+            name: "postify-auth-storage",
         }
     )
 );

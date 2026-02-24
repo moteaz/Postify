@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import './config/passport.js';
 import authRoutes from './routes/auth.js';
 import cvRoutes from './routes/cvRoutes.js';
@@ -20,6 +21,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(passport.initialize());
 
 // Routes
@@ -28,11 +30,30 @@ app.use('/api/cv', cvRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/email', emailRoutes);
 
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+    let aiStatus = 'unknown';
+    try {
+        if (process.env.AI_PROVIDER === 'ollama') {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            await fetch(`${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}/api/tags`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            aiStatus = 'online';
+        } else if (process.env.AI_PROVIDER === 'openrouter') {
+            aiStatus = 'openrouter (assumed online)';
+        } else {
+            aiStatus = 'openai (assumed online)';
+        }
+    } catch (e) {
+        aiStatus = 'offline';
+    }
+
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        service: 'Postify Backend'
+        service: 'Postify Backend',
+        ai_provider: process.env.AI_PROVIDER || 'openai',
+        ai_status: aiStatus
     });
 });
 

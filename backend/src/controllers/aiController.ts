@@ -65,8 +65,11 @@ export const generateContent = async (req: AuthRequest, res: Response) => {
             applicationId: application.id,
             content: result,
         });
-    } catch (error) {
-        console.error('Generation Error:', error);
-        res.status(500).json({ message: 'Failed to generate application content' });
+    } catch (error: any) {
+        console.error('Generation Error Detail:', error);
+        res.status(500).json({
+            message: error.message || 'Failed to generate application content',
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };

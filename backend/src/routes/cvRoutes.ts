@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { protect } from '../middleware/auth.js';
-import { uploadCV, getMyCVs, deleteCV } from '../controllers/cvController.js';
+import { uploadCV, getMyCVs, deleteCV, setActiveCV } from '../controllers/cvController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,5 +50,6 @@ router.use(protect);
 router.post('/upload', upload.single('cv'), uploadCV);
 router.get('/', getMyCVs);
 router.delete('/:id', deleteCV);
+router.put('/:id/active', setActiveCV);
 
 export default router;
