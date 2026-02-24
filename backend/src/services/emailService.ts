@@ -35,7 +35,25 @@ export const sendApplicationEmail = async (
         refresh_token: tokens.refreshToken,
     });
 
-    // 3. Get CV file
+    // 3. Refresh token if needed
+    try {
+        const { credentials } = await oauth2Client.refreshAccessToken();
+        if (credentials.access_token) {
+            await prisma.oAuthToken.update({
+                where: { userId },
+                data: {
+                    accessToken: credentials.access_token,
+                    refreshToken: credentials.refresh_token || tokens.refreshToken,
+                },
+            });
+            oauth2Client.setCredentials(credentials);
+        }
+    } catch (err) {
+        console.error('[Email] Token refresh failed:', err);
+        throw new Error('Gmail authentication expired. Please log in again.');
+    }
+
+    // 4. Get CV file
     const cv = await prisma.userCV.findUnique({
         where: { id: cvId },
     });
@@ -49,26 +67,29 @@ export const sendApplicationEmail = async (
         throw new Error('CV file missing on disk');
     }
 
-    // 4. Create Nodemailer transporter with OAuth2
+    // 5. Get user email
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    // 6. Create Nodemailer transporter with OAuth2
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             type: 'OAuth2',
-            user: (await prisma.user.findUnique({ where: { id: userId } }))?.email,
+            user: user?.email,
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             refreshToken: tokens.refreshToken || undefined,
-            accessToken: tokens.accessToken,
+            accessToken: oauth2Client.credentials.access_token,
         },
     } as any);
 
-    // 5. Send Email
+    // 7. Send Email
     const mailOptions = {
-        from: (await prisma.user.findUnique({ where: { id: userId } }))?.email,
+        from: user?.email,
         to,
         subject,
         text: body,
-        html: body.replace(/\n/g, '<br>'), // Simple text to HTML conversion
+        html: body.replace(/\n/g, '<br>'),
         attachments: [
             {
                 filename: cv.fileName,
