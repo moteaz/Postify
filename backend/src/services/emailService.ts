@@ -15,7 +15,7 @@ export const sendApplicationEmail = async (
     cvId: string
 ): Promise<any> => {
     // 1. Get user's OAuth tokens
-    const tokens = await prisma.oauthToken.findUnique({
+    const tokens = await prisma.oAuthToken.findUnique({
         where: { userId },
     });
 

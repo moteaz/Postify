@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import api from "@/utils/api";
 import {
@@ -14,7 +15,9 @@ import {
     CheckCircle2,
     AlertCircle,
     Loader2,
-    Bot
+    Bot,
+    ArrowRight,
+    Trash2
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -24,7 +27,8 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export default function Dashboard() {
-    const { user, logout } = useAuthStore();
+    const router = useRouter();
+    const { user, logout, token } = useAuthStore();
     const [activeTab, setActiveTab] = useState<"new" | "history" | "cvs">("new");
     const [jobDescription, setJobDescription] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
@@ -32,8 +36,78 @@ export default function Dashboard() {
     const [applicationId, setApplicationId] = useState<string | null>(null);
     const [isSending, setIsSending] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
+    const [history, setHistory] = useState<any[]>([]);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+    const [cvs, setCvs] = useState<any[]>([]);
+    const [isLoadingCvs, setIsLoadingCvs] = useState(false);
 
-    // Components for different tabs would go here
+    // Auth protection
+    useEffect(() => {
+        if (!token) {
+            router.push("/login?error=unauthorized");
+        }
+    }, [token, router]);
+
+    // Fetch history
+    const fetchHistory = async () => {
+        setIsLoadingHistory(true);
+        try {
+            const res = await api.get("/email/history");
+            setHistory(res.data.history);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoadingHistory(false);
+        }
+    };
+
+    // Fetch CVs
+    const fetchCvs = async () => {
+        setIsLoadingCvs(true);
+        try {
+            const res = await api.get("/cv");
+            setCvs(res.data.cvs);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoadingCvs(false);
+        }
+    };
+
+    // Fetch data based on tab
+    useEffect(() => {
+        if (!token) return;
+        if (activeTab === "history") fetchHistory();
+        if (activeTab === "cvs") fetchCvs();
+    }, [activeTab, token]);
+
+    const handleUploadCV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("cv", file);
+
+        try {
+            await api.post("/cv/upload", formData);
+            setSuccess("CV uploaded successfully!");
+            fetchCvs();
+            // Optional: update user object in store if needed
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDeleteCV = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this CV?")) return;
+        try {
+            await api.delete(`/cv/${id}`);
+            fetchCvs();
+            setSuccess("CV deleted.");
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -252,9 +326,104 @@ export default function Dashboard() {
                     </div>
                 )}
 
+                {activeTab === "history" && (
+                    <div className="max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {isLoadingHistory ? (
+                            <div className="flex flex-col items-center justify-center p-20 gap-4">
+                                <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                                <p className="text-muted-foreground">Loading your journey...</p>
+                            </div>
+                        ) : history.length > 0 ? (
+                            <div className="grid gap-4">
+                                {history.map((app) => (
+                                    <div key={app.id} className="p-6 rounded-2xl bg-card border border-border flex items-center justify-between hover:shadow-md transition-all group">
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-xl flex items-center justify-center",
+                                                app.status === "SENT" ? "bg-green-500/10 text-green-500" :
+                                                    app.status === "FAILED" ? "bg-red-500/10 text-red-500" : "bg-primary/10 text-primary"
+                                            )}>
+                                                {app.status === "SENT" ? <CheckCircle2 size={24} /> :
+                                                    app.status === "FAILED" ? <AlertCircle size={24} /> : <FileText size={24} />}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-lg truncate max-w-md">{app.subject || "No Subject"}</h4>
+                                                <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                                                    <span>{app.recruiterEmail}</span>
+                                                    <span>•</span>
+                                                    <span>{new Date(app.generatedAt).toLocaleDateString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <span className={cn(
+                                                "px-3 py-1 rounded-full text-xs font-bold uppercase",
+                                                app.status === "SENT" ? "bg-green-500/10 text-green-500" :
+                                                    app.status === "FAILED" ? "bg-red-500/10 text-red-500" : "bg-primary/10 text-primary"
+                                            )}>
+                                                {app.status}
+                                            </span>
+                                            <button className="p-2 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent transition-all">
+                                                <ArrowRight size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center p-20 space-y-4 border-2 border-dashed border-border rounded-[2.5rem]">
+                                <HistoryIcon size={48} className="mx-auto text-muted-foreground/30" />
+                                <h3 className="text-xl font-bold">No Applications Yet</h3>
+                                <p className="text-muted-foreground">Start by creating your first tailored application!</p>
+                                <button onClick={() => setActiveTab("new")} className="text-primary font-bold hover:underline">
+                                    Get Started →
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {activeTab === "cvs" && (
-                    <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="p-12 rounded-3xl border-2 border-dashed border-border bg-card flex flex-col items-center text-center space-y-4 hover:border-primary/50 transition-all group">
+                    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* CV List */}
+                        <div className="grid gap-4">
+                            {isLoadingCvs ? (
+                                <div className="flex justify-center p-12">
+                                    <Loader2 className="animate-spin text-primary" />
+                                </div>
+                            ) : cvs.length > 0 ? (
+                                cvs.map((cv: any) => (
+                                    <div key={cv.id} className="p-6 rounded-2xl bg-card border border-border flex items-center justify-between hover:border-primary/30 transition-all">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                                                <FileText size={24} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-lg">{cv.fileName}</h4>
+                                                <p className="text-sm text-muted-foreground">{(cv.fileSize / 1024).toFixed(1)} KB • Uploaded on {new Date(cv.uploadedAt).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {cv.isActive && (
+                                                <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-bold uppercase tracking-wider">Active</span>
+                                            )}
+                                            <button
+                                                onClick={() => handleDeleteCV(cv.id)}
+                                                className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-all"
+                                            >
+                                                <Trash2 size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : !isLoadingCvs && (
+                                <div className="text-center p-10 text-muted-foreground italic">
+                                    No CVs found. Upload one to get started!
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-12 rounded-[2.5rem] border-2 border-dashed border-border bg-card/30 flex flex-col items-center text-center space-y-4 hover:border-primary/50 transition-all group">
                             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                                 <Upload size={32} />
                             </div>
@@ -262,9 +431,19 @@ export default function Dashboard() {
                                 <h3 className="text-xl font-bold">Upload Your CV</h3>
                                 <p className="text-muted-foreground">PDF or DOCX (max 5MB). AI will use it to tailor letters.</p>
                             </div>
-                            <button className="h-12 px-8 bg-primary text-white rounded-full font-bold hover:shadow-lg transition-all">
+                            <input
+                                type="file"
+                                id="cv-upload"
+                                className="hidden"
+                                accept=".pdf,.docx"
+                                onChange={handleUploadCV}
+                            />
+                            <label
+                                htmlFor="cv-upload"
+                                className="h-12 px-8 bg-primary text-white rounded-full font-bold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center"
+                            >
                                 Choose File
-                            </button>
+                            </label>
                         </div>
                     </div>
                 )}

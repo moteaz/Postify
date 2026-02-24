@@ -39,7 +39,7 @@ passport.use(
 
                 // Store or update OAuth tokens for Gmail access
                 // Note: In a real app, you'd request Gmail scopes here too
-                await prisma.oauthToken.upsert({
+                await prisma.oAuthToken.upsert({
                     where: { userId: user.id },
                     update: {
                         accessToken,
