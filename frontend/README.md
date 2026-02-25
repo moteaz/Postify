@@ -1,8 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Postify Frontend
+
+AI-powered job application automation platform built with Next.js 16, TypeScript, and Tailwind CSS.
+
+## Features
+
+- 🤖 AI-generated cover letters
+- 📧 Direct Gmail integration
+- 📄 Multiple CV management
+- 📊 Application history tracking
+- 🔐 Secure OAuth authentication
+- 📱 Fully responsive design
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **State Management:** Zustand
+- **HTTP Client:** Axios
+- **Icons:** Lucide React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+ 
+- npm/yarn/pnpm/bun
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Copy `.env.example` to `.env.local` and configure:
+
+```bash
+cp .env.example .env.local
+```
+
+4. Update environment variables:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+### Development
+
+Run the development server:
 
 ```bash
 npm run dev
@@ -16,21 +64,75 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+### Linting
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/              # Next.js app router pages
+├── components/       # Reusable UI components
+├── config/          # Configuration files (env, SEO, constants)
+├── hooks/           # Custom React hooks
+├── store/           # Zustand state management
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
+```
 
-## Deploy on Vercel
+## Key Features Implementation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Authentication
+- Google OAuth integration
+- JWT token management
+- Protected routes with auth middleware
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dashboard
+- CV upload and management
+- AI-powered application generation
+- Email history tracking
+- Real-time system status
+
+### Type Safety
+- Strict TypeScript configuration
+- Centralized type definitions
+- API response typing
+
+## Performance Optimizations
+
+- Font optimization with `next/font`
+- Image optimization with `next/image`
+- Code splitting with dynamic imports
+- Tailwind CSS purging
+
+## Accessibility
+
+- ARIA labels on interactive elements
+- Semantic HTML structure
+- Keyboard navigation support
+- Screen reader friendly
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Contributing
+
+Contributions are welcome! Please follow the existing code style and conventions.
+
+## License
+
+MIT

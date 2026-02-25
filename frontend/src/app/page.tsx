@@ -45,7 +45,8 @@ export default function Home() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-neutral-100 transition-colors"
-            aria-label="Toggle menu"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -151,10 +152,10 @@ export default function Home() {
         </section>
 
         {/* Features Grid */}
-        <section id="features" className="w-full py-12 sm:py-16 md:py-24 bg-neutral-50">
+        <section id="features" className="w-full py-12 sm:py-16 md:py-24 bg-neutral-50" aria-labelledby="features-heading">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-12 sm:mb-16 space-y-3 sm:space-y-4">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-900">Everything you need to <span className="text-primary">win</span></h2>
+              <h2 id="features-heading" className="text-2xl sm:text-3xl md:text-4xl font-bold text-neutral-900">Everything you need to <span className="text-primary">win</span></h2>
               <p className="text-base sm:text-lg text-neutral-600 max-w-2xl mx-auto px-4">Stop wasting hours on repetitive cover letters. Focus on the interview, let AI handle the intro.</p>
             </div>
             <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">

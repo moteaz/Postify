@@ -4,37 +4,30 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import api from "@/utils/api";
+import type { MeResponse } from "@/types";
 
 export default function AuthCallback() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { setAuth } = useAuthStore();
+    const { setUser } = useAuthStore();
 
     useEffect(() => {
-        const token = searchParams.get("token");
-
-        if (token) {
-            api.get("/auth/me", {
-                headers: { Authorization: `Bearer ${token}` } // Pass manually for the first call
+        api.get<MeResponse>("/auth/me")
+            .then((res) => {
+                setUser(res.data.user);
+                router.push("/dashboard");
             })
-                .then((res) => {
-                    setAuth(res.data.user, token);
-                    router.push("/dashboard");
-                })
-                .catch(() => {
-                    router.push("/login?error=auth_failed");
-                });
-        } else {
-            router.push("/login?error=no_token");
-        }
-    }, [router, searchParams, setAuth]);
+            .catch(() => {
+                router.push("/login?error=auth_failed");
+            });
+    }, [router, setUser]);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex min-h-screen items-center justify-center bg-neutral-50">
             <div className="flex flex-col items-center space-y-4">
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="text-lg font-medium text-muted-foreground animate-pulse">
-                    Authenticating you with Google...
+                <p className="text-lg font-medium text-neutral-600 animate-pulse">
+                    Authenticating...
                 </p>
             </div>
         </div>

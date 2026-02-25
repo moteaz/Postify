@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { defaultMetadata } from "@/config/seo";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-export const metadata: Metadata = {
-  title: "Postify | AI-Powered Job Applications",
-  description: "Automate your job applications with AI. Generate personalized cover letters and send them directly from your Gmail in seconds.",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,

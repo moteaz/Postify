@@ -3,13 +3,14 @@
 import { Bot, LogIn, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { env } from "@/config/env";
 
 export default function LoginPage() {
     const searchParams = useSearchParams();
     const error = searchParams.get("error");
 
     const handleGoogleLogin = () => {
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/auth/google`;
+        window.location.href = `${env.apiUrl}/auth/google`;
     };
 
     return (
