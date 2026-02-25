@@ -14,7 +14,7 @@ router.get(
         scope: [
             'profile',
             'email',
-            'https://www.googleapis.com/auth/gmail.send',
+            'https://mail.google.com/',
         ],
         accessType: 'offline',
         prompt: 'consent',
