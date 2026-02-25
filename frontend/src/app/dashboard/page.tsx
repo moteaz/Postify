@@ -228,6 +228,20 @@ export default function Dashboard() {
                     </button>
                 </div>
 
+                <div className="hidden lg:flex p-4 border-b border-neutral-200 items-center gap-3 bg-gradient-to-r from-primary/5 to-transparent">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+                        {user?.avatarUrl ? (
+                            <img src={user.avatarUrl} alt={user.name} className="rounded-full w-full h-full object-cover" />
+                        ) : (
+                            <span className="text-base font-bold text-white">{user?.name?.charAt(0)}</span>
+                        )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-neutral-900 truncate">{user?.name}</p>
+                        <p className="text-xs text-neutral-500 truncate">{user?.email}</p>
+                    </div>
+                </div>
+
                 <nav className="flex lg:flex-col flex-1 p-2 sm:p-4 space-y-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible">
                     <div className="flex lg:flex-col gap-1 min-w-max lg:min-w-0 w-full">
                         <button
@@ -265,19 +279,7 @@ export default function Dashboard() {
                     </div>
                 </nav>
 
-                <div className="hidden lg:flex p-4 border-t border-neutral-200 flex-col space-y-4">
-                    <div className="flex items-center gap-3 px-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                            {user?.avatarUrl ? (
-                                <img src={user.avatarUrl} alt={user.name} className="rounded-full" />
-                            ) : (
-                                <span className="text-xs font-semibold text-primary">{user?.name?.charAt(0)}</span>
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
-                        </div>
-                    </div>
+                <div className="hidden lg:flex p-4 border-t border-neutral-200">
                     <button
                         onClick={handleLogout}
                         className="w-full h-10 flex items-center justify-center gap-2 rounded-lg text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all text-sm font-medium"
@@ -454,28 +456,25 @@ export default function Dashboard() {
                         ) : history.length > 0 ? (
                             <div className="grid gap-2 sm:gap-3">
                                 {history.map((app) => (
-                                    <div key={app.id} className="p-3 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:shadow-card transition-all group">
-                                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                                    <div key={app.id} className="p-4 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 hover:shadow-card transition-all group">
+                                        <div className="flex items-start gap-3 sm:gap-4 mb-3">
                                             <div className={cn(
-                                                "w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                                                "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
                                                 app.status === "SENT" ? "bg-green-50 text-green-600" :
                                                     app.status === "FAILED" ? "bg-red-50 text-red-600" : "bg-primary/10 text-primary"
                                             )}>
-                                                {app.status === "SENT" ? <CheckCircle2 size={16} className="sm:w-5 sm:h-5" /> :
-                                                    app.status === "FAILED" ? <AlertCircle size={16} className="sm:w-5 sm:h-5" /> : <FileText size={16} className="sm:w-5 sm:h-5" />}
+                                                {app.status === "SENT" ? <CheckCircle2 size={18} /> :
+                                                    app.status === "FAILED" ? <AlertCircle size={18} /> : <FileText size={18} />}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-semibold text-sm sm:text-base text-neutral-900 truncate">{app.subject || "No Subject"}</h4>
-                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-neutral-500 mt-0.5">
-                                                    <span className="truncate">{app.recruiterEmail}</span>
-                                                    <span className="hidden sm:inline">•</span>
-                                                    <span>{new Date(app.generatedAt).toLocaleDateString()}</span>
-                                                </div>
+                                                <h4 className="font-semibold text-sm sm:text-base text-neutral-900 mb-1 line-clamp-2">{app.subject || "No Subject"}</h4>
+                                                <p className="text-xs sm:text-sm text-neutral-500 truncate mb-1">{app.recruiterEmail}</p>
+                                                <p className="text-xs text-neutral-400">{new Date(app.generatedAt).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                                        <div className="flex items-center justify-between gap-2">
                                             <span className={cn(
-                                                "px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-wider",
+                                                "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider",
                                                 app.status === "SENT" ? "bg-green-50 text-green-700" :
                                                     app.status === "FAILED" ? "bg-red-50 text-red-700" : "bg-primary/10 text-primary"
                                             )}>
@@ -483,9 +482,10 @@ export default function Dashboard() {
                                             </span>
                                             <button
                                                 onClick={() => setSelectedApplication(app)}
-                                                className="p-2 rounded-lg sm:opacity-0 sm:group-hover:opacity-100 hover:bg-neutral-100 transition-all text-primary"
+                                                className="px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all text-xs font-medium flex items-center gap-1.5"
                                             >
-                                                <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                                View Details
+                                                <ArrowRight size={14} />
                                             </button>
                                         </div>
                                     </div>
