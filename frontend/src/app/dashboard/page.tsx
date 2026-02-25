@@ -210,244 +210,231 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden text-foreground">
+        <div className="flex flex-col lg:flex-row h-screen bg-neutral-50 overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-border bg-card flex flex-col">
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
-                        <Bot size={24} />
+            <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-white flex flex-col">
+                <div className="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-neutral-200">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+                            <Bot size={20} />
+                        </div>
+                        <span className="font-bold text-base sm:text-lg text-neutral-900">Postify</span>
                     </div>
-                    <span className="font-bold text-xl">Postify</span>
+                    <button
+                        onClick={handleLogout}
+                        className="lg:hidden p-2 rounded-lg text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all"
+                    >
+                        <LogOut size={20} />
+                    </button>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2">
-                    <button
-                        onClick={() => setActiveTab("new")}
-                        className={cn(
-                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                            activeTab === "new" ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent"
-                        )}
-                    >
-                        <Plus size={20} />
-                        New Application
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("history")}
-                        className={cn(
-                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                            activeTab === "history" ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent"
-                        )}
-                    >
-                        <HistoryIcon size={20} />
-                        History
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("cvs")}
-                        className={cn(
-                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
-                            activeTab === "cvs" ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent"
-                        )}
-                    >
-                        <FileText size={20} />
-                        My CVs
-                    </button>
+                <nav className="flex lg:flex-col flex-1 p-2 sm:p-4 space-y-0 lg:space-y-1 overflow-x-auto lg:overflow-x-visible">
+                    <div className="flex lg:flex-col gap-1 min-w-max lg:min-w-0 w-full">
+                        <button
+                            onClick={() => setActiveTab("new")}
+                            className={cn(
+                                "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium whitespace-nowrap",
+                                activeTab === "new" ? "bg-primary text-white" : "text-neutral-600 hover:bg-neutral-100"
+                            )}
+                        >
+                            <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            <span className="hidden sm:inline">New Application</span>
+                            <span className="sm:hidden">New</span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("history")}
+                            className={cn(
+                                "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium whitespace-nowrap",
+                                activeTab === "history" ? "bg-primary text-white" : "text-neutral-600 hover:bg-neutral-100"
+                            )}
+                        >
+                            <HistoryIcon size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            History
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("cvs")}
+                            className={cn(
+                                "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium whitespace-nowrap",
+                                activeTab === "cvs" ? "bg-primary text-white" : "text-neutral-600 hover:bg-neutral-100"
+                            )}
+                        >
+                            <FileText size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            <span className="hidden sm:inline">My CVs</span>
+                            <span className="sm:hidden">CVs</span>
+                        </button>
+                    </div>
                 </nav>
 
-                <div className="p-4 border-t border-border space-y-4">
-                    <div className="px-2 py-3 rounded-xl bg-white/5 border border-white/5 space-y-2">
-                        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                            <span>System Status</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px]">
-                            <div className={`w-1.5 h-1.5 rounded-full ${systemStatus.api === 'online' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
-                            <span>API {systemStatus.api}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[11px]">
-                            <div className={`w-1.5 h-1.5 rounded-full ${systemStatus.ai === 'online' || systemStatus.ai?.includes('openai') ? 'bg-green-500' : 'bg-red-500'}`} />
-                            <span className="capitalize">{systemStatus.provider || 'AI'} {systemStatus.ai}</span>
-                        </div>
-                    </div>
-
+                <div className="hidden lg:flex p-4 border-t border-neutral-200 flex-col space-y-4">
                     <div className="flex items-center gap-3 px-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-white/10 shadow-inner">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
                             {user?.avatarUrl ? (
-                                <img src={user.avatarUrl} alt={user.name} />
+                                <img src={user.avatarUrl} alt={user.name} className="rounded-full" />
                             ) : (
-                                <span className="text-xs font-bold text-primary">{user?.name?.charAt(0)}</span>
+                                <span className="text-xs font-semibold text-primary">{user?.name?.charAt(0)}</span>
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold truncate">{user?.name}</p>
+                            <p className="text-sm font-semibold text-neutral-900 truncate">{user?.name}</p>
                         </div>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full h-11 flex items-center justify-center gap-2 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all font-medium"
+                        className="w-full h-10 flex items-center justify-center gap-2 rounded-lg text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all text-sm font-medium"
                     >
-                        <LogOut size={18} />
+                        <LogOut size={16} />
                         Logout
                     </button>
                 </div>
             </aside>
 
-            {/* Main Window */}
-            <main className="flex-1 overflow-y-auto p-8 relative">
-                <header className="mb-8 flex justify-between items-end">
-                    <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight">
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto">
+                <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+                    <header className="mb-6 sm:mb-8">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
                             {activeTab === "new" ? "Create New Application" :
                                 activeTab === "history" ? "Application History" : "Manage CVs"}
                         </h1>
-                        <p className="text-muted-foreground mt-1 text-lg">
-                            {activeTab === "new" ? "Paste a job description to get started." :
-                                activeTab === "history" ? "Review your past applications." : "Upload or update your professional CVs."}
+                        <p className="text-sm sm:text-base text-neutral-600 mt-1">
+                            {activeTab === "new" ? "Paste a job description to get started" :
+                                activeTab === "history" ? "Review your past applications" : "Upload or update your professional CVs"}
                         </p>
-                    </div>
-                </header>
+                    </header>
 
                 {activeTab === "new" && (
-                    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-4 sm:space-y-6">
                         {success && (
-                            <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 flex items-center gap-3">
-                                <CheckCircle2 size={24} />
-                                <span className="font-bold">{success}</span>
+                            <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-green-50 border border-green-200 text-green-700 flex items-center gap-2 sm:gap-3 text-sm">
+                                <CheckCircle2 size={18} className="flex-shrink-0" />
+                                <span className="font-medium">{success}</span>
                             </div>
                         )}
 
                         {!generatedContent ? (
-                            <div className="space-y-6">
-                                {/* Active CV Check */}
+                            <div className="space-y-4 sm:space-y-6">
                                 {!cvs.some(c => c.isActive) && !isLoadingCvs && (
-                                    <div className="p-6 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between group">
-                                        <div className="flex items-center gap-4">
-                                            <AlertCircle className="text-amber-500" size={24} />
+                                    <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                                        <div className="flex items-start gap-3 sm:gap-4">
+                                            <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
                                             <div>
-                                                <h4 className="font-bold text-amber-500">No Active CV Found</h4>
-                                                <p className="text-amber-500/70 text-sm">You need an active CV for AI to tailor your application.</p>
+                                                <h4 className="font-semibold text-amber-900 text-sm sm:text-base">No Active CV Found</h4>
+                                                <p className="text-amber-700 text-xs sm:text-sm mt-0.5">You need an active CV for AI to tailor your application</p>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => setActiveTab("cvs")}
-                                            className="px-6 h-10 bg-amber-500 text-white rounded-full font-bold text-sm shadow-lg shadow-amber-500/20 hover:scale-105 transition-all"
+                                            className="w-full sm:w-auto px-4 sm:px-5 h-9 sm:h-10 bg-amber-600 text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-amber-700 transition-all whitespace-nowrap"
                                         >
                                             Fix Now
                                         </button>
                                     </div>
                                 )}
 
-                                <div className="relative group">
+                                <div className="space-y-2">
+                                    {cvs.find(c => c.isActive) && (
+                                        <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg bg-green-50 text-green-700 text-[10px] sm:text-xs font-medium border border-green-200 flex items-center gap-1 sm:gap-1.5 w-fit">
+                                            <CheckCircle2 size={10} className="sm:w-3 sm:h-3 flex-shrink-0" />
+                                            <span className="truncate">{cvs.find(c => c.isActive).fileName}</span>
+                                        </div>
+                                    )}
                                     <textarea
                                         value={jobDescription}
                                         onChange={(e) => setJobDescription(e.target.value)}
                                         placeholder="Paste the job description here (e.g., from LinkedIn or Indeed)..."
-                                        className="w-full h-80 p-8 rounded-[2.5rem] bg-card border border-border focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all resize-none text-lg leading-relaxed shadow-sm disabled:opacity-50"
+                                        className="w-full h-64 sm:h-80 p-4 sm:p-6 rounded-lg sm:rounded-xl bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none text-sm sm:text-base leading-relaxed disabled:opacity-50 disabled:bg-neutral-50"
                                         disabled={!cvs.some(c => c.isActive)}
                                     />
-                                    <div className="absolute top-6 right-8 flex items-center gap-3">
-                                        {jobDescription && (
-                                            <button
-                                                onClick={() => setJobDescription("")}
-                                                className="p-2 rounded-xl text-muted-foreground hover:bg-white/5 hover:text-white transition-all"
-                                            >
-                                                <Plus className="rotate-45" size={20} />
-                                            </button>
-                                        )}
-                                        <div className="p-2 px-3 rounded-lg bg-primary/10 text-primary font-mono text-[10px] font-black uppercase tracking-widest border border-primary/20">
-                                            JD Analyzer v1
-                                        </div>
-                                        {cvs.find(c => c.isActive) && (
-                                            <div className="p-2 px-3 rounded-lg bg-green-500/10 text-green-500 font-mono text-[10px] font-black uppercase tracking-widest border border-green-500/20 flex items-center gap-1.5">
-                                                <CheckCircle2 size={12} />
-                                                Using: {cvs.find(c => c.isActive).fileName}
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
                                 <button
                                     onClick={handleGenerate}
                                     disabled={!jobDescription.trim() || isGenerating || !cvs.some(c => c.isActive)}
-                                    className="w-full h-16 bg-primary text-white rounded-[2rem] font-black text-xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-30 disabled:grayscale transition-all flex items-center justify-center gap-4 overflow-hidden relative group"
+                                    className="w-full h-11 sm:h-12 bg-primary text-white rounded-lg sm:rounded-xl font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                                     {isGenerating ? (
                                         <>
-                                            <Loader2 className="animate-spin" />
-                                            <span>AI is Crafting Magic...</span>
+                                            <Loader2 className="animate-spin" size={18} />
+                                            <span className="hidden sm:inline">AI is Crafting Magic...</span>
+                                            <span className="sm:hidden">Generating...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <Sparkles size={24} />
-                                            <span>Generate Targeted Application</span>
+                                            <Sparkles size={18} />
+                                            <span className="hidden sm:inline">Generate Targeted Application</span>
+                                            <span className="sm:hidden">Generate</span>
                                         </>
                                     )}
                                 </button>
 
-                                <div className="grid grid-cols-3 gap-6 pt-4">
+                                <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2">
                                     {[
-                                        { label: "AI Tailoring", icon: <Bot size={18} /> },
-                                        { label: "Grammar Check", icon: <CheckCircle2 size={18} /> },
-                                        { label: "Gmail Link", icon: <Mail size={18} /> }
+                                        { label: "AI Tailoring", icon: <Bot size={14} className="sm:w-4 sm:h-4" /> },
+                                        { label: "Grammar Check", icon: <CheckCircle2 size={14} className="sm:w-4 sm:h-4" /> },
+                                        { label: "Gmail Link", icon: <Mail size={14} className="sm:w-4 sm:h-4" /> }
                                     ].map((badge, i) => (
-                                        <div key={i} className="flex items-center gap-2 text-muted-foreground/50 font-bold text-xs justify-center uppercase tracking-widest">
+                                        <div key={i} className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-neutral-500 text-[10px] sm:text-xs font-medium justify-center">
                                             {badge.icon}
-                                            {badge.label}
+                                            <span className="text-center">{badge.label}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-6 animate-in zoom-in-95 duration-300">
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4 sm:space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Recruiter Email</label>
+                                        <label className="text-xs sm:text-sm font-semibold text-neutral-700">Recruiter Email</label>
                                         <input
                                             type="text"
                                             value={generatedContent.recruiterEmail || ""}
                                             onChange={(e) => setGeneratedContent({ ...generatedContent, recruiterEmail: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-card border border-border focus:ring-2 focus:ring-primary outline-none"
+                                            className="w-full p-2.5 sm:p-3 rounded-lg bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Subject Line</label>
+                                        <label className="text-xs sm:text-sm font-semibold text-neutral-700">Subject Line</label>
                                         <input
                                             type="text"
                                             value={generatedContent.subject}
                                             onChange={(e) => setGeneratedContent({ ...generatedContent, subject: e.target.value })}
-                                            className="w-full p-4 rounded-xl bg-card border border-border focus:ring-2 focus:ring-primary outline-none"
+                                            className="w-full p-2.5 sm:p-3 rounded-lg bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Tailored Cover Letter</label>
+                                    <label className="text-xs sm:text-sm font-semibold text-neutral-700">Tailored Cover Letter</label>
                                     <textarea
                                         value={generatedContent.coverLetter}
                                         onChange={(e) => setGeneratedContent({ ...generatedContent, coverLetter: e.target.value })}
-                                        className="w-full h-96 p-6 rounded-2xl bg-card border border-border focus:ring-2 focus:ring-primary outline-none resize-none font-serif text-lg leading-relaxed shadow-inner"
+                                        className="w-full h-64 sm:h-96 p-4 sm:p-6 rounded-lg sm:rounded-xl bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none text-sm sm:text-base leading-relaxed"
                                     />
                                 </div>
 
-                                <div className="flex gap-4">
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                                     <button
                                         onClick={() => setGeneratedContent(null)}
-                                        className="flex-1 h-14 rounded-2xl border border-border bg-background font-bold text-lg hover:bg-accent transition-all"
+                                        className="flex-1 h-11 sm:h-12 rounded-lg sm:rounded-xl border border-neutral-300 bg-white font-semibold hover:bg-neutral-50 transition-all text-sm sm:text-base"
                                     >
-                                        Discard & Start Over
+                                        <span className="hidden sm:inline">Discard & Start Over</span>
+                                        <span className="sm:hidden">Discard</span>
                                     </button>
                                     <button
                                         onClick={handleSend}
                                         disabled={isSending}
-                                        className="flex-[2] h-14 bg-primary text-white rounded-2xl font-bold text-lg hover:shadow-lg hover:shadow-primary/25 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                        className="flex-1 sm:flex-[2] h-11 sm:h-12 bg-primary text-white rounded-lg sm:rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-sm hover:shadow-md text-sm sm:text-base"
                                     >
                                         {isSending ? (
                                             <>
-                                                <Loader2 className="animate-spin" />
-                                                Sending via Gmail...
+                                                <Loader2 className="animate-spin" size={18} />
+                                                <span className="hidden sm:inline">Sending via Gmail...</span>
+                                                <span className="sm:hidden">Sending...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <Send />
-                                                Send Application Now
+                                                <Send size={18} />
+                                                <span className="hidden sm:inline">Send Application Now</span>
+                                                <span className="sm:hidden">Send Now</span>
                                             </>
                                         )}
                                     </button>
@@ -458,59 +445,59 @@ export default function Dashboard() {
                 )}
 
                 {activeTab === "history" && (
-                    <div className="max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-3 sm:space-y-4">
                         {isLoadingHistory ? (
-                            <div className="flex flex-col items-center justify-center p-20 gap-4">
-                                <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                                <p className="text-muted-foreground">Loading your journey...</p>
+                            <div className="flex flex-col items-center justify-center p-12 sm:p-20 gap-4">
+                                <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-primary" />
+                                <p className="text-sm sm:text-base text-neutral-600">Loading your journey...</p>
                             </div>
                         ) : history.length > 0 ? (
-                            <div className="grid gap-4">
+                            <div className="grid gap-2 sm:gap-3">
                                 {history.map((app) => (
-                                    <div key={app.id} className="p-6 rounded-2xl bg-card border border-border flex items-center justify-between hover:shadow-md transition-all group">
-                                        <div className="flex items-center gap-4">
+                                    <div key={app.id} className="p-3 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:shadow-card transition-all group">
+                                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                                             <div className={cn(
-                                                "w-12 h-12 rounded-xl flex items-center justify-center",
-                                                app.status === "SENT" ? "bg-green-500/10 text-green-500" :
-                                                    app.status === "FAILED" ? "bg-red-500/10 text-red-500" : "bg-primary/10 text-primary"
+                                                "w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                                                app.status === "SENT" ? "bg-green-50 text-green-600" :
+                                                    app.status === "FAILED" ? "bg-red-50 text-red-600" : "bg-primary/10 text-primary"
                                             )}>
-                                                {app.status === "SENT" ? <CheckCircle2 size={24} /> :
-                                                    app.status === "FAILED" ? <AlertCircle size={24} /> : <FileText size={24} />}
+                                                {app.status === "SENT" ? <CheckCircle2 size={16} className="sm:w-5 sm:h-5" /> :
+                                                    app.status === "FAILED" ? <AlertCircle size={16} className="sm:w-5 sm:h-5" /> : <FileText size={16} className="sm:w-5 sm:h-5" />}
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-lg truncate max-w-md">{app.subject || "No Subject"}</h4>
-                                                <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
-                                                    <span>{app.recruiterEmail}</span>
-                                                    <span>•</span>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-semibold text-sm sm:text-base text-neutral-900 truncate">{app.subject || "No Subject"}</h4>
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-neutral-500 mt-0.5">
+                                                    <span className="truncate">{app.recruiterEmail}</span>
+                                                    <span className="hidden sm:inline">•</span>
                                                     <span>{new Date(app.generatedAt).toLocaleDateString()}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
                                             <span className={cn(
-                                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                                                app.status === "SENT" ? "bg-green-500/10 text-green-500" :
-                                                    app.status === "FAILED" ? "bg-red-500/10 text-red-500" : "bg-primary/10 text-primary"
+                                                "px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-wider",
+                                                app.status === "SENT" ? "bg-green-50 text-green-700" :
+                                                    app.status === "FAILED" ? "bg-red-50 text-red-700" : "bg-primary/10 text-primary"
                                             )}>
                                                 {app.status}
                                             </span>
                                             <button
                                                 onClick={() => setSelectedApplication(app)}
-                                                className="p-2 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-accent transition-all text-primary"
+                                                className="p-2 rounded-lg sm:opacity-0 sm:group-hover:opacity-100 hover:bg-neutral-100 transition-all text-primary"
                                             >
-                                                <ArrowRight size={20} />
+                                                <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
                                             </button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center p-20 space-y-4 border-2 border-dashed border-border rounded-[2.5rem]">
-                                <HistoryIcon size={48} className="mx-auto text-muted-foreground/30" />
-                                <h3 className="text-xl font-bold">No Applications Yet</h3>
-                                <p className="text-muted-foreground text-lg">Start by creating your first tailored application!</p>
-                                <button onClick={() => setActiveTab("new")} className="text-primary font-black hover:underline group flex items-center gap-2 mx-auto transition-all">
-                                    Get Started <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            <div className="text-center p-12 sm:p-20 space-y-3 sm:space-y-4 border-2 border-dashed border-neutral-200 rounded-xl sm:rounded-2xl bg-white">
+                                <HistoryIcon size={40} className="sm:w-12 sm:h-12 mx-auto text-neutral-300" />
+                                <h3 className="text-lg sm:text-xl font-semibold text-neutral-900">No Applications Yet</h3>
+                                <p className="text-sm sm:text-base text-neutral-600 px-4">Start by creating your first tailored application!</p>
+                                <button onClick={() => setActiveTab("new")} className="text-primary font-semibold hover:underline flex items-center gap-2 mx-auto text-sm sm:text-base">
+                                    Get Started <ArrowRight size={14} className="sm:w-4 sm:h-4" />
                                 </button>
                             </div>
                         )}
@@ -519,48 +506,48 @@ export default function Dashboard() {
 
                 {/* History Detail Modal */}
                 {selectedApplication && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                        <div className="w-full max-w-3xl bg-card border border-border rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="p-8 border-b border-border flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <h3 className="text-2xl font-black">{selectedApplication.subject}</h3>
-                                    <p className="text-muted-foreground text-sm font-medium">To: {selectedApplication.recruiterEmail}</p>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-3xl bg-white border border-neutral-200 rounded-xl sm:rounded-2xl shadow-elevated flex flex-col max-h-[90vh] overflow-hidden">
+                            <div className="p-4 sm:p-6 border-b border-neutral-200 flex items-start sm:items-center justify-between gap-3">
+                                <div className="space-y-1 flex-1 min-w-0">
+                                    <h3 className="text-base sm:text-xl font-bold text-neutral-900 line-clamp-2">{selectedApplication.subject}</h3>
+                                    <p className="text-neutral-600 text-xs sm:text-sm truncate">To: {selectedApplication.recruiterEmail}</p>
                                 </div>
                                 <button
                                     onClick={() => setSelectedApplication(null)}
-                                    className="p-3 rounded-2xl hover:bg-accent transition-all"
+                                    className="p-2 rounded-lg hover:bg-neutral-100 transition-all flex-shrink-0"
                                 >
-                                    <Plus className="rotate-45" size={24} />
+                                    <Plus className="rotate-45" size={20} />
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-8 space-y-8">
-                                <div className="space-y-3">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Cover Letter</span>
-                                    <div className="bg-background/50 p-8 rounded-3xl border border-border whitespace-pre-wrap font-serif text-lg leading-relaxed italic text-foreground/80">
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+                                <div className="space-y-2">
+                                    <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-primary">Cover Letter</span>
+                                    <div className="bg-neutral-50 p-4 sm:p-6 rounded-lg sm:rounded-xl border border-neutral-200 whitespace-pre-wrap text-sm sm:text-base leading-relaxed text-neutral-700">
                                         {selectedApplication.coverLetter}
                                     </div>
                                 </div>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Used CV</span>
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="text-primary" size={20} />
-                                            <span className="font-bold text-sm">{selectedApplication.cv?.fileName || "Unknown CV"}</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-neutral-50 border border-neutral-200">
+                                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Used CV</span>
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="text-primary flex-shrink-0" size={16} />
+                                            <span className="font-medium text-xs sm:text-sm text-neutral-900 truncate">{selectedApplication.cv?.fileName || "Unknown CV"}</span>
                                         </div>
                                     </div>
-                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block mb-2">Metadata</span>
-                                        <div className="space-y-1 text-xs font-medium">
-                                            <p>Generated: {new Date(selectedApplication.generatedAt).toLocaleString()}</p>
-                                            <p>Status: <span className="text-primary">{selectedApplication.status}</span></p>
+                                    <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-neutral-50 border border-neutral-200">
+                                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Metadata</span>
+                                        <div className="space-y-1 text-[10px] sm:text-xs text-neutral-600">
+                                            <p className="truncate">Generated: {new Date(selectedApplication.generatedAt).toLocaleDateString()}</p>
+                                            <p>Status: <span className="text-primary font-medium">{selectedApplication.status}</span></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-8 border-t border-border flex justify-end">
+                            <div className="p-4 sm:p-6 border-t border-neutral-200 flex justify-end">
                                 <button
                                     onClick={() => setSelectedApplication(null)}
-                                    className="px-8 h-12 bg-primary text-white rounded-2xl font-black hover:shadow-lg transition-all active:scale-95"
+                                    className="px-5 sm:px-6 h-9 sm:h-10 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all text-sm"
                                 >
                                     Done
                                 </button>
@@ -570,59 +557,59 @@ export default function Dashboard() {
                 )}
 
                 {activeTab === "cvs" && (
-                    <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="grid gap-4">
+                    <div className="space-y-4 sm:space-y-6">
+                        <div className="grid gap-2 sm:gap-3">
                             {isLoadingCvs ? (
-                                <div className="flex justify-center p-12">
-                                    <Loader2 className="animate-spin text-primary" />
+                                <div className="flex justify-center p-8 sm:p-12">
+                                    <Loader2 className="animate-spin text-primary" size={28} />
                                 </div>
                             ) : cvs.length > 0 ? (
                                 cvs.map((cv: any) => (
-                                    <div key={cv.id} className="p-6 rounded-2xl bg-card border border-border flex items-center justify-between hover:border-primary/30 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                                                <FileText size={24} />
+                                    <div key={cv.id} className="p-3 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-primary/30 transition-all">
+                                        <div className="flex items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                                                <FileText size={16} className="sm:w-5 sm:h-5" />
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-lg">{cv.fileName}</h4>
-                                                <p className="text-sm text-muted-foreground">{(cv.fileSize / 1024).toFixed(1)} KB • Uploaded on {new Date(cv.uploadedAt).toLocaleDateString()}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-semibold text-sm sm:text-base text-neutral-900 truncate">{cv.fileName}</h4>
+                                                <p className="text-xs sm:text-sm text-neutral-500 truncate">{(cv.fileSize / 1024).toFixed(1)} KB • {new Date(cv.uploadedAt).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                                             {cv.isActive ? (
-                                                <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-[10px] font-black uppercase tracking-wider">Active</span>
+                                                <span className="px-2 sm:px-3 py-1 rounded-full bg-green-50 text-green-700 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Active</span>
                                             ) : (
                                                 <button
                                                     disabled={isUpdatingCV}
                                                     onClick={() => handleSetActiveCV(cv.id)}
-                                                    className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground text-[10px] font-bold uppercase tracking-wider hover:text-primary hover:border-primary/50 transition-all disabled:opacity-50"
+                                                    className="px-2 sm:px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-600 text-[10px] sm:text-xs font-medium hover:text-primary hover:border-primary/50 transition-all disabled:opacity-50"
                                                 >
                                                     Set Active
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => handleDeleteCV(cv.id)}
-                                                className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-all ml-2"
+                                                className="p-1.5 sm:p-2 rounded-lg text-red-600 hover:bg-red-50 transition-all"
                                             >
-                                                <Trash2 size={20} />
+                                                <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                                             </button>
                                         </div>
                                     </div>
                                 ))
                             ) : !isLoadingCvs && (
-                                <div className="text-center p-10 text-muted-foreground italic">
+                                <div className="text-center p-8 sm:p-10 text-sm sm:text-base text-neutral-500">
                                     No CVs found. Upload one to get started!
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-12 rounded-[2.5rem] border-2 border-dashed border-border bg-card/30 flex flex-col items-center text-center space-y-4 hover:border-primary/50 transition-all group">
-                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                <Upload size={32} />
+                        <div className="p-8 sm:p-12 rounded-xl sm:rounded-2xl border-2 border-dashed border-neutral-300 bg-white flex flex-col items-center text-center space-y-3 sm:space-y-4 hover:border-primary/50 transition-all group">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                <Upload size={24} className="sm:w-7 sm:h-7" />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-xl font-bold">Upload Your CV</h3>
-                                <p className="text-muted-foreground">PDF or DOCX (max 5MB). AI will use it to tailor letters.</p>
+                                <h3 className="text-base sm:text-lg font-semibold text-neutral-900">Upload Your CV</h3>
+                                <p className="text-neutral-600 text-xs sm:text-sm px-4">PDF or DOCX (max 5MB). AI will use it to tailor letters.</p>
                             </div>
                             <input
                                 type="file"
@@ -633,14 +620,15 @@ export default function Dashboard() {
                             />
                             <label
                                 htmlFor="cv-upload"
-                                className="h-12 px-8 bg-primary text-white rounded-full font-bold hover:shadow-lg transition-all cursor-pointer flex items-center justify-center"
+                                className="h-10 px-5 sm:px-6 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all cursor-pointer flex items-center justify-center text-sm"
                             >
                                 Choose File
                             </label>
                         </div>
                     </div>
                 )}
-            </main>
-        </div>
-    );
+            </div>
+        </main>
+    </div>
+);
 }

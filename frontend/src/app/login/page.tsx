@@ -13,57 +13,49 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4 relative overflow-hidden">
-            {/* Dynamic Background */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
-
-            <div className="w-full max-w-md relative z-10">
-                {/* Branding Area */}
-                <div className="flex flex-col items-center mb-10 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div className="w-20 h-20 rounded-[2rem] bg-primary flex items-center justify-center text-white shadow-2xl shadow-primary/40 group hover:rotate-6 transition-transform cursor-pointer">
-                        <Bot size={40} />
+        <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4 py-8">
+            <div className="w-full max-w-md">
+                {/* Branding */}
+                <div className="flex flex-col items-center mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center text-white shadow-md">
+                        <Bot size={28} className="sm:w-8 sm:h-8" />
                     </div>
                     <div className="text-center space-y-1">
-                        <h1 className="text-4xl font-black tracking-tight flex items-center gap-2">
-                            Postify <Sparkles className="text-primary w-6 h-6 animate-pulse" />
-                        </h1>
-                        <p className="text-muted-foreground text-lg">Welcome back, Job Hunter.</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">Welcome back</h1>
+                        <p className="text-sm sm:text-base text-neutral-600">Sign in to continue to Postify</p>
                     </div>
                 </div>
 
                 {/* Auth Card */}
-                <div className="p-10 rounded-[2.5rem] border border-white/10 glass shadow-2xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
-
+                <div className="p-6 sm:p-8 rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-card space-y-5 sm:space-y-6">
                     {error && (
-                        <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium text-center">
+                        <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium text-center">
                             Authentication failed. Please try again.
                         </div>
                     )}
 
-                    <div className="space-y-4">
-                        <button
-                            onClick={handleGoogleLogin}
-                            className="w-full h-16 flex items-center justify-center gap-4 bg-white text-slate-900 rounded-2xl font-bold text-lg shadow-sm hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98] transition-all border border-slate-200 group"
-                        >
-                            <img
-                                src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
-                                alt="Google"
-                                className="w-7 h-7 group-hover:scale-110 transition-transform"
-                            />
-                            Continue with Google
-                        </button>
+                    <button
+                        onClick={handleGoogleLogin}
+                        className="w-full h-11 sm:h-12 flex items-center justify-center gap-3 bg-white text-neutral-900 rounded-lg sm:rounded-xl font-semibold shadow-sm hover:shadow-md transition-all border border-neutral-300 hover:border-neutral-400 text-sm sm:text-base"
+                    >
+                        <img
+                            src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
+                            alt="Google"
+                            className="w-5 h-5"
+                        />
+                        Continue with Google
+                    </button>
 
-                        <p className="text-xs text-center text-muted-foreground/60 leading-relaxed max-w-[240px] mx-auto">
-                            Secure login with Google OAuth. Your data is always protected.
-                        </p>
-                    </div>
+                    <p className="text-xs text-center text-neutral-500 leading-relaxed px-2">
+                        Secure login with Google OAuth. Your data is always protected.
+                    </p>
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border"></span>
+                            <span className="w-full border-t border-neutral-200"></span>
                         </div>
                         <div className="relative flex justify-center">
-                            <span className="bg-[#0f172a] px-4 text-[10px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+                            <span className="bg-white px-3 sm:px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
                                 New to Postify?
                             </span>
                         </div>
@@ -72,21 +64,21 @@ export default function LoginPage() {
                     <div className="text-center">
                         <Link
                             href="/signup"
-                            className="inline-flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all group"
+                            className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm sm:text-base"
                         >
                             Create an account
-                            <LogIn size={18} className="group-hover:translate-x-1 transition-transform" />
+                            <LogIn size={16} />
                         </Link>
                     </div>
                 </div>
 
-                {/* Footer Meta */}
-                <div className="mt-8 flex justify-center gap-6 text-[11px] font-medium text-muted-foreground/40 uppercase tracking-widest">
-                    <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                    <span className="cursor-default">•</span>
-                    <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-                    <span className="cursor-default">•</span>
-                    <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
+                {/* Footer */}
+                <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4 sm:gap-6 text-xs font-medium text-neutral-400">
+                    <Link href="/" className="hover:text-neutral-600 transition-colors">Home</Link>
+                    <span>•</span>
+                    <Link href="#" className="hover:text-neutral-600 transition-colors">Privacy</Link>
+                    <span>•</span>
+                    <Link href="#" className="hover:text-neutral-600 transition-colors">Terms</Link>
                 </div>
             </div>
         </div>
