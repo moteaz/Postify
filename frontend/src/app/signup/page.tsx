@@ -32,7 +32,7 @@ export default function SignupPage() {
           <Divider text="Fast Access" />
 
           <p className="text-xs text-center text-neutral-500 leading-relaxed px-2">
-            No long forms. We'll use your Google profile to set up your Postify workspace instantly.
+            No long forms. We&apos;ll use your Google profile to set up your Postify workspace instantly.
           </p>
 
           <div className="text-center pt-2 sm:pt-4">

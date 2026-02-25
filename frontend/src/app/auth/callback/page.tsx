@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import api from "@/utils/api";
 import type { MeResponse } from "@/types";
 
 export default function AuthCallback() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { setUser } = useAuthStore();
 
     useEffect(() => {

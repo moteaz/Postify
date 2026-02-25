@@ -27,7 +27,7 @@ export default function ValueProp() {
         </ul>
       </div>
       <p className="text-xs text-neutral-500 italic hidden lg:block">
-        "Applying used to take hours. Now it takes 30 seconds."
+        &ldquo;Applying used to take hours. Now it takes 30 seconds.&rdquo;
       </p>
     </div>
   );

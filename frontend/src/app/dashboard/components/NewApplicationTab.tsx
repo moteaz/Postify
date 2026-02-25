@@ -1,6 +1,5 @@
 import { memo } from "react";
 import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail } from "lucide-react";
-import { Alert } from "@/components";
 import type { GeneratedContent, CV } from "@/types";
 
 interface NewApplicationTabProps {
@@ -45,7 +44,12 @@ export const NewApplicationTab = memo(({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {success && <Alert variant="success">{success}</Alert>}
+      {success && (
+        <div className="p-4 rounded-xl border flex items-center gap-3 text-sm bg-green-50 border-green-200 text-green-700">
+          <CheckCircle2 size={18} className="flex-shrink-0" />
+          <span className="font-medium">{success}</span>
+        </div>
+      )}
 
       {!generatedContent ? (
         <div className="space-y-4 sm:space-y-6">

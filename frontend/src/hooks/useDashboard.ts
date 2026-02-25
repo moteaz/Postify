@@ -39,8 +39,6 @@ export function useDashboard() {
     try {
       const res = await api.get<HistoryResponse>("/email/history");
       setHistory(res.data.history);
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -51,8 +49,6 @@ export function useDashboard() {
     try {
       const res = await api.get<CVResponse>("/cv");
       setCvs(res.data.cvs);
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsLoadingCvs(false);
     }
@@ -109,9 +105,7 @@ export function useDashboard() {
       await api.post("/cv/upload", formData);
       setSuccess("CV uploaded successfully!");
       fetchCvs();
-    } catch (error) {
-      console.error(error);
-    }
+    } catch {}
   }, [fetchCvs]);
 
   const handleDeleteCV = useCallback(async (id: string) => {
@@ -120,9 +114,7 @@ export function useDashboard() {
       await api.delete(`/cv/${id}`);
       setSuccess("CV deleted.");
       fetchCvs();
-    } catch (error) {
-      console.error(error);
-    }
+    } catch {}
   }, [fetchCvs]);
 
   const handleSetActiveCV = useCallback(async (id: string) => {
@@ -131,8 +123,6 @@ export function useDashboard() {
       await api.put(`/cv/${id}/active`);
       fetchCvs();
       setSuccess("Active CV updated!");
-    } catch (error) {
-      console.error(error);
     } finally {
       setIsUpdatingCV(false);
     }
@@ -172,8 +162,6 @@ export function useDashboard() {
       setSuccess("Application sent successfully!");
       setGeneratedContent(null);
       setJobDescription("");
-    } catch (error) {
-      console.error(error);
     } finally {
       setIsSending(false);
     }
@@ -182,8 +170,6 @@ export function useDashboard() {
   const handleLogout = useCallback(async () => {
     try {
       await api.post("/auth/logout");
-    } catch (error) {
-      console.error("Logout error:", error);
     } finally {
       logout();
       router.replace("/");
