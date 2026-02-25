@@ -7,8 +7,8 @@ const FOOTER_LINKS = {
     { href: "/signup", label: "Sign Up" },
   ],
   legal: [
-    { href: "#", label: "Privacy" },
-    { href: "#", label: "Terms" },
+    { href: "#privacy", label: "Privacy" },
+    { href: "#terms", label: "Terms" },
   ],
 };
 

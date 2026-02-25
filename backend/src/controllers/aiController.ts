@@ -29,6 +29,7 @@ export const generateContent = async (req: AuthRequest, res: Response) => {
 
         // 2. Parse CV content
         const cvText = await parseCV(activeCV.fileKey, activeCV.mimeType);
+        console.log('Parsed CV Text:', cvText.substring(0, 200)); // Log first 200 chars for debugging
 
         // 3. Detect language (simplified using franc)
         // franc returns ISO 639-3 codes (eng, fra, deu, etc.)
