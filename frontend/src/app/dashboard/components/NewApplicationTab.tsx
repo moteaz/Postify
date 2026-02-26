@@ -1,5 +1,7 @@
-import { memo } from "react";
-import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail } from "lucide-react";
+import { memo, useMemo } from "react";
+import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail, Paperclip, AlertCircle } from "lucide-react";
+import { Toast } from "@/components/Toast";
+import { ErrorToast } from "@/components/ErrorToast";
 import type { GeneratedContent, CV } from "@/types";
 
 interface NewApplicationTabProps {
@@ -13,6 +15,9 @@ interface NewApplicationTabProps {
   onSend: () => void;
   onDiscard: () => void;
   success: string | null;
+  onClearSuccess: () => void;
+  error: string | null;
+  onClearError: () => void;
   cvs: CV[];
   isLoadingCvs: boolean;
   onNavigateToCvs: () => void;
@@ -35,6 +40,9 @@ export const NewApplicationTab = memo(({
   onSend,
   onDiscard,
   success,
+  onClearSuccess,
+  error,
+  onClearError,
   cvs,
   isLoadingCvs,
   onNavigateToCvs,
@@ -42,14 +50,17 @@ export const NewApplicationTab = memo(({
   const activeCV = cvs.find(c => c.isActive);
   const hasActiveCV = !isLoadingCvs && activeCV;
 
+  // Validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = generatedContent?.recruiterEmail ? emailRegex.test(generatedContent.recruiterEmail) : false;
+  const isSubjectValid = generatedContent?.subject ? generatedContent.subject.trim().length > 0 : false;
+  const canSend = isEmailValid && isSubjectValid && !isSending;
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {success && (
-        <div className="p-4 rounded-xl border flex items-center gap-3 text-sm bg-green-50 border-green-200 text-green-700">
-          <CheckCircle2 size={18} className="flex-shrink-0" />
-          <span className="font-medium">{success}</span>
-        </div>
-      )}
+    <>
+      {success && <Toast message={success} onClose={onClearSuccess} />}
+      {error && <ErrorToast message={error} onClose={onClearError} />}
+      <div className="space-y-4 sm:space-y-6">
 
       {!generatedContent ? (
         <div className="space-y-4 sm:space-y-6">
@@ -120,22 +131,44 @@ export const NewApplicationTab = memo(({
         <div className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-semibold text-neutral-700">Recruiter Email</label>
+              <label className="text-xs sm:text-sm font-semibold text-neutral-700">Recruiter Email *</label>
               <input
                 type="email"
                 value={generatedContent.recruiterEmail || ""}
                 onChange={(e) => onGeneratedContentChange({ ...generatedContent, recruiterEmail: e.target.value })}
-                className="w-full p-2.5 sm:p-3 rounded-lg bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
+                className={`w-full p-2.5 sm:p-3 rounded-lg bg-white border outline-none text-sm transition-all ${
+                  generatedContent.recruiterEmail && !isEmailValid
+                    ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                    : 'border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary'
+                }`}
+                placeholder="recruiter@company.com"
               />
+              {generatedContent.recruiterEmail && !isEmailValid && (
+                <div className="flex items-center gap-1 text-red-600 text-xs">
+                  <AlertCircle size={12} />
+                  <span>Invalid email format</span>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-semibold text-neutral-700">Subject Line</label>
+              <label className="text-xs sm:text-sm font-semibold text-neutral-700">Subject Line *</label>
               <input
                 type="text"
                 value={generatedContent.subject}
                 onChange={(e) => onGeneratedContentChange({ ...generatedContent, subject: e.target.value })}
-                className="w-full p-2.5 sm:p-3 rounded-lg bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
+                className={`w-full p-2.5 sm:p-3 rounded-lg bg-white border outline-none text-sm transition-all ${
+                  generatedContent.subject && !isSubjectValid
+                    ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                    : 'border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary'
+                }`}
+                placeholder="Application for [Position]"
               />
+              {generatedContent.subject && !isSubjectValid && (
+                <div className="flex items-center gap-1 text-red-600 text-xs">
+                  <AlertCircle size={12} />
+                  <span>Subject cannot be empty</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -148,6 +181,22 @@ export const NewApplicationTab = memo(({
             />
           </div>
 
+          {hasActiveCV && (
+            <div className="p-3 sm:p-4 rounded-lg bg-blue-50 border border-blue-200 flex items-start gap-2 sm:gap-3">
+              <CheckCircle2 className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
+              <p className="text-blue-700 text-xs sm:text-sm">
+                <span className="font-semibold">{activeCV.fileName}</span> will be automatically attached when you send this application.
+              </p>
+            </div>
+          )}
+
+          <div className="p-3 sm:p-4 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-2 sm:gap-3">
+            <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={16} />
+            <p className="text-amber-700 text-xs sm:text-sm">
+              Double-check the email address. If it doesn't exist, you'll receive a bounce-back notification in your Gmail inbox.
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
               onClick={onDiscard}
@@ -158,8 +207,8 @@ export const NewApplicationTab = memo(({
             </button>
             <button
               onClick={onSend}
-              disabled={isSending}
-              className="flex-1 sm:flex-[2] h-11 sm:h-12 bg-primary text-white rounded-lg sm:rounded-xl font-semibold hover:bg-primary/90 transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-sm hover:shadow-md text-sm sm:text-base"
+              disabled={!canSend}
+              className="flex-1 sm:flex-[2] h-11 sm:h-12 bg-primary text-white rounded-lg sm:rounded-xl font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-sm hover:shadow-md text-sm sm:text-base"
             >
               {isSending ? (
                 <>
@@ -178,7 +227,8 @@ export const NewApplicationTab = memo(({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 });
 

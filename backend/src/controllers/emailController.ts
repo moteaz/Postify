@@ -10,8 +10,20 @@ export const sendApplication = async (req: AuthRequest, res: Response) => {
     try {
         const { applicationId, to, subject, body } = req.body;
 
+        // Validate required fields
         if (!applicationId || !to || !subject || !body) {
             return res.status(400).json({ message: 'All fields (applicationId, to, subject, body) are required' });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(to)) {
+            return res.status(400).json({ message: 'Invalid email address format' });
+        }
+
+        // Validate subject is not empty
+        if (subject.trim().length === 0) {
+            return res.status(400).json({ message: 'Subject line cannot be empty' });
         }
 
         const userId = req.user.id;

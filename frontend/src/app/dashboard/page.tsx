@@ -28,6 +28,9 @@ export default function Dashboard() {
     setGeneratedContent,
     isSending,
     success,
+    setSuccess,
+    error,
+    setError,
     history,
     isLoadingHistory,
     selectedApplication,
@@ -68,6 +71,9 @@ export default function Dashboard() {
               onSend={handleSend}
               onDiscard={() => setGeneratedContent(null)}
               success={success}
+              onClearSuccess={() => setSuccess(null)}
+              error={error}
+              onClearError={() => setError(null)}
               cvs={cvs}
               isLoadingCvs={isLoadingCvs}
               onNavigateToCvs={() => setActiveTab("cvs")}

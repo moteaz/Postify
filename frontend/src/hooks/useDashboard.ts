@@ -26,6 +26,21 @@ export function useDashboard() {
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
   const [history, setHistory] = useState<Application[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -151,7 +166,21 @@ export function useDashboard() {
   const handleSend = useCallback(async () => {
     if (!generatedContent || !applicationId) return;
     
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!generatedContent.recruiterEmail || !emailRegex.test(generatedContent.recruiterEmail)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    // Validate subject
+    if (!generatedContent.subject || generatedContent.subject.trim().length === 0) {
+      setError("Please enter a subject line");
+      return;
+    }
+
     setIsSending(true);
+    setError(null);
     try {
       await api.post("/email/send", {
         applicationId,
@@ -162,6 +191,9 @@ export function useDashboard() {
       setSuccess("Application sent successfully!");
       setGeneratedContent(null);
       setJobDescription("");
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || "Failed to send email. Please try again.";
+      setError(errorMsg);
     } finally {
       setIsSending(false);
     }
@@ -191,6 +223,9 @@ export function useDashboard() {
     setGeneratedContent,
     isSending,
     success,
+    setSuccess,
+    error,
+    setError,
     history,
     isLoadingHistory,
     selectedApplication,
