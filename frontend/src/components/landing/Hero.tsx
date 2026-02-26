@@ -10,7 +10,6 @@ export default function Hero() {
           <Heading />
           <Description />
           <CTAButtons />
-          <DashboardPreview />
         </div>
       </div>
     </section>
@@ -56,51 +55,4 @@ function CTAButtons() {
   );
 }
 
-function DashboardPreview() {
-  return (
-    <div className="mt-12 sm:mt-16 w-full max-w-5xl mx-auto rounded-xl sm:rounded-2xl border border-neutral-200 bg-white p-1 sm:p-2 shadow-elevated">
-      <div className="w-full aspect-[16/9] rounded-lg sm:rounded-xl bg-neutral-50 overflow-hidden">
-        <div className="w-full h-full p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
-          <PreviewHeader />
-          <PreviewContent />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function PreviewHeader() {
-  return (
-    <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-neutral-200">
-      <div className="flex gap-1.5 sm:gap-2">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-neutral-300" />
-        ))}
-      </div>
-      <div className="text-[10px] sm:text-xs font-medium text-neutral-400 uppercase tracking-wider">
-        Dashboard Preview
-      </div>
-    </div>
-  );
-}
-
-function PreviewContent() {
-  return (
-    <div className="grid grid-cols-12 gap-2 sm:gap-3 md:gap-4">
-      <div className="col-span-12 sm:col-span-3 space-y-2 sm:space-y-3">
-        <div className="h-8 sm:h-10 bg-primary/10 rounded-lg" />
-        <div className="h-8 sm:h-10 bg-white rounded-lg border border-neutral-200" />
-        <div className="hidden sm:block h-10 bg-white rounded-lg border border-neutral-200" />
-      </div>
-      <div className="col-span-12 sm:col-span-9 space-y-2 sm:space-y-3">
-        <div className="h-24 sm:h-32 bg-white rounded-lg sm:rounded-xl border border-neutral-200 flex items-center justify-center">
-          <span className="text-xs sm:text-sm text-neutral-400">AI analyzing job description...</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          <div className="h-16 sm:h-20 bg-white rounded-lg sm:rounded-xl border border-neutral-200" />
-          <div className="h-16 sm:h-20 bg-white rounded-lg sm:rounded-xl border border-neutral-200" />
-        </div>
-      </div>
-    </div>
-  );
-}
