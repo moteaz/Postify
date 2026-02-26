@@ -1,244 +1,97 @@
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
-import api from "@/utils/api";
-import { handleApiError, getErrorDetails } from "@/utils/errorHandler";
-import type {
-  Application,
-  CV,
-  GeneratedContent,
-  HealthResponse,
-  GenerateResponse,
-  HistoryResponse,
-  CVResponse,
-  MeResponse,
-  SystemStatus
-} from "@/types";
+import { useState, useEffect } from "react";
+import { useAutoReset } from "./useAutoReset";
+import { TIMEOUTS } from "@/config/messages";
+import { useApplications } from "./useApplications";
+import { useCVManagement } from "./useCVManagement";
+import { useApplicationGenerator } from "./useApplicationGenerator";
+import { useAuth } from "./useAuth";
+import { DashboardTab, type DashboardTabType } from "@/types/enums";
+import type { User, CV, Application, GeneratedContent } from "@/types";
 
-export function useDashboard() {
-  const router = useRouter();
-  const { user, setUser, logout } = useAuthStore();
-  
-  const [activeTab, setActiveTab] = useState<"new" | "history" | "cvs">("new");
-  const [jobDescription, setJobDescription] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
-  const [applicationId, setApplicationId] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+interface UseDashboardReturn {
+  user: User;
+  activeTab: DashboardTabType;
+  setActiveTab: (tab: DashboardTabType) => void;
+  jobDescription: string;
+  setJobDescription: (value: string) => void;
+  isGenerating: boolean;
+  generatedContent: GeneratedContent | null;
+  setGeneratedContent: (content: GeneratedContent | null) => void;
+  isSending: boolean;
+  success: string | null;
+  setSuccess: (message: string | null) => void;
+  error: string | null;
+  setError: (message: string | null) => void;
+  history: Application[];
+  isLoadingHistory: boolean;
+  selectedApplication: Application | null;
+  setSelectedApplication: (app: Application | null) => void;
+  cvs: CV[];
+  isLoadingCvs: boolean;
+  isUpdatingCV: boolean;
+  handleUploadCV: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleDeleteCV: (id: string) => Promise<void>;
+  handleSetActiveCV: (id: string) => Promise<void>;
+  handleGenerate: () => Promise<void>;
+  handleSend: () => Promise<void>;
+  handleLogout: () => Promise<void>;
+}
 
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => setSuccess(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [success]);
+export function useDashboard(): UseDashboardReturn | null {
+  const [activeTab, setActiveTab] = useState<DashboardTabType>(DashboardTab.NEW);
+  const [success, setSuccess] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
+  const [error, setError] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
 
-  useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error]);
-  const [history, setHistory] = useState<Application[]>([]);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
-  const [cvs, setCvs] = useState<CV[]>([]);
-  const [isLoadingCvs, setIsLoadingCvs] = useState(false);
-  const [isUpdatingCV, setIsUpdatingCV] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<SystemStatus>({ api: 'checking', ai: 'checking' });
-
-  const fetchHistory = useCallback(async () => {
-    setIsLoadingHistory(true);
-    try {
-      const res = await api.get<HistoryResponse>("/email/history");
-      setHistory(res.data.history);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  }, []);
-
-  const fetchCvs = useCallback(async () => {
-    setIsLoadingCvs(true);
-    try {
-      const res = await api.get<CVResponse>("/cv");
-      setCvs(res.data.cvs);
-    } finally {
-      setIsLoadingCvs(false);
-    }
-  }, []);
-
-  const checkSystem = useCallback(async () => {
-    try {
-      const res = await api.get<HealthResponse>("/health");
-      setSystemStatus({
-        api: 'online',
-        ai: res.data.ai_status as SystemStatus['ai'],
-        provider: res.data.ai_provider
-      });
-    } catch {
-      setSystemStatus({ api: 'offline', ai: 'offline' });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
-      api.get<MeResponse>("/auth/me")
-        .then((res) => setUser(res.data.user))
-        .catch(() => {
-          logout();
-          router.replace("/");
-        });
-    }
-  }, [user, router, setUser, logout]);
+  const { user, handleLogout } = useAuth();
+  const applications = useApplications();
+  const cvManagement = useCVManagement(setSuccess, setError);
+  const generator = useApplicationGenerator(
+    setSuccess,
+    setError,
+    () => setActiveTab(DashboardTab.CVS)
+  );
 
   useEffect(() => {
     if (user) {
-      fetchHistory();
-      fetchCvs();
-      checkSystem();
-      const interval = setInterval(checkSystem, 30000);
-      return () => clearInterval(interval);
+      applications.fetchHistory();
+      cvManagement.fetchCvs();
     }
-  }, [user, fetchHistory, fetchCvs, checkSystem]);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    if (activeTab === "history") fetchHistory();
-    if (activeTab === "cvs") fetchCvs();
-  }, [activeTab, user, fetchHistory, fetchCvs]);
+    if (activeTab === DashboardTab.HISTORY) applications.fetchHistory();
+    if (activeTab === DashboardTab.CVS) cvManagement.fetchCvs();
+  }, [activeTab, user]);
 
-  const handleUploadCV = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("cv", file);
-
-    try {
-      await api.post("/cv/upload", formData);
-      setSuccess("CV uploaded successfully!");
-      fetchCvs();
-    } catch {}
-  }, [fetchCvs]);
-
-  const handleDeleteCV = useCallback(async (id: string) => {
-    if (!confirm("Are you sure you want to delete this CV?")) return;
-    try {
-      await api.delete(`/cv/${id}`);
-      setSuccess("CV deleted.");
-      fetchCvs();
-    } catch {}
-  }, [fetchCvs]);
-
-  const handleSetActiveCV = useCallback(async (id: string) => {
-    setIsUpdatingCV(true);
-    try {
-      await api.put(`/cv/${id}/active`);
-      fetchCvs();
-      setSuccess("Active CV updated!");
-    } finally {
-      setIsUpdatingCV(false);
-    }
-  }, [fetchCvs]);
-
-  const handleGenerate = useCallback(async () => {
-    if (!jobDescription.trim()) return;
-
-    setIsGenerating(true);
-    setSuccess(null);
-    try {
-      const res = await api.post<GenerateResponse>("/ai/generate", { jobDescription });
-      setGeneratedContent(res.data.content);
-      setApplicationId(res.data.applicationId);
-    } catch (error) {
-      const message = handleApiError(error);
-      const details = getErrorDetails(error);
-      setSuccess(null);
-      alert(`${message}${details ? `\n\nDetails: ${details}` : ''}`);
-      if (message.includes("CV")) setActiveTab("cvs");
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [jobDescription]);
-
-  const handleSend = useCallback(async () => {
-    if (!generatedContent || !applicationId) return;
-    
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!generatedContent.recruiterEmail || !emailRegex.test(generatedContent.recruiterEmail)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    // Validate subject
-    if (!generatedContent.subject || generatedContent.subject.trim().length === 0) {
-      setError("Please enter a subject line");
-      return;
-    }
-
-    setIsSending(true);
-    setError(null);
-    try {
-      await api.post("/email/send", {
-        applicationId,
-        to: generatedContent.recruiterEmail,
-        subject: generatedContent.subject,
-        body: generatedContent.coverLetter
-      });
-      setSuccess("Application sent successfully!");
-      setGeneratedContent(null);
-      setJobDescription("");
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.message || "Failed to send email. Please try again.";
-      setError(errorMsg);
-    } finally {
-      setIsSending(false);
-    }
-  }, [generatedContent, applicationId]);
-
-  const handleLogout = useCallback(async () => {
-    try {
-      await api.post("/auth/logout");
-    } finally {
-      logout();
-      router.replace("/");
-    }
-  }, [logout, router]);
-
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return {
     user,
     activeTab,
     setActiveTab,
-    jobDescription,
-    setJobDescription,
-    isGenerating,
-    generatedContent,
-    setGeneratedContent,
-    isSending,
+    jobDescription: generator.jobDescription,
+    setJobDescription: generator.setJobDescription,
+    isGenerating: generator.isGenerating,
+    generatedContent: generator.generatedContent,
+    setGeneratedContent: generator.setGeneratedContent,
+    isSending: generator.isSending,
     success,
     setSuccess,
     error,
     setError,
-    history,
-    isLoadingHistory,
-    selectedApplication,
-    setSelectedApplication,
-    cvs,
-    isLoadingCvs,
-    isUpdatingCV,
-    systemStatus,
-    handleUploadCV,
-    handleDeleteCV,
-    handleSetActiveCV,
-    handleGenerate,
-    handleSend,
+    history: applications.history,
+    isLoadingHistory: applications.isLoadingHistory,
+    selectedApplication: applications.selectedApplication,
+    setSelectedApplication: applications.setSelectedApplication,
+    cvs: cvManagement.cvs,
+    isLoadingCvs: cvManagement.isLoadingCvs,
+    isUpdatingCV: cvManagement.isUpdatingCV,
+    handleUploadCV: cvManagement.handleUploadCV,
+    handleDeleteCV: cvManagement.handleDeleteCV,
+    handleSetActiveCV: cvManagement.handleSetActiveCV,
+    handleGenerate: generator.handleGenerate,
+    handleSend: generator.handleSend,
     handleLogout,
   };
 }

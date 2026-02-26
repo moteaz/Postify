@@ -1,5 +1,6 @@
-import { memo } from "react";
 import { Loader2, FileText, Trash2, Upload } from "lucide-react";
+import { Toast } from "@/components/Toast";
+import { ErrorToast } from "@/components/ErrorToast";
 import type { CV } from "@/types";
 
 interface CVsTabProps {
@@ -9,10 +10,17 @@ interface CVsTabProps {
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDelete: (id: string) => void;
   onSetActive: (id: string) => void;
+  success: string | null;
+  onClearSuccess: () => void;
+  error: string | null;
+  onClearError: () => void;
 }
 
-export const CVsTab = memo(({ cvs, isLoading, isUpdating, onUpload, onDelete, onSetActive }: CVsTabProps) => (
-  <div className="space-y-4 sm:space-y-6">
+export const CVsTab = ({ cvs, isLoading, isUpdating, onUpload, onDelete, onSetActive, success, onClearSuccess, error, onClearError }: CVsTabProps) => (
+  <>
+    {success && <Toast message={success} onClose={onClearSuccess} />}
+    {error && <ErrorToast message={error} onClose={onClearError} />}
+    <div className="space-y-4 sm:space-y-6">
     <div className="grid gap-2 sm:gap-3">
       {isLoading ? (
         <div className="flex justify-center p-8 sm:p-12">
@@ -82,6 +90,5 @@ export const CVsTab = memo(({ cvs, isLoading, isUpdating, onUpload, onDelete, on
       </label>
     </div>
   </div>
-));
-
-CVsTab.displayName = "CVsTab";
+  </>
+);

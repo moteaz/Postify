@@ -79,6 +79,18 @@ export const deleteCV = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ message: 'CV not found' });
         }
 
+        // Check if CV is used in applications
+        const applicationsCount = await prisma.application.count({
+            where: { cvId: id as string }
+        });
+
+        if (applicationsCount > 0) {
+            return res.status(400).json({ 
+                message: 'Cannot delete CV that is used in applications',
+                details: `This CV is referenced by ${applicationsCount} application(s)`
+            });
+        }
+
         // Delete file from local storage
         const localPath = path.join(__dirname, '../../uploads', cv.fileKey);
         if (fs.existsSync(localPath)) {

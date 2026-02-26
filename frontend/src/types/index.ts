@@ -1,3 +1,5 @@
+import { ApplicationStatus } from "./enums";
+
 // Core domain types
 export interface User {
   id: string;
@@ -20,7 +22,7 @@ export interface Application {
   subject: string;
   recruiterEmail: string;
   coverLetter: string;
-  status: "DRAFT" | "SENT" | "FAILED";
+  status: ApplicationStatus;
   generatedAt: string;
   cv?: CV;
 }
@@ -31,21 +33,10 @@ export interface GeneratedContent {
   coverLetter: string;
 }
 
-export interface SystemStatus {
-  api: "online" | "offline" | "checking";
-  ai: "online" | "offline" | "checking";
-  provider?: string;
-}
-
 // API Response types
 export interface ApiError {
   message: string;
   details?: string;
-}
-
-export interface HealthResponse {
-  ai_status: string;
-  ai_provider: string;
 }
 
 export interface GenerateResponse {

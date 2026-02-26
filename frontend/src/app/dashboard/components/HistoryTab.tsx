@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Loader2, History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Application } from "@/types";
@@ -10,7 +9,7 @@ interface HistoryTabProps {
   onCreateNew: () => void;
 }
 
-export const HistoryTab = memo(({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
+export const HistoryTab = ({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-12 sm:p-20 gap-4">
@@ -72,6 +71,4 @@ export const HistoryTab = memo(({ history, isLoading, onViewDetails, onCreateNew
       ))}
     </div>
   );
-});
-
-HistoryTab.displayName = "HistoryTab";
+};

@@ -1,7 +1,7 @@
-import { memo, useMemo } from "react";
-import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail, Paperclip, AlertCircle } from "lucide-react";
+import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail, AlertCircle } from "lucide-react";
 import { Toast } from "@/components/Toast";
 import { ErrorToast } from "@/components/ErrorToast";
+import { MESSAGES, VALIDATION } from "@/config/messages";
 import type { GeneratedContent, CV } from "@/types";
 
 interface NewApplicationTabProps {
@@ -29,7 +29,7 @@ const badges = [
   { label: "Gmail Link", icon: Mail },
 ];
 
-export const NewApplicationTab = memo(({
+export const NewApplicationTab = ({
   jobDescription,
   onJobDescriptionChange,
   generatedContent,
@@ -51,8 +51,7 @@ export const NewApplicationTab = memo(({
   const hasActiveCV = !isLoadingCvs && activeCV;
 
   // Validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isEmailValid = generatedContent?.recruiterEmail ? emailRegex.test(generatedContent.recruiterEmail) : false;
+  const isEmailValid = generatedContent?.recruiterEmail ? VALIDATION.EMAIL_REGEX.test(generatedContent.recruiterEmail) : false;
   const isSubjectValid = generatedContent?.subject ? generatedContent.subject.trim().length > 0 : false;
   const canSend = isEmailValid && isSubjectValid && !isSending;
 
@@ -69,8 +68,8 @@ export const NewApplicationTab = memo(({
               <div className="flex items-start gap-3 sm:gap-4">
                 <CheckCircle2 className="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
                 <div>
-                  <h4 className="font-semibold text-amber-900 text-sm sm:text-base">No Active CV Found</h4>
-                  <p className="text-amber-700 text-xs sm:text-sm mt-0.5">You need an active CV for AI to tailor your application</p>
+                  <h4 className="font-semibold text-amber-900 text-sm sm:text-base">{MESSAGES.NO_ACTIVE_CV}</h4>
+                  <p className="text-amber-700 text-xs sm:text-sm mt-0.5">{MESSAGES.NO_ACTIVE_CV_DESC}</p>
                 </div>
               </div>
               <button
@@ -230,6 +229,4 @@ export const NewApplicationTab = memo(({
       </div>
     </>
   );
-});
-
-NewApplicationTab.displayName = "NewApplicationTab";
+};

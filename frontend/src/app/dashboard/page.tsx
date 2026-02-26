@@ -97,6 +97,10 @@ export default function Dashboard() {
               onUpload={handleUploadCV}
               onDelete={handleDeleteCV}
               onSetActive={handleSetActiveCV}
+              success={success}
+              onClearSuccess={() => setSuccess(null)}
+              error={error}
+              onClearError={() => setError(null)}
             />
           )}
         </div>
