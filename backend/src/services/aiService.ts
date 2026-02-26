@@ -27,6 +27,13 @@ const getAIClient = () => {
         });
     }
 
+    if (provider === 'huggingface') {
+        return new OpenAI({
+            baseURL: 'https://router.huggingface.co/v1',
+            apiKey: process.env.HF_TOKEN,
+        });
+    }
+
     return new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
     });
@@ -37,6 +44,7 @@ const getModel = () => {
     const provider = process.env.AI_PROVIDER || 'openai';
     if (provider === 'ollama') return process.env.OLLAMA_MODEL || 'llama3';
     if (provider === 'openrouter') return process.env.OPENROUTER_MODEL || 'anthropic/claude-3-haiku';
+    if (provider === 'huggingface') return process.env.HF_MODEL || 'deepseek-ai/DeepSeek-R1:novita';
     return process.env.OPENAI_MODEL || 'gpt-4o';
 };
 
