@@ -5,33 +5,38 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { protect } from '../middleware/auth.js';
 import { uploadCV, getMyCVs, deleteCV, setActiveCV } from '../controllers/cvController.js';
+import { FILE_UPLOAD } from '../config/constants.js';
+import { sanitizeFilename } from '../utils/validators.js';
+import { uploadLimiter } from '../middleware/rateLimiter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = Router();
 
-// Ensure uploads directory exists
 const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        
+        if (!FILE_UPLOAD.ALLOWED_EXTENSIONS.includes(ext)) {
+            return cb(new Error('Invalid file extension'), '');
+        }
+        
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, `cv-${uniqueSuffix}${ext}`);
     },
 });
 
-// File Filter (e.g., PDF and DOCX only)
 const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (allowedTypes.includes(file.mimetype)) {
+    if (FILE_UPLOAD.ALLOWED_TYPES.includes(file.mimetype)) {
         cb(null, true);
     } else {
         cb(new Error('Invalid file type. Only PDF and DOCX are allowed.'), false);
@@ -41,13 +46,12 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    limits: { fileSize: FILE_UPLOAD.MAX_SIZE },
 });
 
-// Protected CV routes
 router.use(protect);
 
-router.post('/upload', upload.single('cv'), uploadCV);
+router.post('/upload', uploadLimiter, upload.single('cv'), uploadCV);
 router.get('/', getMyCVs);
 router.delete('/:id', deleteCV);
 router.put('/:id/active', setActiveCV);

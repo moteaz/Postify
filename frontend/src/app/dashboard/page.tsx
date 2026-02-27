@@ -38,6 +38,8 @@ export default function Dashboard() {
     cvs,
     isLoadingCvs,
     isUpdatingCV,
+    deleteConfirm,
+    setDeleteConfirm,
     handleUploadCV,
     handleDeleteCV,
     handleSetActiveCV,
@@ -94,6 +96,8 @@ export default function Dashboard() {
               cvs={cvs}
               isLoading={isLoadingCvs}
               isUpdating={isUpdatingCV}
+              deleteConfirm={deleteConfirm}
+              onSetDeleteConfirm={setDeleteConfirm}
               onUpload={handleUploadCV}
               onDelete={handleDeleteCV}
               onSetActive={handleSetActiveCV}

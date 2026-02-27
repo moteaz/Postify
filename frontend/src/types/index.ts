@@ -39,19 +39,26 @@ export interface ApiError {
   details?: string;
 }
 
-export interface GenerateResponse {
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  error?: string;
+}
+
+export interface GenerateResponse extends ApiResponse<{
   content: GeneratedContent;
   applicationId: string;
-}
+}> {}
 
-export interface HistoryResponse {
+export interface HistoryResponse extends ApiResponse<{
   history: Application[];
-}
+}> {}
 
-export interface CVResponse {
+export interface CVResponse extends ApiResponse<{
   cvs: CV[];
-}
+}> {}
 
-export interface MeResponse {
+export interface MeResponse extends ApiResponse<{
   user: User;
-}
+}> {}

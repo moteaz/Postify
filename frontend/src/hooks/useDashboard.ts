@@ -87,6 +87,8 @@ export function useDashboard(): UseDashboardReturn | null {
     cvs: cvManagement.cvs,
     isLoadingCvs: cvManagement.isLoadingCvs,
     isUpdatingCV: cvManagement.isUpdatingCV,
+    deleteConfirm: cvManagement.deleteConfirm,
+    setDeleteConfirm: cvManagement.setDeleteConfirm,
     handleUploadCV: cvManagement.handleUploadCV,
     handleDeleteCV: cvManagement.handleDeleteCV,
     handleSetActiveCV: cvManagement.handleSetActiveCV,

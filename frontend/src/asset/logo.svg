@@ -1,0 +1,48 @@
+<svg width="320" height="100" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="postifyGradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7B2FF7"/>
+      <stop offset="50%" stop-color="#6A5CFF"/>
+      <stop offset="100%" stop-color="#2D9CFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon Shape -->
+  <path
+    d="M30 15
+       C30 10, 35 5, 45 5
+       L75 5
+       C95 5, 110 20, 110 35
+       C110 50, 95 65, 75 65
+       L55 65
+       L55 90
+       L45 90
+       C35 90, 30 85, 30 80
+       Z"
+    fill="url(#postifyGradient)"
+  />
+
+  <!-- Inner highlight -->
+  <path
+    d="M55 30
+       C70 25, 85 30, 85 40
+       C85 50, 70 55, 55 50
+       Z"
+    fill="white"
+    opacity="0.15"
+  />
+
+  <!-- Text -->
+  <text
+    x="130"
+    y="62"
+    font-family="Poppins, Inter, Arial, sans-serif"
+    font-size="42"
+    font-weight="600"
+    fill="#0F172A">
+    Postify
+  </text>
+
+</svg>

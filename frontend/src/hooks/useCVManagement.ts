@@ -9,6 +9,8 @@ interface UseCVManagementReturn {
   isLoadingCvs: boolean;
   isUpdatingCV: boolean;
   activeCV: CV | undefined;
+  deleteConfirm: { id: string; name: string } | null;
+  setDeleteConfirm: (confirm: { id: string; name: string } | null) => void;
   fetchCvs: () => Promise<void>;
   handleUploadCV: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleDeleteCV: (id: string) => Promise<void>;
@@ -22,6 +24,7 @@ export function useCVManagement(
   const [cvs, setCvs] = useState<CV[]>([]);
   const [isLoadingCvs, setIsLoadingCvs] = useState(false);
   const [isUpdatingCV, setIsUpdatingCV] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
 
   const fetchCvs = useCallback(async (): Promise<void> => {
     setIsLoadingCvs(true);
@@ -49,13 +52,13 @@ export function useCVManagement(
   }, [fetchCvs, onSuccess, onError]);
 
   const handleDeleteCV = useCallback(async (id: string): Promise<void> => {
-    if (!confirm(MESSAGES.CV_DELETE_CONFIRM)) return;
-    
     try {
       await cvService.delete(id);
+      setDeleteConfirm(null);
       onSuccess(MESSAGES.CV_DELETE_SUCCESS);
       await fetchCvs();
     } catch (error) {
+      setDeleteConfirm(null);
       onError(handleApiError(error));
     }
   }, [fetchCvs, onSuccess, onError]);
@@ -80,6 +83,8 @@ export function useCVManagement(
     isLoadingCvs,
     isUpdatingCV,
     activeCV,
+    deleteConfirm,
+    setDeleteConfirm,
     fetchCvs,
     handleUploadCV,
     handleDeleteCV,

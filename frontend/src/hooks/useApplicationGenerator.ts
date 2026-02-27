@@ -1,9 +1,8 @@
 import { useState, useCallback } from "react";
 import { applicationService } from "@/services/api";
-import { handleApiError, getErrorDetails } from "@/utils/errorHandler";
+import { handleApiError } from "@/utils/errorHandler";
 import { MESSAGES } from "@/config/messages";
-import type { GeneratedContent, DashboardTabType } from "@/types";
-import { DashboardTab } from "@/types/enums";
+import type { GeneratedContent } from "@/types";
 
 interface UseApplicationGeneratorReturn {
   jobDescription: string;
@@ -38,13 +37,12 @@ export function useApplicationGenerator(
       setApplicationId(result.applicationId);
     } catch (error) {
       const message = handleApiError(error);
-      const details = getErrorDetails(error);
-      alert(`${message}${details ? `\n\nDetails: ${details}` : ''}`);
+      onError(message);
       if (message.includes("CV")) onNavigateToCvs();
     } finally {
       setIsGenerating(false);
     }
-  }, [jobDescription, onNavigateToCvs]);
+  }, [jobDescription, onNavigateToCvs, onError]);
 
   const handleSend = useCallback(async (): Promise<void> => {
     if (!generatedContent || !applicationId) return;

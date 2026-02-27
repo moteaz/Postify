@@ -1,12 +1,13 @@
-import { Router } from 'express';
-import { protect } from '../middleware/auth.js';
-import { generateContent } from '../controllers/aiController.js';
+import { Router } from "express";
+import { protect } from "../middleware/auth.js";
+import { generateContent } from "../controllers/aiController.js";
+import { validate } from "../middleware/validate.js";
+import { generateApplicationSchema } from "../validators/aiValidation.js";
 
 const router = Router();
 
-// Protected AI routes
 router.use(protect);
 
-router.post('/generate', generateContent);
+router.post("/generate", validate(generateApplicationSchema), generateContent);
 
 export default router;

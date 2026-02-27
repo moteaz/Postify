@@ -1,11 +1,9 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger.js';
 
 dotenv.config();
 
-/**
- * Configure AI Client based on provider
- */
 const getAIClient = () => {
     const provider = process.env.AI_PROVIDER || 'openai';
 
@@ -56,9 +54,6 @@ export interface GenerationResult {
     recruiterEmail: string | null;
 }
 
-/**
- * Generates application content using chosen LLM (Ollama or OpenAI)
- */
 export const generateApplicationContent = async (
     jobDescription: string,
     cvText: string,
@@ -95,7 +90,7 @@ export const generateApplicationContent = async (
     }
   `;
 
-    console.log(`[AI] Generating with provider: ${process.env.AI_PROVIDER || 'openai'}, model: ${model}`);
+    logger.info(`Generating with provider: ${process.env.AI_PROVIDER || 'openai'}, model: ${model}`);
 
     try {
         const response = await aiClient.chat.completions.create({
@@ -111,14 +106,13 @@ export const generateApplicationContent = async (
         const content = response.choices[0].message.content;
         if (!content) throw new Error('AI generation returned empty content');
 
-        console.log('[AI] Raw Response:', content);
+        logger.info('Raw Response received');
 
-        // Robust JSON extraction: Find the first { and the last }
         const start = content.indexOf('{');
         const end = content.lastIndexOf('}');
 
         if (start === -1 || end === -1) {
-            console.error('[AI] No JSON found in response');
+            logger.error('No JSON found in response');
             throw new Error('AI response did not contain a valid JSON object');
         }
 
@@ -127,12 +121,11 @@ export const generateApplicationContent = async (
         try {
             return JSON.parse(cleanContent) as GenerationResult;
         } catch (e) {
-            console.error('[AI] JSON Parse Error:', e);
-            console.error('[AI] Attempted to parse:', cleanContent);
+            logger.error('JSON Parse Error', cleanContent.substring(0, 200));
             throw new Error('AI returned malformed JSON');
         }
     } catch (error: any) {
-        console.error('[AI] Generation Exception:', error);
+        logger.error('Generation Exception', error.message);
 
         if (error.code === 'ECONNREFUSED') {
             throw new Error(`Connection refused to AI provider. Is ${process.env.AI_PROVIDER === 'ollama' ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`);

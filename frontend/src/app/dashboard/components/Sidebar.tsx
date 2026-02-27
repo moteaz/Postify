@@ -1,7 +1,9 @@
 import { memo } from "react";
-import { Bot, Plus, History, FileText, LogOut } from "lucide-react";
+import { Plus, History, FileText, LogOut } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { User } from "@/types";
+import Image from 'next/image';
+import Logo from '@/asset/logo.svg';
 
 interface SidebarProps {
   user: User | null;
@@ -20,10 +22,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
   <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-white flex flex-col">
     <div className="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-neutral-200">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
-          <Bot size={20} />
-        </div>
-        <span className="font-bold text-base sm:text-lg text-neutral-900">Postify</span>
+        <Image src={Logo} alt="Postify Logo" className="w-45 h-10" />
       </div>
       <button
         onClick={onLogout}

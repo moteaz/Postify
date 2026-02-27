@@ -13,7 +13,7 @@ import type {
 export const authService = {
   async getCurrentUser(): Promise<User> {
     const res = await api.get<MeResponse>("/auth/me");
-    return res.data.user;
+    return res.data.data.user;
   },
 
   async logout(): Promise<void> {
@@ -24,12 +24,12 @@ export const authService = {
 export const applicationService = {
   async getHistory(): Promise<Application[]> {
     const res = await api.get<HistoryResponse>("/email/history");
-    return res.data.history;
+    return res.data.data.history;
   },
 
   async generateApplication(jobDescription: string): Promise<{ content: GeneratedContent; applicationId: string }> {
     const res = await api.post<GenerateResponse>("/ai/generate", { jobDescription });
-    return { content: res.data.content, applicationId: res.data.applicationId };
+    return { content: res.data.data.content, applicationId: res.data.data.applicationId };
   },
 
   async sendApplication(data: {
@@ -45,7 +45,7 @@ export const applicationService = {
 export const cvService = {
   async getAll(): Promise<CV[]> {
     const res = await api.get<CVResponse>("/cv");
-    return res.data.cvs;
+    return res.data.data.cvs;
   },
 
   async upload(file: File): Promise<void> {

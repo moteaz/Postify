@@ -3,24 +3,19 @@ import mammoth from 'mammoth';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import { logger } from '../utils/logger.js';
 
 const require = createRequire(import.meta.url);
-// In v2.4.5, the main export is an object containing the PDFParse class
 const { PDFParse } = require('pdf-parse');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Parses a CV file into plain text
- * @param fileKey The filename in the uploads directory
- * @param mimeType The file MIME type
- */
 export const parseCV = async (fileKey: string, mimeType: string): Promise<string> => {
     const rootDir = path.join(__dirname, '../../');
     const filePath = path.join(rootDir, 'uploads', fileKey);
 
-    console.log(`[Parser] Processing file: ${filePath}`);
+    logger.info('Processing file', filePath);
 
     if (!fs.existsSync(filePath)) {
         throw new Error(`File not found at: ${filePath}`);
@@ -30,13 +25,11 @@ export const parseCV = async (fileKey: string, mimeType: string): Promise<string
 
     if (mimeType === 'application/pdf') {
         try {
-            // Instantiate the PDFParse class with the data buffer
             const parser = new PDFParse({
                 data: dataBuffer,
-                verbosity: 0 // Suppress logs
+                verbosity: 0
             });
 
-            // Get text content
             const result = await parser.getText();
 
             if (!result || !result.text) {
@@ -45,7 +38,7 @@ export const parseCV = async (fileKey: string, mimeType: string): Promise<string
 
             return result.text;
         } catch (err: any) {
-            console.error('[Parser] PDF Error:', err);
+            logger.error('PDF Error', err.message);
             throw new Error(`PDF Parsing failed: ${err.message}`);
         }
     } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {

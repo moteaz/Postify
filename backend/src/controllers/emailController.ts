@@ -2,98 +2,57 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 import { prisma } from '../utils/prisma.js';
 import { sendApplicationEmail } from '../services/emailService.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ResponseHandler } from '../utils/response.js';
+import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { isValidEmail } from '../utils/validators.js';
+import DOMPurify from 'isomorphic-dompurify';
+import { logger } from '../utils/logger.js';
 
-/**
- * Send the application email
- */
-export const sendApplication = async (req: AuthRequest, res: Response) => {
-    try {
-        const { applicationId, to, subject, body } = req.body;
+export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { applicationId, to, subject, body } = req.body;
+    const userId = req.user.id;
 
-        // Validate required fields
-        if (!applicationId || !to || !subject || !body) {
-            return res.status(400).json({ message: 'All fields (applicationId, to, subject, body) are required' });
-        }
+    const sanitizedSubject = DOMPurify.sanitize(subject, { ALLOWED_TAGS: [] });
+    const sanitizedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(to)) {
-            return res.status(400).json({ message: 'Invalid email address format' });
-        }
+    const application = await prisma.application.findFirst({
+        where: { id: applicationId, userId },
+        include: { cv: true },
+    });
 
-        // Validate subject is not empty
-        if (subject.trim().length === 0) {
-            return res.status(400).json({ message: 'Subject line cannot be empty' });
-        }
-
-        const userId = req.user.id;
-
-        // 1. Verify application belongs to user
-        const application = await prisma.application.findFirst({
-            where: { id: applicationId, userId },
-            include: { cv: true },
-        });
-
-        if (!application) {
-            return res.status(404).json({ message: 'Application not found' });
-        }
-
-        // 2. Send email via service
-        await sendApplicationEmail(
-            userId,
-            to,
-            subject,
-            body,
-            application.cvId
-        );
-
-        // 3. Update application status
-        await prisma.application.update({
-            where: { id: applicationId },
-            data: {
-                status: 'SENT',
-                sentAt: new Date(),
-                recruiterEmail: to, // Update in case user edited it
-                subject,
-                coverLetter: body,
-            },
-        });
-
-        res.json({ message: 'Application sent successfully!' });
-    } catch (error: any) {
-        console.error('Send Application Error:', error);
-
-        // Log failure
-        if (req.body.applicationId) {
-            await prisma.application.update({
-                where: { id: req.body.applicationId },
-                data: {
-                    status: 'FAILED',
-                    errorMessage: error.message || 'Unknown error during delivery',
-                },
-            }).catch(console.error);
-        }
-
-        res.status(500).json({
-            message: 'Failed to send email. Ensure your Gmail is connected and has permission.',
-            error: error.message
-        });
+    if (!application) {
+        throw new NotFoundError('Application not found');
     }
-};
 
-/**
- * Get application history
- */
-export const getHistory = async (req: AuthRequest, res: Response) => {
-    try {
-        const history = await prisma.application.findMany({
-            where: { userId: req.user.id },
-            orderBy: { generatedAt: 'desc' },
-            include: { cv: true }
-        });
+    await sendApplicationEmail(
+        userId,
+        to,
+        sanitizedSubject,
+        sanitizedBody,
+        application.cvId
+    );
 
-        res.json({ history });
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch application history' });
-    }
-};
+    await prisma.application.update({
+        where: { id: applicationId },
+        data: {
+            status: 'SENT',
+            sentAt: new Date(),
+            recruiterEmail: to,
+            subject: sanitizedSubject,
+            coverLetter: sanitizedBody,
+        },
+    });
+
+    return ResponseHandler.success(res, null, 'Application sent successfully!');
+});
+
+export const getHistory = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const history = await prisma.application.findMany({
+        where: { userId: req.user.id },
+        orderBy: { generatedAt: 'desc' },
+        include: { cv: true }
+    });
+
+    return ResponseHandler.success(res, { history });
+});

@@ -3,10 +3,8 @@ import nodemailer from 'nodemailer';
 import { prisma } from '../utils/prisma.js';
 import path from 'path';
 import fs from 'fs';
+import { logger } from '../utils/logger.js';
 
-/**
- * Service to send emails via Gmail API using user's OAuth tokens
- */
 export const sendApplicationEmail = async (
     userId: string,
     to: string,
@@ -14,7 +12,6 @@ export const sendApplicationEmail = async (
     body: string,
     cvId: string
 ): Promise<any> => {
-    // 1. Get user's OAuth tokens
     const tokens = await prisma.oAuthToken.findUnique({
         where: { userId },
     });
@@ -23,7 +20,6 @@ export const sendApplicationEmail = async (
         throw new Error('Gmail account not connected');
     }
 
-    // 2. Setup OAuth2 Client
     const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
@@ -35,7 +31,6 @@ export const sendApplicationEmail = async (
         refresh_token: tokens.refreshToken,
     });
 
-    // 3. Refresh token if needed
     try {
         const { credentials } = await oauth2Client.refreshAccessToken();
         if (credentials.access_token) {
@@ -49,11 +44,10 @@ export const sendApplicationEmail = async (
             oauth2Client.setCredentials(credentials);
         }
     } catch (err) {
-        console.error('[Email] Token refresh failed:', err);
+        logger.error('Token refresh failed', err);
         throw new Error('Gmail authentication expired. Please log in again.');
     }
 
-    // 4. Get CV file
     const cv = await prisma.userCV.findUnique({
         where: { id: cvId },
     });
@@ -67,12 +61,12 @@ export const sendApplicationEmail = async (
         throw new Error('CV file missing on disk');
     }
 
-    // 5. Get user email
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
-    // 6. Create Nodemailer transporter with OAuth2
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '465'),
+        secure: true,
         auth: {
             type: 'OAuth2',
             user: user?.email,
@@ -83,7 +77,6 @@ export const sendApplicationEmail = async (
         },
     } as any);
 
-    // 7. Send Email
     const mailOptions = {
         from: user?.email,
         to,
