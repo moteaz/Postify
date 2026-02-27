@@ -25,7 +25,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(csrfProtection);
 app.use(passport.initialize());
 app.use('/api/', generalLimiter);
 
