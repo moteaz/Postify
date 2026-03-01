@@ -49,11 +49,11 @@ This process consumes significant time and energy, often resulting in generic, l
 ### FR-02 — CV Management
 - The system shall allow users to upload their CV (PDF or DOCX).
 - The system shall store the CV securely and associate it with the user's account.
-- The system shall allow the user to update or replace their CV.
+- The system shall allow the user to update or replace their CV. 
 
 ### FR-03 — Job Description Input
 - The system shall provide a text area where users can paste a job description.
-- The system shall validate that the input is not empty before processing.
+- The system shall validate that the input is not empty with min caractere before processing.
 
 ### FR-04 — AI Content Generation
 - The system shall call an AI service (e.g., OpenAI GPT-4, Google Gemini) to generate:
@@ -69,6 +69,7 @@ This process consumes significant time and energy, often resulting in generic, l
 ### FR-06 — Email Sending
 - The system shall allow users to click "Send Email" to dispatch the application.
 - The email shall contain:
+  - **From** E-mail of user that signin
   - **To**: recruiter email (editable)
   - **Subject**: generated subject line (editable)
   - **Body**: generated cover letter (editable)
@@ -77,7 +78,7 @@ This process consumes significant time and energy, often resulting in generic, l
 - The system shall display an error message if the email fails to send.
 
 ### FR-07 — Application History
-- The system shall log each sent application with: date, company, job title (if parseable), subject, and delivery status.
+- The system shall log each sent application with: date, company(if not undifined), job title (if parseable), subject, and delivery status.
 - The system shall allow users to view their application history.
 
 ### FR-08 — Email Provider Authorization
@@ -95,7 +96,6 @@ This process consumes significant time and energy, often resulting in generic, l
 
 ### Security
 - **NFR-04**: All data in transit shall be encrypted via **TLS 1.2+** (HTTPS).
-- **NFR-05**: User passwords shall be hashed using **bcrypt** with a minimum cost factor of 12.
 - **NFR-06**: OAuth tokens (Gmail) shall be encrypted at rest and never exposed to the client.
 - **NFR-07**: Uploaded CVs shall be stored in a secure cloud bucket with private ACLs.
 - **NFR-08**: API keys (AI, email providers) shall be stored as server-side environment variables only.

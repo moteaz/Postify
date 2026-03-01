@@ -141,7 +141,7 @@ The architecture is **cloud-native**: Next.js frontend on Vercel, Express.js bac
 ### Primary Flow: Generate & Send Application
 
 ```
-Step 1: USER pastes Job Description → Next.js frontend validates (non-empty)
+Step 1: USER pastes Job Description → Next.js frontend validates (non-empty with 50 min carac)
 
 Step 2: Frontend sends POST https://api.yourdomain.com/api/generate
         Headers: { Authorization: Bearer <session_token> }
