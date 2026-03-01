@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import api from "@/utils/api";
 import type { MeResponse } from "@/types";
+import { Loader2 } from "lucide-react";
 
 export default function AuthCallback() {
     const router = useRouter();
@@ -22,10 +23,10 @@ export default function AuthCallback() {
     }, [router, setUser]);
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <div className="flex min-h-screen items-center justify-center bg-muted/30">
             <div className="flex flex-col items-center space-y-4">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="text-lg font-medium text-neutral-600 animate-pulse">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-lg font-medium text-muted-foreground animate-pulse">
                     Authenticating...
                 </p>
             </div>

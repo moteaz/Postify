@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 interface GoogleButtonProps {
   onClick: () => void;
   text: string;
@@ -5,9 +7,10 @@ interface GoogleButtonProps {
 
 export default function GoogleButton({ onClick, text }: GoogleButtonProps) {
   return (
-    <button
+    <Button
       onClick={onClick}
-      className="w-full h-11 sm:h-12 flex items-center justify-center gap-3 bg-white text-neutral-900 rounded-lg sm:rounded-xl font-semibold shadow-sm hover:shadow-md transition-all border border-neutral-300 hover:border-neutral-400 text-sm sm:text-base"
+      variant="outline"
+      className="w-full h-11 sm:h-12 gap-3 text-sm sm:text-base"
     >
       <img
         src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
@@ -15,6 +18,6 @@ export default function GoogleButton({ onClick, text }: GoogleButtonProps) {
         className="w-5 h-5"
       />
       {text}
-    </button>
+    </Button>
   );
 }

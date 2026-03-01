@@ -1,4 +1,5 @@
-import { Loader2, History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/utils/cn";
 import type { Application } from "@/types";
 
@@ -12,9 +13,23 @@ interface HistoryTabProps {
 export const HistoryTab = ({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 sm:p-20 gap-4">
-        <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-primary" />
-        <p className="text-sm sm:text-base text-neutral-600">Loading your journey...</p>
+      <div className="grid gap-2 sm:gap-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="p-4 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200">
+            <div className="flex items-start gap-3 sm:gap-4 mb-3">
+              <Skeleton className="w-10 h-10 rounded-lg" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-1/4" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-8 w-28 rounded-lg" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

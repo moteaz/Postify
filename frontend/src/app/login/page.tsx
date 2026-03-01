@@ -4,6 +4,8 @@ import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { env } from "@/config/env";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AuthLayout from "@/components/auth/AuthLayout";
 import Branding from "@/components/auth/Branding";
 import GoogleButton from "@/components/auth/GoogleButton";
@@ -24,27 +26,28 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Branding title="Welcome back" subtitle="Sign in to continue to Postify" />
 
-        <div className="p-6 sm:p-8 rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-card space-y-5 sm:space-y-6">
-          {error && <ErrorAlert message="Authentication failed. Please try again." />}
-          
-          <GoogleButton onClick={handleGoogleLogin} text="Continue with Google" />
+        <Card className="border-border shadow-lg">
+          <CardContent className="p-6 sm:p-8 space-y-5 sm:space-y-6">
+            {error && <ErrorAlert message="Authentication failed. Please try again." />}
+            
+            <GoogleButton onClick={handleGoogleLogin} text="Continue with Google" />
 
-          <p className="text-xs text-center text-neutral-500 leading-relaxed px-2">
-            Secure login with Google OAuth. Your data is always protected.
-          </p>
+            <p className="text-xs text-center text-muted-foreground leading-relaxed px-2">
+              Secure login with Google OAuth. Your data is always protected.
+            </p>
 
-          <Divider text="New to Postify?" />
+            <Divider text="New to Postify?" />
 
-          <div className="text-center">
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm sm:text-base"
-            >
-              Create an account
-              <LogIn size={16} />
-            </Link>
-          </div>
-        </div>
+            <div className="text-center">
+              <Button variant="link" asChild className="gap-2">
+                <Link href="/signup">
+                  Create an account
+                  <LogIn size={16} />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <AuthFooter />
       </div>

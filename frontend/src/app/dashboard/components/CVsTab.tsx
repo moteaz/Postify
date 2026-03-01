@@ -1,5 +1,6 @@
-import { Loader2, FileText, Trash2, Upload } from "lucide-react";
+import { FileText, Trash2, Upload } from "lucide-react";
 import { Toast } from "@/components/Toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import type { CV } from "@/types";
 
@@ -25,9 +26,18 @@ export const CVsTab = ({ cvs, isLoading, isUpdating, deleteConfirm, onSetDeleteC
     <div className="space-y-4 sm:space-y-6">
       <div className="grid gap-2 sm:gap-3">
         {isLoading ? (
-          <div className="flex justify-center p-8 sm:p-12">
-            <Loader2 className="animate-spin text-primary" size={28} />
-          </div>
+          [1, 2, 3].map((i) => (
+            <div key={i} className="p-3 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            </div>
+          ))
         ) : cvs.length > 0 ? (
           cvs.map((cv) => (
             <div key={cv.id} className="p-3 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-primary/30 transition-all">

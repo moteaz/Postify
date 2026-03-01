@@ -34,9 +34,9 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
     </div>
 
     <div className="hidden lg:flex p-4 border-b border-neutral-200 items-center gap-3 bg-gradient-to-r from-primary/5 to-transparent">
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md overflow-hidden">
         {user?.avatarUrl ? (
-          <img src={user.avatarUrl} alt={user.name} className="rounded-full w-full h-full object-cover" />
+          <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
         ) : (
           <span className="text-base font-bold text-white">{user?.name?.charAt(0)}</span>
         )}

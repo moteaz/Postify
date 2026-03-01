@@ -1,5 +1,6 @@
 import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail, AlertCircle } from "lucide-react";
 import { Toast } from "@/components/Toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MESSAGES, VALIDATION } from "@/config/messages";
 import type { GeneratedContent, CV } from "@/types";
 
@@ -62,7 +63,9 @@ export const NewApplicationTab = ({
 
         {!generatedContent ? (
           <div className="space-y-4 sm:space-y-6">
-            {!hasActiveCV && !isLoadingCvs && (
+            {isLoadingCvs ? (
+              <Skeleton className="h-20 w-full rounded-lg" />
+            ) : !hasActiveCV ? (
               <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <CheckCircle2 className="text-amber-600 flex-shrink-0 mt-0.5" size={18} />
@@ -78,7 +81,7 @@ export const NewApplicationTab = ({
                   Fix Now
                 </button>
               </div>
-            )}
+            ) : null}
 
             <div className="space-y-2">
               {hasActiveCV && (
