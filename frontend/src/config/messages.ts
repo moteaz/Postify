@@ -6,11 +6,11 @@ export const VALIDATION = {
 
 export const MESSAGES = {
   CV_UPLOAD_SUCCESS: "CV uploaded successfully!",
-  CV_DELETE_SUCCESS: "CV deleted.",
   CV_ACTIVE_SUCCESS: "Active CV updated!",
   APPLICATION_SENT_SUCCESS: "Application sent successfully!",
   NO_ACTIVE_CV: "No Active CV Found",
   NO_ACTIVE_CV_DESC: "You need an active CV for AI to tailor your application",
+  CV_ARCHIVE_SUCCESS: "CV removed successfully!",
 } as const;
 
 export const TIMEOUTS = {

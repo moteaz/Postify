@@ -22,7 +22,12 @@ passport.use(
 
                 // Find or create user
                 let user = await prisma.user.findUnique({
-                    where: { providerAccountId: profile.id },
+                    where: { 
+                        provider_providerAccountId: {
+                            provider: 'GOOGLE',
+                            providerAccountId: profile.id
+                        }
+                    },
                 });
 
                 if (!user) {
@@ -38,13 +43,15 @@ passport.use(
                 }
 
                 // Store or update OAuth tokens for Gmail access
-                // Note: In a real app, you'd request Gmail scopes here too
                 await prisma.oAuthToken.upsert({
-                    where: { userId: user.id },
+                    where: { 
+                        userId_provider: {
+                            userId: user.id,
+                            provider: 'gmail'
+                        }
+                    },
                     update: {
                         accessToken,
-                        refreshToken,
-                        // Google OAuth doesn't always return refreshToken unless prompt='consent' is used
                         ...(refreshToken ? { refreshToken } : {}),
                     },
                     create: {

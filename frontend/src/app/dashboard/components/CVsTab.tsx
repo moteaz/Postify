@@ -1,4 +1,4 @@
-import { FileText, Trash2, Upload } from "lucide-react";
+import { FileText, Trash , Upload } from "lucide-react";
 import { Toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmModal } from "@/components/ConfirmModal";
@@ -8,18 +8,18 @@ interface CVsTabProps {
   cvs: CV[];
   isLoading: boolean;
   isUpdating: boolean;
-  deleteConfirm: { id: string; name: string } | null;
-  onSetDeleteConfirm: (confirm: { id: string; name: string } | null) => void;
+  archiveConfirm: { id: string; name: string } | null;
+  onSetArchiveConfirm: (confirm: { id: string; name: string } | null) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onDelete: (id: string) => void;
   onSetActive: (id: string) => void;
+  onSetArchived: (id: string) => void;
   success: string | null;
   onClearSuccess: () => void;
   error: string | null;
   onClearError: () => void;
 }
 
-export const CVsTab = ({ cvs, isLoading, isUpdating, deleteConfirm, onSetDeleteConfirm, onUpload, onDelete, onSetActive, success, onClearSuccess, error, onClearError }: CVsTabProps) => (
+export const CVsTab = ({ cvs, isLoading, isUpdating, archiveConfirm, onSetArchiveConfirm, onUpload, onSetActive, onSetArchived, success, onClearSuccess, error, onClearError }: CVsTabProps) => (
   <>
     {success && <Toast message={success} onClose={onClearSuccess} />}
     {error && <Toast message={error} type="error" onClose={onClearError} />}
@@ -63,11 +63,11 @@ export const CVsTab = ({ cvs, isLoading, isUpdating, deleteConfirm, onSetDeleteC
                   </button>
                 )}
                 <button
-                  onClick={() => onSetDeleteConfirm({ id: cv.id, name: cv.fileName })}
+                  onClick={() => onSetArchiveConfirm({ id: cv.id, name: cv.fileName })}
                   className="p-1.5 sm:p-2 rounded-lg text-red-600 hover:bg-red-50 transition-all"
-                  aria-label="Delete CV"
+                  aria-label="Remove CV"
                 >
-                  <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <Trash  size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </button>
               </div>
             </div>
@@ -102,14 +102,14 @@ export const CVsTab = ({ cvs, isLoading, isUpdating, deleteConfirm, onSetDeleteC
         </label>
       </div>
     </div>
-    {deleteConfirm && (
+    {archiveConfirm && (
       <ConfirmModal
-        title="Delete CV"
-        message={`Are you sure you want to delete "${deleteConfirm.name}"? This action cannot be undone.`}
-        confirmText="Delete"
+        title="Remove CV"
+        message={`Are you sure you want to remove "${archiveConfirm.name}"? It will be hidden from your list but not permanently deleted.`}
+        confirmText="Remove"
         cancelText="Cancel"
-        onConfirm={() => onDelete(deleteConfirm.id)}
-        onCancel={() => onSetDeleteConfirm(null)}
+        onConfirm={() => onSetArchived(archiveConfirm.id)}
+        onCancel={() => onSetArchiveConfirm(null)}
       />
     )}
   </>

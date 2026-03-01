@@ -40,7 +40,10 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
 
 export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response) => {
     const cvs = await prisma.userCV.findMany({
-        where: { userId: req.user.id },
+        where: { 
+            userId: req.user.id,
+            isArchived: false 
+        },
         orderBy: { uploadedAt: 'desc' },
     });
 
@@ -58,12 +61,16 @@ export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response) => 
         throw new NotFoundError('CV not found');
     }
 
+    if (cv.isActive) {
+        throw new ValidationError('Cannot delete the active CV. Please set another CV as active first');
+    }
+
     const applicationsCount = await prisma.application.count({
         where: { cvId: id }
     });
 
     if (applicationsCount > 0) {
-        throw new ValidationError(`Cannot delete CV that is used in application(s)`);
+        throw new ValidationError('Cannot delete CV that is used in applications. Archive it instead');
     }
 
     const localPath = path.join(__dirname, '../../uploads', cv.fileKey);
@@ -88,6 +95,10 @@ export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response) 
         throw new NotFoundError('CV not found');
     }
 
+    if (cv.isArchived) {
+        throw new ValidationError('Cannot set archived CV as active. Please unarchive it first');
+    }
+
     await prisma.userCV.updateMany({
         where: { userId },
         data: { isActive: false },
@@ -99,4 +110,32 @@ export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response) 
     });
 
     return ResponseHandler.success(res, { cv: updated }, 'Active CV updated');
+});
+
+export const setArchivedCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const cv = await prisma.userCV.findFirst({
+        where: { id, userId },
+    });
+
+    if (!cv) {
+        throw new NotFoundError('CV not found');
+    }
+
+    if (cv.isActive) {
+        throw new ValidationError('Cannot remove the active CV. Please set another CV as active first');
+    }
+
+    const updated = await prisma.userCV.update({
+        where: { id },
+        data: { isArchived: !cv.isArchived },
+    });
+
+    return ResponseHandler.success(
+        res, 
+        { cv: updated }, 
+        `CV ${updated.isArchived ? 'archived' : 'unarchived'} successfully`
+    );
 });

@@ -60,5 +60,9 @@ export const cvService = {
 
   async setActive(id: string): Promise<void> {
     await api.put(`/cv/${id}/active`);
+  },
+  
+    async setArchived(id: string): Promise<void> {
+    await api.put(`/cv/${id}/archive`);
   }
 };

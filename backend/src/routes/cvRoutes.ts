@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { protect } from '../middleware/auth.js';
-import { uploadCV, getMyCVs, deleteCV, setActiveCV } from '../controllers/cvController.js';
+import { uploadCV, getMyCVs, deleteCV, setActiveCV, setArchivedCV } from '../controllers/cvController.js';
 import { FILE_UPLOAD } from '../config/constants.js';
 import { sanitizeFilename } from '../utils/validators.js';
 import { uploadLimiter } from '../middleware/rateLimiter.js';
@@ -55,5 +55,6 @@ router.post('/upload', uploadLimiter, upload.single('cv'), uploadCV);
 router.get('/', getMyCVs);
 router.delete('/:id', deleteCV);
 router.put('/:id/active', setActiveCV);
+router.put('/:id/archive', setArchivedCV);
 
 export default router;

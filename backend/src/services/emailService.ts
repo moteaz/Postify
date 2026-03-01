@@ -13,7 +13,12 @@ export const sendApplicationEmail = async (
     cvId: string
 ): Promise<any> => {
     const tokens = await prisma.oAuthToken.findUnique({
-        where: { userId },
+        where: { 
+            userId_provider: {
+                userId,
+                provider: 'gmail'
+            }
+        },
     });
 
     if (!tokens || !tokens.accessToken) {
@@ -35,7 +40,12 @@ export const sendApplicationEmail = async (
         const { credentials } = await oauth2Client.refreshAccessToken();
         if (credentials.access_token) {
             await prisma.oAuthToken.update({
-                where: { userId },
+                where: { 
+                    userId_provider: {
+                        userId,
+                        provider: 'gmail'
+                    }
+                },
                 data: {
                     accessToken: credentials.access_token,
                     refreshToken: credentials.refresh_token || tokens.refreshToken,

@@ -38,11 +38,11 @@ export default function Dashboard() {
     cvs,
     isLoadingCvs,
     isUpdatingCV,
-    deleteConfirm,
-    setDeleteConfirm,
+    archiveConfirm,
+    setArchiveConfirm,
     handleUploadCV,
-    handleDeleteCV,
     handleSetActiveCV,
+    handleSetArchivedCV,
     handleGenerate,
     handleSend,
     handleLogout,
@@ -96,11 +96,11 @@ export default function Dashboard() {
               cvs={cvs}
               isLoading={isLoadingCvs}
               isUpdating={isUpdatingCV}
-              deleteConfirm={deleteConfirm}
-              onSetDeleteConfirm={setDeleteConfirm}
+              archiveConfirm={archiveConfirm}
+              onSetArchiveConfirm={setArchiveConfirm}
               onUpload={handleUploadCV}
-              onDelete={handleDeleteCV}
               onSetActive={handleSetActiveCV}
+              onSetArchived={handleSetArchivedCV}
               success={success}
               onClearSuccess={() => setSuccess(null)}
               error={error}
