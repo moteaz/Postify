@@ -21,18 +21,19 @@ enum ApplicationStatus {
 }
 
 model User {
-  id                String         @id @default(uuid())
-  email             String         @unique
+  id                String        @id @default(uuid())
+  email             String        @unique
   name              String?
   avatarUrl         String?
-  provider          AuthProvider   @default(GOOGLE)
-  providerAccountId String         @unique
+  provider          AuthProvider  @default(GOOGLE)
+  providerAccountId String
   cvs               UserCV[]
   applications      Application[]
   oauthTokens       OAuthToken?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
+  @@unique([provider, providerAccountId])
   @@map("users")
 }
 
@@ -41,14 +42,17 @@ model UserCV {
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   fileName     String
-  fileKey      String        // S3 object key or local path
+  fileKey      String // S3 object key or local path
   fileSize     Int
   mimeType     String
   isActive     Boolean       @default(true)
+  isArchived   Boolean       @default(false)
+  archivedAt   DateTime?
   applications Application[]
   uploadedAt   DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
+  @@index([userId, isArchived])
   @@map("user_cvs")
 }
 
@@ -69,20 +73,24 @@ model Application {
   sentAt         DateTime?
   updatedAt      DateTime          @updatedAt
 
+  @@index([userId, status])
+  @@index([cvId])
+  @@index([userId, generatedAt])  
   @@map("applications")
 }
 
 model OAuthToken {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider     String   @default("gmail")
-  accessToken  String   @db.Text
-  refreshToken String?  @db.Text
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String    @default("gmail")
+  accessToken  String    @db.Text
+  refreshToken String?   @db.Text
   tokenExpiry  DateTime?
   scope        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
+  @@unique([userId, provider])
   @@map("oauth_tokens")
 }
