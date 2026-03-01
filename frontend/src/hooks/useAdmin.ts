@@ -10,6 +10,7 @@ interface UseAdminReturn {
   fetchUsers: () => Promise<void>;
   viewUser: (id: string) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
+  exportUsers: () => Promise<void>;
   closeDetails: () => void;
 }
 
@@ -56,6 +57,15 @@ export function useAdmin(
     setSelectedUser(null);
   }, []);
 
+  const exportUsers = useCallback(async (): Promise<void> => {
+    try {
+      await adminService.exportUsers();
+      onSuccess("Users exported successfully");
+    } catch (error) {
+      onError(handleApiError(error));
+    }
+  }, [onSuccess, onError]);
+
   return {
     users,
     isLoading,
@@ -63,6 +73,7 @@ export function useAdmin(
     fetchUsers,
     viewUser,
     deleteUser,
+    exportUsers,
     closeDetails
   };
 }

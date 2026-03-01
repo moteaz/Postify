@@ -52,6 +52,7 @@ export default function Dashboard() {
     selectedAdminUser,
     handleViewUser,
     handleDeleteUser,
+    handleExportUsers,
     handleCloseUserDetails,
   } = dashboardData;
 
@@ -122,6 +123,7 @@ export default function Dashboard() {
               selectedUser={selectedAdminUser}
               onViewUser={handleViewUser}
               onDeleteUser={handleDeleteUser}
+              onExportUsers={handleExportUsers}
               onCloseDetails={handleCloseUserDetails}
             />
           )}

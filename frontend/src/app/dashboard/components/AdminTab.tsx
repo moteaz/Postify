@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Trash2, Eye, FileText, Mail, Users, X, Download, Search, TrendingUp, TrendingDown, Filter, Shield } from "lucide-react";
+import { Trash2, Eye, FileText, Mail, Users, X, Download, Search, TrendingUp, TrendingDown, Filter, Shield, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ConfirmModal } from "@/components/ConfirmModal";
@@ -18,6 +18,7 @@ interface AdminTabProps {
   selectedUser: AdminUserDetails | null;
   onViewUser: (id: string) => void;
   onDeleteUser: (id: string) => void;
+  onExportUsers: () => void;
   onCloseDetails: () => void;
 }
 
@@ -27,6 +28,7 @@ export function AdminTab({
   selectedUser,
   onViewUser,
   onDeleteUser,
+  onExportUsers,
   onCloseDetails
 }: AdminTabProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; email: string } | null>(null);
@@ -171,14 +173,21 @@ export function AdminTab({
               <CardTitle className="text-xl">User Management</CardTitle>
               <CardDescription>View and manage all platform users</CardDescription>
             </div>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-              <Input
-                placeholder="Search users..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                <Input
+                  placeholder="Search users..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Button onClick={onExportUsers} variant="outline" className="gap-2">
+                <FileDown size={16} />
+                <span className="hidden sm:inline">Export CSV</span>
+                <span className="sm:hidden">Export</span>
+              </Button>
             </div>
           </div>
         </CardHeader>

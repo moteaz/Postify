@@ -43,6 +43,7 @@ interface UseDashboardReturn {
   selectedAdminUser: AdminUserDetails | null;
   handleViewUser: (id: string) => Promise<void>;
   handleDeleteUser: (id: string) => Promise<void>;
+  handleExportUsers: () => Promise<void>;
   handleCloseUserDetails: () => void;
 }
 
@@ -111,6 +112,7 @@ export function useDashboard(): UseDashboardReturn | null {
     selectedAdminUser: admin.selectedUser,
     handleViewUser: admin.viewUser,
     handleDeleteUser: admin.deleteUser,
+    handleExportUsers: admin.exportUsers,
     handleCloseUserDetails: admin.closeDetails,
   };
 }

@@ -33,6 +33,35 @@ export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) 
     return ResponseHandler.success(res, { users });
 });
 
+export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const users = await prisma.user.findMany({
+        select: {
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            _count: {
+                select: {
+                    cvs: true,
+                    applications: true
+                }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    const csv = [
+        'Email,Name,Role,Joined,CVs,Applications',
+        ...users.map(u => 
+            `${u.email},${u.name || 'N/A'},${u.role},${new Date(u.createdAt).toLocaleDateString()},${u._count.cvs},${u._count.applications}`
+        )
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=users-${Date.now()}.csv`);
+    res.send(csv);
+});
+
 export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
@@ -74,6 +103,9 @@ export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) =
     }
 
     await prisma.user.delete({ where: { id } });
+
+    // Activity log
+    console.log(`[ADMIN ACTION] ${req.user.email} deleted user ${user.email} at ${new Date().toISOString()}`);
 
     return ResponseHandler.success(res, null, 'User deleted successfully');
 });
