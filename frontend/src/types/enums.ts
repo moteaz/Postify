@@ -7,7 +7,8 @@ export enum ApplicationStatus {
 export const DashboardTab = {
   NEW: "new",
   HISTORY: "history",
-  CVS: "cvs"
+  CVS: "cvs",
+  ADMIN: "admin"
 } as const;
 
 export type DashboardTabType = typeof DashboardTab[keyof typeof DashboardTab];

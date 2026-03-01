@@ -20,6 +20,10 @@ passport.use(
                     return done(new Error('No email found in Google profile'), undefined);
                 }
 
+                // Check if email is in admin whitelist
+                const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
+                const isAdmin = adminEmails.includes(email);
+
                 // Find or create user
                 let user = await prisma.user.findUnique({
                     where: { 
@@ -38,6 +42,7 @@ passport.use(
                             avatarUrl: profile.photos?.[0].value,
                             provider: 'GOOGLE',
                             providerAccountId: profile.id,
+                            role: isAdmin ? 'ADMIN' : 'USER',
                         },
                     });
                 }

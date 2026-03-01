@@ -24,6 +24,11 @@ export const CVsTab = dynamic(
   { loading: LoadingFallback }
 );
 
+export const AdminTab = dynamic(
+  () => import("./AdminTab").then(mod => ({ default: mod.AdminTab })),
+  { loading: LoadingFallback }
+);
+
 export { Sidebar } from "./Sidebar";
 export { DashboardHeader } from "./DashboardHeader";
 export { ApplicationDetailModal } from "./ApplicationDetailModal";

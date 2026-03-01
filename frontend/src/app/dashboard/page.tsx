@@ -7,6 +7,7 @@ import {
   NewApplicationTab,
   HistoryTab,
   CVsTab,
+  AdminTab,
   ApplicationDetailModal,
 } from "./components";
 
@@ -46,6 +47,12 @@ export default function Dashboard() {
     handleGenerate,
     handleSend,
     handleLogout,
+    adminUsers,
+    isLoadingAdminUsers,
+    selectedAdminUser,
+    handleViewUser,
+    handleDeleteUser,
+    handleCloseUserDetails,
   } = dashboardData;
 
   return (
@@ -105,6 +112,17 @@ export default function Dashboard() {
               onClearSuccess={() => setSuccess(null)}
               error={error}
               onClearError={() => setError(null)}
+            />
+          )}
+
+          {activeTab === "admin" && (
+            <AdminTab
+              users={adminUsers}
+              isLoading={isLoadingAdminUsers}
+              selectedUser={selectedAdminUser}
+              onViewUser={handleViewUser}
+              onDeleteUser={handleDeleteUser}
+              onCloseDetails={handleCloseUserDetails}
             />
           )}
         </div>

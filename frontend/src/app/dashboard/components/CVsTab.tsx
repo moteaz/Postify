@@ -2,6 +2,7 @@ import { FileText, Trash , Upload } from "lucide-react";
 import { Toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { truncateFilename, formatFileSize } from "@/utils/fileUtils";
 import type { CV } from "@/types";
 
 interface CVsTabProps {
@@ -46,8 +47,10 @@ export const CVsTab = ({ cvs, isLoading, isUpdating, archiveConfirm, onSetArchiv
                   <FileText size={16} className="sm:w-5 sm:h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm sm:text-base text-neutral-900 truncate">{cv.fileName}</h4>
-                  <p className="text-xs sm:text-sm text-neutral-500 truncate">{(cv.fileSize / 1024).toFixed(1)} KB • {new Date(cv.uploadedAt).toLocaleDateString()}</p>
+                  <h4 className="font-semibold text-sm sm:text-base text-neutral-900" title={cv.fileName}>
+                    {truncateFilename(cv.fileName, 45)}
+                  </h4>
+                  <p className="text-xs sm:text-sm text-neutral-500">{formatFileSize(cv.fileSize)} • {new Date(cv.uploadedAt).toLocaleDateString()}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">

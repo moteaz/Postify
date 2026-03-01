@@ -2,6 +2,7 @@ import { Sparkles, Send, Loader2, CheckCircle2, Bot, Mail, AlertCircle } from "l
 import { Toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MESSAGES, VALIDATION } from "@/config/messages";
+import { truncateFilename } from "@/utils/fileUtils";
 import type { GeneratedContent, CV } from "@/types";
 
 interface NewApplicationTabProps {
@@ -85,9 +86,9 @@ export const NewApplicationTab = ({
 
             <div className="space-y-2">
               {hasActiveCV && (
-                <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg bg-green-50 text-green-700 text-[10px] sm:text-xs font-medium border border-green-200 flex items-center gap-1 sm:gap-1.5 w-fit">
+                <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg bg-green-50 text-green-700 text-[10px] sm:text-xs font-medium border border-green-200 flex items-center gap-1 sm:gap-1.5 w-fit max-w-full">
                   <CheckCircle2 size={10} className="sm:w-3 sm:h-3 flex-shrink-0" />
-                  <span className="truncate">{activeCV.fileName}</span>
+                  <span className="truncate" title={activeCV.fileName}>{truncateFilename(activeCV.fileName, 50)}</span>
                 </div>
               )}
               <textarea
@@ -184,7 +185,7 @@ export const NewApplicationTab = ({
               <div className="p-3 sm:p-4 rounded-lg bg-blue-50 border border-blue-200 flex items-start gap-2 sm:gap-3">
                 <CheckCircle2 className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
                 <p className="text-blue-700 text-xs sm:text-sm">
-                  <span className="font-semibold">{activeCV.fileName}</span> will be automatically attached when you send this application.
+                  <span className="font-semibold" title={activeCV.fileName}>{truncateFilename(activeCV.fileName, 40)}</span> will be automatically attached when you send this application.
                 </p>
               </div>
             )}

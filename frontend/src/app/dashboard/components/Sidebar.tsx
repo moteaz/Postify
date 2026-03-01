@@ -1,14 +1,15 @@
 import { memo } from "react";
-import { Plus, History, FileText, LogOut } from "lucide-react";
+import { Plus, History, FileText, LogOut, Shield } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { User } from "@/types";
+import { UserRole } from "@/types";
 import Image from 'next/image';
 import Logo from '@/asset/logo.svg';
 
 interface SidebarProps {
   user: User | null;
-  activeTab: "new" | "history" | "cvs";
-  onTabChange: (tab: "new" | "history" | "cvs") => void;
+  activeTab: "new" | "history" | "cvs" | "admin";
+  onTabChange: (tab: "new" | "history" | "cvs" | "admin") => void;
   onLogout: () => void;
 }
 
@@ -18,7 +19,10 @@ const tabs = [
   { id: "cvs" as const, icon: FileText, label: "My CVs", shortLabel: "CVs" },
 ];
 
-export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: SidebarProps) => (
+export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: SidebarProps) => {
+  const isAdmin = user?.role === UserRole.ADMIN;
+
+  return (
   <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-white flex flex-col">
     <div className="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-neutral-200">
       <div className="flex items-center gap-2">
@@ -63,6 +67,19 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
             <span className="sm:hidden">{shortLabel}</span>
           </button>
         ))}
+        {isAdmin && (
+          <button
+            onClick={() => onTabChange("admin")}
+            className={cn(
+              "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium whitespace-nowrap",
+              activeTab === "admin" ? "bg-primary text-white" : "text-neutral-600 hover:bg-neutral-100"
+            )}
+          >
+            <Shield size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <span className="hidden sm:inline">Admin</span>
+            <span className="sm:hidden">Admin</span>
+          </button>
+        )}
       </div>
     </nav>
 
@@ -76,6 +93,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
       </button>
     </div>
   </aside>
-));
+  );
+});
 
 Sidebar.displayName = "Sidebar";

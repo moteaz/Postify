@@ -1,7 +1,7 @@
 import { memo } from "react";
 
 interface DashboardHeaderProps {
-  activeTab: "new" | "history" | "cvs";
+  activeTab: "new" | "history" | "cvs" | "admin";
 }
 
 const headers = {
@@ -16,6 +16,10 @@ const headers = {
   cvs: {
     title: "Manage CVs",
     description: "Upload or update your professional CVs"
+  },
+  admin: {
+    title: "Admin Dashboard",
+    description: "Manage users and monitor platform activity"
   }
 };
 

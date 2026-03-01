@@ -5,8 +5,9 @@ import { useApplications } from "./useApplications";
 import { useCVManagement } from "./useCVManagement";
 import { useApplicationGenerator } from "./useApplicationGenerator";
 import { useAuth } from "./useAuth";
+import { useAdmin } from "./useAdmin";
 import { DashboardTab, type DashboardTabType } from "@/types/enums";
-import type { User, CV, Application, GeneratedContent } from "@/types";
+import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails } from "@/types";
 
 interface UseDashboardReturn {
   user: User;
@@ -37,6 +38,12 @@ interface UseDashboardReturn {
   handleGenerate: () => Promise<void>;
   handleSend: () => Promise<void>;
   handleLogout: () => Promise<void>;
+  adminUsers: AdminUser[];
+  isLoadingAdminUsers: boolean;
+  selectedAdminUser: AdminUserDetails | null;
+  handleViewUser: (id: string) => Promise<void>;
+  handleDeleteUser: (id: string) => Promise<void>;
+  handleCloseUserDetails: () => void;
 }
 
 export function useDashboard(): UseDashboardReturn | null {
@@ -52,6 +59,7 @@ export function useDashboard(): UseDashboardReturn | null {
     setError,
     () => setActiveTab(DashboardTab.CVS)
   );
+  const admin = useAdmin(setSuccess, setError);
 
   useEffect(() => {
     if (user) {
@@ -64,6 +72,7 @@ export function useDashboard(): UseDashboardReturn | null {
     if (!user) return;
     if (activeTab === DashboardTab.HISTORY) applications.fetchHistory();
     if (activeTab === DashboardTab.CVS) cvManagement.fetchCvs();
+    if (activeTab === DashboardTab.ADMIN && user.role === "ADMIN") admin.fetchUsers();
   }, [activeTab, user]);
 
   if (!user) return null;
@@ -97,5 +106,11 @@ export function useDashboard(): UseDashboardReturn | null {
     handleGenerate: generator.handleGenerate,
     handleSend: generator.handleSend,
     handleLogout,
+    adminUsers: admin.users,
+    isLoadingAdminUsers: admin.isLoading,
+    selectedAdminUser: admin.selectedUser,
+    handleViewUser: admin.viewUser,
+    handleDeleteUser: admin.deleteUser,
+    handleCloseUserDetails: admin.closeDetails,
   };
 }

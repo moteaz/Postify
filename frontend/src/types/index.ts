@@ -1,11 +1,17 @@
 import { ApplicationStatus } from "./enums";
 
+export enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN"
+}
+
 // Core domain types
 export interface User {
   id: string;
   email: string;
   name: string;
   avatarUrl?: string;
+  role: UserRole;
   cvs?: CV[];
 }
 
@@ -61,4 +67,25 @@ export interface CVResponse extends ApiResponse<{
 
 export interface MeResponse extends ApiResponse<{
   user: User;
+}> {}
+
+export interface AdminUser extends User {
+  createdAt: string;
+  _count: {
+    cvs: number;
+    applications: number;
+  };
+}
+
+export interface AdminUserDetails extends User {
+  cvs: CV[];
+  applications: Application[];
+}
+
+export interface AdminUsersResponse extends ApiResponse<{
+  users: AdminUser[];
+}> {}
+
+export interface AdminUserDetailsResponse extends ApiResponse<{
+  user: AdminUserDetails;
 }> {}

@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Plus, FileText } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { truncateFilename } from "@/utils/fileUtils";
 import type { Application } from "@/types";
 
 interface ApplicationDetailModalProps {
@@ -39,7 +40,9 @@ export const ApplicationDetailModal = memo(({ application, onClose }: Applicatio
               <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 block mb-2">Used CV</span>
               <div className="flex items-center gap-2">
                 <FileText className="text-primary flex-shrink-0" size={16} />
-                <span className="font-medium text-xs sm:text-sm text-neutral-900 truncate">{application.cv?.fileName || "Unknown CV"}</span>
+                <span className="font-medium text-xs sm:text-sm text-neutral-900" title={application.cv?.fileName || "Unknown CV"}>
+                  {truncateFilename(application.cv?.fileName || "Unknown CV", 30)}
+                </span>
               </div>
             </div>
             <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-neutral-50 border border-neutral-200">
