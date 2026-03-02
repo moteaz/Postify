@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { env } from "@/config/env";
 
 class ApiClient {
@@ -44,20 +44,20 @@ class ApiClient {
   }
 
   // Generic methods
-  async get<T>(url: string) {
-    return this.client.get<T>(url);
+  async get<T>(url: string, config?: AxiosRequestConfig) {
+    return this.client.get<T>(url, config);
   }
 
-  async post<T>(url: string, data?: any) {
-    return this.client.post<T>(url, data);
+  async post<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.client.post<T>(url, data, config);
   }
 
-  async put<T>(url: string, data?: any) {
-    return this.client.put<T>(url, data);
+  async put<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.client.put<T>(url, data, config);
   }
 
-  async delete<T>(url: string) {
-    return this.client.delete<T>(url);
+  async delete<T>(url: string, config?: AxiosRequestConfig) {
+    return this.client.delete<T>(url, config);
   }
 }
 

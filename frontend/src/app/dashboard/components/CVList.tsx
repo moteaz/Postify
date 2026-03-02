@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { FileText, Trash } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ interface CVListProps {
   onArchive: (id: string, name: string) => void;
 }
 
-export const CVList = ({ cvs, isLoading, isUpdating, onSetActive, onArchive }: CVListProps) => {
+const CVListComponent = ({ cvs, isLoading, isUpdating, onSetActive, onArchive }: CVListProps) => {
   if (isLoading) {
     return (
       <div className="grid gap-3">
@@ -89,3 +90,7 @@ export const CVList = ({ cvs, isLoading, isUpdating, onSetActive, onArchive }: C
     </div>
   );
 };
+
+export const CVList = memo(CVListComponent);
+
+CVList.displayName = "CVList";

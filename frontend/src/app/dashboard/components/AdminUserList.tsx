@@ -1,3 +1,5 @@
+import { memo } from "react";
+import Image from "next/image";
 import { Trash2, Eye, FileText, Mail, Users, Search, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,7 +15,7 @@ interface AdminUserListProps {
   onExportUsers: () => void;
 }
 
-export const AdminUserList = ({
+const AdminUserListComponent = ({
   users,
   searchQuery,
   onSearchChange,
@@ -58,7 +60,13 @@ export const AdminUserList = ({
             <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent gap-3">
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 {user.avatarUrl && (
-                  <img src={user.avatarUrl} alt={user.name} className="w-10 h-10 rounded-full flex-shrink-0" />
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+                  />
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold truncate">{user.name}</p>
@@ -102,3 +110,7 @@ export const AdminUserList = ({
     </CardContent>
   </Card>
 );
+
+export const AdminUserList = memo(AdminUserListComponent);
+
+AdminUserList.displayName = "AdminUserList";

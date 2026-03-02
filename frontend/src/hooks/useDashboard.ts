@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAutoReset } from "./useAutoReset";
 import { TIMEOUTS } from "@/config/messages";
 import { useApplications } from "./useApplications";
@@ -51,6 +51,9 @@ export function useDashboard(): UseDashboardReturn | null {
   const [activeTab, setActiveTab] = useState<DashboardTabType>(DashboardTab.NEW);
   const [success, setSuccess] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
   const [error, setError] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
+  const [hasFetchedHistory, setHasFetchedHistory] = useState(false);
+  const [hasFetchedCvs, setHasFetchedCvs] = useState(false);
+  const [hasFetchedAdmin, setHasFetchedAdmin] = useState(false); // kept for future use if needed
 
   const { user, handleLogout } = useAuth();
   const applications = useApplications();
@@ -63,25 +66,59 @@ export function useDashboard(): UseDashboardReturn | null {
   const admin = useAdmin(setSuccess, setError);
 
   useEffect(() => {
-    if (user) {
-      applications.fetchHistory();
-      cvManagement.fetchCvs();
-    }
-  }, [user]);
-
-  useEffect(() => {
     if (!user) return;
-    if (activeTab === DashboardTab.HISTORY) applications.fetchHistory();
-    if (activeTab === DashboardTab.CVS) cvManagement.fetchCvs();
-    if (activeTab === DashboardTab.ADMIN && user.role === "ADMIN") admin.fetchUsers();
-  }, [activeTab, user]);
+
+    if (!hasFetchedHistory) {
+      applications.fetchHistory();
+      setHasFetchedHistory(true);
+    }
+
+    if (!hasFetchedCvs) {
+      cvManagement.fetchCvs();
+      setHasFetchedCvs(true);
+    }
+  }, [user, hasFetchedHistory, hasFetchedCvs, applications, cvManagement]);
+
+  const handleGenerateWithRefresh = async (): Promise<void> => {
+    await generator.handleGenerate();
+    await applications.fetchHistory();
+    setHasFetchedHistory(true);
+  };
+
+  const handleSendWithRefresh = async (): Promise<void> => {
+    await generator.handleSend();
+    await applications.fetchHistory();
+    setHasFetchedHistory(true);
+  };
+
+  const handleTabChange = (tab: DashboardTabType) => {
+    setActiveTab(tab);
+
+    if (!user) return;
+
+    if (tab === DashboardTab.HISTORY && !hasFetchedHistory) {
+      applications.fetchHistory();
+      setHasFetchedHistory(true);
+    }
+
+    if (tab === DashboardTab.CVS && !hasFetchedCvs) {
+      cvManagement.fetchCvs();
+      setHasFetchedCvs(true);
+    }
+
+    // Always refresh admin data when opening the Admin tab
+    if (tab === DashboardTab.ADMIN && user.role === "ADMIN") {
+      admin.fetchUsers();
+      setHasFetchedAdmin(true);
+    }
+  };
 
   if (!user) return null;
 
   return {
     user,
     activeTab,
-    setActiveTab,
+    setActiveTab: handleTabChange,
     jobDescription: generator.jobDescription,
     setJobDescription: generator.setJobDescription,
     isGenerating: generator.isGenerating,
@@ -104,8 +141,8 @@ export function useDashboard(): UseDashboardReturn | null {
     handleUploadCV: cvManagement.handleUploadCV,
     handleSetActiveCV: cvManagement.handleSetActiveCV,
     handleSetArchivedCV: cvManagement.handleArchiveCV,
-    handleGenerate: generator.handleGenerate,
-    handleSend: generator.handleSend,
+    handleGenerate: handleGenerateWithRefresh,
+    handleSend: handleSendWithRefresh,
     handleLogout,
     adminUsers: admin.users,
     isLoadingAdminUsers: admin.isLoading,

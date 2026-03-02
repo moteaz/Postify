@@ -28,7 +28,14 @@ export const applicationService = {
   },
 
   async generateApplication(jobDescription: string): Promise<{ content: GeneratedContent; applicationId: string }> {
-    const res = await apiClient.post<GenerateResponse>("/ai/generate", { jobDescription });
+    const res = await apiClient.post<GenerateResponse>(
+      "/ai/generate",
+      { jobDescription },
+      {
+        // External AI call can be slow, allow up to 2 minutes
+        timeout: 120000,
+      }
+    );
     return { content: res.data.data.content, applicationId: res.data.data.applicationId };
   },
 

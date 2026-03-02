@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/utils/cn";
@@ -10,7 +11,7 @@ interface HistoryTabProps {
   onCreateNew: () => void;
 }
 
-export const HistoryTab = ({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
+const HistoryTabComponent = ({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
   if (isLoading) {
     return (
       <div className="grid gap-2 sm:gap-3">
@@ -87,3 +88,7 @@ export const HistoryTab = ({ history, isLoading, onViewDetails, onCreateNew }: H
     </div>
   );
 };
+
+export const HistoryTab = memo(HistoryTabComponent);
+
+HistoryTab.displayName = "HistoryTab";

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { authService } from "@/services/api";
@@ -12,16 +12,19 @@ interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const router = useRouter();
   const { user, setUser, logout } = useAuthStore();
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (!user) {
-      authService.getCurrentUser()
-        .then(setUser)
-        .catch(() => {
-          logout();
-          router.replace("/");
-        });
-    }
+    if (user || hasFetchedRef.current) return;
+
+    hasFetchedRef.current = true;
+
+    authService.getCurrentUser()
+      .then(setUser)
+      .catch(() => {
+        logout();
+        router.replace("/");
+      });
   }, [user, router, setUser, logout]);
 
   const handleLogout = useCallback(async () => {
