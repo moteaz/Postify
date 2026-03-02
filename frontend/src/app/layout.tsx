@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { defaultMetadata } from "@/config/seo";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { QueryProvider } from "@/components/QueryProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -15,7 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}>
-        {children}
+        <QueryProvider>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </QueryProvider>
       </body>
     </html>
   );
