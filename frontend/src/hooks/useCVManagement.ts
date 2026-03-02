@@ -9,12 +9,12 @@ interface UseCVManagementReturn {
   isLoadingCvs: boolean;
   isUpdatingCV: boolean;
   activeCV: CV | undefined;
-  archiveConfirm: { id: string; name: string } | null;
-  setArchiveConfirm: (confirm: { id: string; name: string } | null) => void;
+  archiveConfirmation: { id: string; name: string } | null;
+  setArchiveConfirmation: (confirm: { id: string; name: string } | null) => void;
   fetchCvs: () => Promise<void>;
   handleUploadCV: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleSetActiveCV: (id: string) => Promise<void>;
-  handleSetArchivedCV: (id: string) => Promise<void>;
+  handleArchiveCV: (id: string) => Promise<void>;
 }
 
 export function useCVManagement(
@@ -24,7 +24,7 @@ export function useCVManagement(
   const [cvs, setCvs] = useState<CV[]>([]);
   const [isLoadingCvs, setIsLoadingCvs] = useState(false);
   const [isUpdatingCV, setIsUpdatingCV] = useState(false);
-  const [archiveConfirm, setArchiveConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [archiveConfirmation, setArchiveConfirmation] = useState<{ id: string; name: string } | null>(null);
 
   const fetchCvs = useCallback(async (): Promise<void> => {
     setIsLoadingCvs(true);
@@ -51,15 +51,15 @@ export function useCVManagement(
     }
   }, [fetchCvs, onSuccess, onError]);
 
-  const handleSetArchivedCV = useCallback(async (id: string): Promise<void> => {
+  const handleArchiveCV = useCallback(async (id: string): Promise<void> => {
     setIsUpdatingCV(true);
     try {
       await cvService.setArchived(id);
-      setArchiveConfirm(null);
+      setArchiveConfirmation(null);
       await fetchCvs();
       onSuccess(MESSAGES.CV_ARCHIVE_SUCCESS);
     } catch (error) {
-      setArchiveConfirm(null);
+      setArchiveConfirmation(null);
       onError(handleApiError(error));
     } finally {
       setIsUpdatingCV(false);
@@ -86,11 +86,11 @@ export function useCVManagement(
     isLoadingCvs,
     isUpdatingCV,
     activeCV,
-    archiveConfirm,
-    setArchiveConfirm,
+    archiveConfirmation,
+    setArchiveConfirmation,
     fetchCvs,
     handleUploadCV,
     handleSetActiveCV,
-    handleSetArchivedCV,
+    handleArchiveCV,
   };
 }
