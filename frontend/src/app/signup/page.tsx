@@ -1,52 +1,46 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { env } from "@/config/env";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import AuthLayout from "@/components/auth/AuthLayout";
-import GoogleButton from "@/components/auth/GoogleButton";
-import Divider from "@/components/auth/Divider";
-import ValueProp from "@/components/auth/ValueProp";
+import BrandPanel from "@/components/auth/BrandPanel";
+import AuthCard from "@/components/auth/AuthCard";
 
 export default function SignupPage() {
-  const handleGoogleSignup = () => {
+  const [activeTab, setActiveTab] = useState<"login" | "signup">("signup");
+
+  const handleGoogleAuth = async () => {
     window.location.href = `${env.apiUrl}/auth/google`;
   };
 
   return (
-    <AuthLayout>
-      <Card className="w-full max-w-5xl grid md:grid-cols-2 gap-0 overflow-hidden border-border shadow-xl">
-        <ValueProp />
+    <div className="flex min-h-screen bg-[#F9F7F4]">
+      <BrandPanel activeTab={activeTab} />
 
-        <CardContent className="flex flex-col justify-center p-6 sm:p-8 lg:p-12 space-y-5 sm:space-y-6">
-          <div className="space-y-1 sm:space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Create Account
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Start applying smarter today
-            </p>
-          </div>
+      <div className="flex-1 flex items-center justify-center p-8 sm:p-12 overflow-y-auto">
+        <div className="w-full max-w-md">
+          <Link href="/" className="md:hidden flex items-center gap-2 justify-center mb-8 hover:opacity-80 transition">
+            <div className="rounded-xl p-1.5 bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0]">
+              <Mail className="text-white" size={14} />
+            </div>
+            <span className="font-[family-name:var(--font-display)] font-bold text-xl text-[#1C1917]">Postify</span>
+          </Link>
 
-          <GoogleButton onClick={handleGoogleSignup} text="Sign up with Google" />
+          <AuthCard activeTab={activeTab} onTabChange={setActiveTab} onGoogleAuth={handleGoogleAuth} />
+        </div>
+      </div>
 
-          <Divider text="Fast Access" />
-
-          <p className="text-xs text-center text-muted-foreground leading-relaxed px-2">
-            No long forms. We&apos;ll use your Google profile to set up your Postify workspace instantly.
-          </p>
-
-          <div className="text-center pt-2 sm:pt-4">
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Button variant="link" asChild className="p-0 h-auto">
-                <Link href="/login">Log in</Link>
-              </Button>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </AuthLayout>
+      <style jsx global>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+        .animate-shake {
+          animation: shake 0.3s ease-in-out;
+        }
+      `}</style>
+    </div>
   );
 }
