@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ScrollProgressBar from "@/components/landing/ui/ScrollProgressBar";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import SocialProof from "@/components/landing/SocialProof";
@@ -10,23 +11,15 @@ import CTABanner from "@/components/landing/CTABanner";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 export default function Home() {
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
-      setScrollProgress(progress);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <div className="min-h-screen bg-[#F9F7F4] overflow-x-hidden">
-      <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[#7C9EE8] to-[#F0A8C0] z-[100] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
+      <ScrollProgressBar />
       <Navbar />
       <Hero mounted={mounted} />
       <SocialProof />

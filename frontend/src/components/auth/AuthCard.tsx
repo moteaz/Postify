@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import GoogleButton from "./GoogleButton";
-import TermsCheckbox from "./TermsCheckbox";
 
 interface AuthCardProps {
   activeTab: "login" | "signup";
@@ -13,8 +12,6 @@ interface AuthCardProps {
 
 export default function AuthCard({ activeTab, onTabChange, onGoogleAuth }: AuthCardProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState(false);
   const [animating, setAnimating] = useState(false);
 
   const switchTab = (tab: "login" | "signup") => {
@@ -22,17 +19,11 @@ export default function AuthCard({ activeTab, onTabChange, onGoogleAuth }: AuthC
     setAnimating(true);
     setTimeout(() => {
       onTabChange(tab);
-      setTermsError(false);
-      setTermsAccepted(false);
       setAnimating(false);
     }, 150);
   };
 
   const handleGoogleClick = async () => {
-    if (activeTab === "signup" && !termsAccepted) {
-      setTermsError(true);
-      return;
-    }
     setIsLoading(true);
     try {
       await onGoogleAuth();
@@ -96,12 +87,6 @@ export default function AuthCard({ activeTab, onTabChange, onGoogleAuth }: AuthC
           <span className="text-xs text-[#A8A29E] font-medium px-1">Secured by Google</span>
           <div className="flex-1 h-px bg-[#EAE7E3]" />
         </div>
-
-        {activeTab === "signup" && (
-          <div className="animate-in fade-in duration-250">
-            <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} hasError={termsError} />
-          </div>
-        )}
 
         <div className="flex items-center justify-center gap-2 bg-[#F5F3F0] rounded-2xl py-3 px-4 mt-8">
           <ShieldCheck size={14} className="text-[#85D4B8]" />
