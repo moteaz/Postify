@@ -1,70 +1,78 @@
 import nodemailer from 'nodemailer';
-import { prisma } from '../utils/prisma.js';
 import path from 'path';
 import fs from 'fs';
 import { TokenManager } from './tokenManager.js';
 import { EmailConfig } from '../types/dtos.js';
 import { EmailSendError } from '../utils/customErrors.js';
 import { SMTP } from '../config/index.js';
+import { CVRepository } from '../repositories/cvRepository.js';
+import { UserRepository } from '../repositories/userRepository.js';
+import { env } from '../config/env.js';
 
-const tokenManager = new TokenManager();
+export class EmailService {
+    constructor(
+        private tokenManager: TokenManager,
+        private cvRepo: CVRepository,
+        private userRepo: UserRepository
+    ) {}
 
-export const sendApplicationEmail = async (
-    userId: string,
-    to: string,
-    subject: string,
-    body: string,
-    cvId: string
-): Promise<any> => {
-    const accessToken = await tokenManager.getValidAccessToken(userId);
+    async sendApplicationEmail(
+        userId: string,
+        to: string,
+        subject: string,
+        body: string,
+        cvId: string
+    ): Promise<any> {
+        const accessToken = await this.tokenManager.getValidAccessToken(userId);
 
-    const cv = await prisma.userCV.findUnique({ where: { id: cvId } });
-    if (!cv) throw new EmailSendError('CV not found');
+        const cv = await this.cvRepo.findById(cvId);
+        if (!cv) throw new EmailSendError('CV not found');
 
-    const cvPath = path.join(process.cwd(), 'uploads', cv.fileKey);
-    if (!fs.existsSync(cvPath)) throw new EmailSendError('CV file missing on disk');
+        const cvPath = path.join(process.cwd(), 'uploads', cv.fileKey);
+        if (!fs.existsSync(cvPath)) throw new EmailSendError('CV file missing on disk');
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+        const user = await this.userRepo.findById(userId);
 
-    const emailConfig: EmailConfig = {
-        to,
-        subject,
-        body,
-        cvPath,
-        cvFileName: cv.fileName,
-        userEmail: user?.email || ''
-    };
+        const emailConfig: EmailConfig = {
+            to,
+            subject,
+            body,
+            cvPath,
+            cvFileName: cv.fileName,
+            userEmail: user?.email || ''
+        };
 
-    return sendEmail(emailConfig, accessToken);
-};
+        return this.sendEmail(emailConfig, accessToken);
+    }
 
-const sendEmail = async (config: EmailConfig, accessToken: string): Promise<any> => {
-    const transporter = nodemailer.createTransport({
-        host: SMTP.HOST,
-        port: SMTP.PORT,
-        secure: SMTP.SECURE,
-        auth: {
-            type: 'OAuth2',
-            user: config.userEmail,
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            accessToken,
-        },
-    } as any);
-
-    const mailOptions = {
-        from: config.userEmail,
-        to: config.to,
-        subject: config.subject,
-        text: config.body,
-        html: config.body.replace(/\n/g, '<br>'),
-        attachments: [
-            {
-                filename: config.cvFileName,
-                path: config.cvPath,
+    private async sendEmail(config: EmailConfig, accessToken: string): Promise<any> {
+        const transporter = nodemailer.createTransport({
+            host: SMTP.HOST,
+            port: SMTP.PORT,
+            secure: SMTP.SECURE,
+            auth: {
+                type: 'OAuth2',
+                user: config.userEmail,
+                clientId: env.GOOGLE_CLIENT_ID,
+                clientSecret: env.GOOGLE_CLIENT_SECRET,
+                accessToken,
             },
-        ],
-    };
+        } as any);
 
-    return transporter.sendMail(mailOptions);
-};
+        const mailOptions = {
+            from: config.userEmail,
+            to: config.to,
+            subject: config.subject,
+            text: config.body,
+            html: config.body.replace(/\n/g, '<br>'),
+            attachments: [
+                {
+                    filename: config.cvFileName,
+                    path: config.cvPath,
+                },
+            ],
+        };
+
+        return transporter.sendMail(mailOptions);
+    }
+}

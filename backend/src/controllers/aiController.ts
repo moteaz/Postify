@@ -1,13 +1,15 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
-import { prisma } from '../utils/prisma.js';
 import { parseCV } from '../services/parserService.js';
 import { generateApplicationContent } from '../services/aiService.js';
 import { franc } from 'franc';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
-import { NotFoundError, ValidationError } from '../utils/errors.js';
-import { logger } from '../utils/logger.js';
+import { NotFoundError } from '../utils/errors.js';
+import { logger } from '../infrastructure/logging/logger.js';
+import { Container } from '../di/container.js';
+import { CVRepository } from '../repositories/cvRepository.js';
+import { ApplicationRepository } from '../repositories/applicationRepository.js';
 
 const detectLanguage = (text: string): string => {
     const langCode = franc(text);
@@ -24,9 +26,10 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
     const { jobDescription } = req.body;
     const userId = req.user.id;
 
-    const activeCV = await prisma.userCV.findFirst({
-        where: { userId, isActive: true },
-    });
+    const cvRepo = Container.resolve<CVRepository>('cvRepository');
+    const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
+
+    const activeCV = await cvRepo.findActiveByUserId(userId);
 
     if (!activeCV) {
         throw new NotFoundError('Please upload a CV first');
@@ -45,16 +48,13 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
         language
     );
 
-    const application = await prisma.application.create({
-        data: {
-            userId,
-            cvId: activeCV.id,
-            jobDescription,
-            recruiterEmail: result.recruiterEmail,
-            subject: result.subject,
-            coverLetter: result.coverLetter,
-            status: 'DRAFT',
-        },
+    const application = await appRepo.create({
+        userId,
+        cvId: activeCV.id,
+        jobDescription,
+        recruiterEmail: result.recruiterEmail,
+        subject: result.subject,
+        coverLetter: result.coverLetter
     });
 
     return ResponseHandler.success(res, {

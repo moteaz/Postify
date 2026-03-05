@@ -3,7 +3,7 @@ import mammoth from 'mammoth';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-import { logger } from '../utils/logger.js';
+import { logger } from '../infrastructure/logging/logger.js';
 
 const require = createRequire(import.meta.url);
 const { PDFParse } = require('pdf-parse');
@@ -15,7 +15,7 @@ export const parseCV = async (fileKey: string, mimeType: string): Promise<string
     const rootDir = path.join(__dirname, '../../');
     const filePath = path.join(rootDir, 'uploads', fileKey);
 
-    logger.info('Processing file', filePath);
+    logger.info('Processing file', { filePath });
 
     if (!fs.existsSync(filePath)) {
         throw new Error(`File not found at: ${filePath}`);
@@ -38,7 +38,7 @@ export const parseCV = async (fileKey: string, mimeType: string): Promise<string
 
             return result.text;
         } catch (err: any) {
-            logger.error('PDF Error', err.message);
+            logger.error('PDF Error', { message: err.message });
             throw new Error(`PDF Parsing failed: ${err.message}`);
         }
     } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {

@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
-import { logger } from '../utils/logger.js';
+import { logger } from '../infrastructure/logging/logger.js';
 import { PromptBuilder } from './promptBuilder.js';
 import { AIGenerationError } from '../utils/customErrors.js';
 import { PROVIDERS } from '../config/index.js';
@@ -65,7 +65,7 @@ export const generateApplicationContent = async (
 ): Promise<GenerationResult> => {
     const prompt = PromptBuilder.buildCoverLetterPrompt(jobDescription, cvText, userName, language);
 
-    logger.info(`Generating with provider: ${process.env.AI_PROVIDER || 'openai'}, model: ${model}`);
+    logger.info('Generating with provider', { provider: process.env.AI_PROVIDER || 'openai', model });
 
     try {
         const response = await aiClient.chat.completions.create({
@@ -96,11 +96,11 @@ export const generateApplicationContent = async (
         try {
             return JSON.parse(cleanContent) as GenerationResult;
         } catch (e) {
-            logger.error('JSON Parse Error', cleanContent.substring(0, 200));
+            logger.error('JSON Parse Error', { preview: cleanContent.substring(0, 200) });
             throw new Error('AI returned malformed JSON');
         }
     } catch (error: any) {
-        logger.error('Generation Exception', error.message);
+        logger.error('Generation Exception', { message: error.message });
 
         if (error.code === 'ECONNREFUSED') {
             throw new AIGenerationError(`Connection refused to AI provider. Is ${process.env.AI_PROVIDER === PROVIDERS.OLLAMA ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`);
