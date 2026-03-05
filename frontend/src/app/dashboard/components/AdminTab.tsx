@@ -57,10 +57,10 @@ export function AdminTab({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-5 grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
-              <CardContent className="p-6">
+              <CardContent className="p-5 sm:p-6">
                 <Skeleton className="h-20 w-full" />
               </CardContent>
             </Card>
@@ -79,9 +79,12 @@ export function AdminTab({
 
   return (
     <>
+      {/* Subtle gradient blob */}
+      <div className="fixed top-0 right-0 w-96 h-96 bg-[#7C9EE8]/10 rounded-full blur-3xl pointer-events-none" />
+      
       <AdminStats {...stats} />
       
-      <div className="space-y-4">
+      <div className="mt-8 space-y-4">
         <AdminUserList
           users={filteredUsers}
           searchQuery={searchQuery}

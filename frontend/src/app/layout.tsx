@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { defaultMetadata } from "@/config/seo";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QueryProvider } from "@/components/QueryProvider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+// REDESIGNED: Warm, characterful display font
+const bricolage = Bricolage_Grotesque({ 
+  subsets: ["latin"], 
+  display: "swap",
+  variable: "--font-display"
+});
+
+// REDESIGNED: Clean, friendly body font
+const jakarta = Plus_Jakarta_Sans({ 
+  subsets: ["latin"], 
+  display: "swap",
+  variable: "--font-body"
+});
 
 export const metadata: Metadata = defaultMetadata;
 
@@ -15,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}>
+    <html lang="en" className={`${bricolage.variable} ${jakarta.variable}`}>
+      <body className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] antialiased font-[family-name:var(--font-body)]">
         <QueryProvider>
           <ErrorBoundary>
             {children}

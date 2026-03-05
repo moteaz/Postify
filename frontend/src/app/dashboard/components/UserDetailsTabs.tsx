@@ -15,19 +15,22 @@ export const UserDetailsTabs = ({ activeTab, onTabChange, cvsCount, applications
   ];
 
   return (
-    <div className="flex border-b overflow-x-auto">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-colors relative whitespace-nowrap ${
-            activeTab === tab.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          {tab.label}
-          {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
-        </button>
-      ))}
+    <div className="px-7 pt-4">
+      <div className="inline-flex bg-[#F5F3F0] rounded-xl p-1 gap-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={`px-4 py-2 text-sm rounded-lg transition-all duration-150 ${
+              activeTab === tab.id
+                ? 'bg-white shadow-sm text-[#1C1917] font-semibold'
+                : 'text-[#A8A29E] hover:text-[#78716C]'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

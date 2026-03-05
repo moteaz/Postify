@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { UserDetailsHeader } from "./UserDetailsHeader";
 import { UserDetailsStats } from "./UserDetailsStats";
@@ -28,8 +27,10 @@ export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser, onPageChang
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4 backdrop-blur-sm">
-        <Card className="w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        {/* Modal */}
+        <div className="w-full max-w-2xl max-h-[88vh] bg-[#FDFCFB] rounded-3xl shadow-[0_24px_64px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           <UserDetailsHeader 
             user={user} 
             onClose={onClose} 
@@ -49,7 +50,7 @@ export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser, onPageChang
             applicationsCount={user._count.applications}
           />
 
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 overflow-y-auto animate-in fade-in duration-150">
             {activeTab === 'overview' && <UserOverviewTab user={user} />}
             {activeTab === 'cvs' && <UserCVsTab cvs={user.cvs} />}
             {activeTab === 'applications' && (
@@ -60,7 +61,7 @@ export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser, onPageChang
               />
             )}
           </div>
-        </Card>
+        </div>
       </div>
 
       {showDeleteConfirm && (

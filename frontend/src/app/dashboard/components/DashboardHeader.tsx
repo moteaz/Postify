@@ -23,13 +23,14 @@ const headers = {
   }
 };
 
+// REDESIGNED: Generous spacing, warm typography
 export const DashboardHeader = memo(({ activeTab }: DashboardHeaderProps) => {
   const { title, description } = headers[activeTab];
   
   return (
-    <header className="mb-6 sm:mb-8">
-      <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">{title}</h1>
-      <p className="text-sm sm:text-base text-neutral-600 mt-1">{description}</p>
+    <header className="mb-8">
+      <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--text-primary)] font-[family-name:var(--font-display)]">{title}</h1>
+      <p className="text-sm sm:text-base text-[var(--text-secondary)] mt-2 leading-relaxed">{description}</p>
     </header>
   );
 });

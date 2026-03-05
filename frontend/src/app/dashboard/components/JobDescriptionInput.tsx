@@ -31,12 +31,15 @@ export const JobDescriptionInput = ({
   onGenerate,
   onNavigateToCvs,
 }: JobDescriptionInputProps) => {
-  if (isLoading) return <Skeleton className="h-20 w-full rounded-lg" />;
+  if (isLoading) return <Skeleton className="h-20 w-full rounded-2xl" />;
 
   const hasActiveCV = !!activeCV;
 
   return (
     <div className="space-y-4">
+      {/* Subtle gradient blob */}
+      <div className="fixed top-0 right-0 w-96 h-96 bg-[#7C9EE8]/10 rounded-full blur-3xl pointer-events-none" />
+
       {!hasActiveCV && (
         <Alert
           variant="warning"
@@ -44,7 +47,7 @@ export const JobDescriptionInput = ({
           title={MESSAGES.NO_ACTIVE_CV}
           message={MESSAGES.NO_ACTIVE_CV_DESC}
           action={
-            <Button onClick={onNavigateToCvs} size="sm" className="whitespace-nowrap">
+            <Button onClick={onNavigateToCvs} size="sm" className="whitespace-nowrap rounded-xl">
               Upload
             </Button>
           }
@@ -52,7 +55,7 @@ export const JobDescriptionInput = ({
       )}
 
       {hasActiveCV && (
-        <div className="px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-xs font-medium border border-green-200 flex items-center gap-1.5 w-fit max-w-full">
+        <div className="px-3 py-1.5 rounded-xl bg-[#DCFCE7] text-[#16A34A] text-xs font-medium border border-[#BBF7D0] flex items-center gap-1.5 w-fit max-w-full">
           <CheckCircle2 size={12} className="flex-shrink-0" />
           <span className="truncate" title={activeCV.fileName}>
             {truncateFilename(activeCV.fileName, 50)}
@@ -64,14 +67,14 @@ export const JobDescriptionInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Paste the job description here (e.g., from LinkedIn or Indeed)..."
-        className="w-full h-80 p-6 rounded-xl bg-white border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none text-base leading-relaxed disabled:opacity-50 disabled:bg-neutral-50"
+        className="w-full h-80 p-6 rounded-2xl bg-white border border-[#EAE7E3] focus:ring-2 focus:ring-[#7C9EE8]/20 focus:border-[#7C9EE8] outline-none transition-all resize-none text-base leading-relaxed disabled:opacity-50 disabled:bg-[#F5F3F0] shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
         disabled={!hasActiveCV}
       />
 
       <Button
         onClick={onGenerate}
         disabled={!value?.trim() || isGenerating || !hasActiveCV}
-        className="w-full h-12 gap-3"
+        className="w-full h-12 gap-3 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
       >
         {isGenerating ? (
           <>
@@ -90,9 +93,11 @@ export const JobDescriptionInput = ({
 
       <div className="grid grid-cols-3 gap-4 pt-2">
         {FEATURE_BADGES.map(({ label, icon: Icon }) => (
-          <div key={label} className="flex flex-col sm:flex-row items-center gap-2 text-neutral-500 text-xs font-medium justify-center">
-            <Icon size={14} />
-            <span className="text-center">{label}</span>
+          <div key={label} className="flex flex-col sm:flex-row items-center gap-2 text-[#78716C] text-xs font-medium justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#EEF3FD] flex items-center justify-center">
+              <Icon size={14} className="text-[#7C9EE8]" />
+            </div>
+            <span className="text-center sm:text-left">{label}</span>
           </div>
         ))}
       </div>

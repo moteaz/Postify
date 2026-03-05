@@ -1,4 +1,4 @@
-import { Trash2, X, Shield } from "lucide-react";
+import { ShieldCheck, Calendar, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -14,39 +14,62 @@ export const UserDetailsHeader = ({ user, onClose, onDelete }: UserDetailsHeader
   const { canDeleteUser } = usePermissions();
   
   return (
-    <div className="p-4 sm:p-6 border-b bg-gradient-to-r from-primary/5 to-transparent">
-    <div className="flex justify-between items-start gap-3">
-      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-        {user.avatarUrl && (
-          <img src={user.avatarUrl} alt={user.name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-2 sm:ring-4 ring-primary/10 flex-shrink-0" />
-        )}
-        <div className="min-w-0 flex-1">
-          <h3 className="text-lg sm:text-2xl font-bold truncate">{user.name}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
-          <div className="flex items-center gap-2 mt-1 sm:mt-2 flex-wrap">
-            {user.role === "ADMIN" && (
-              <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                <Shield size={10} className="mr-1" /> Admin
-              </Badge>
+    <div className="p-7 pb-0">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex items-start gap-4 min-w-0 flex-1">
+          {/* Avatar with gradient ring */}
+          <div className="p-[3px] bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0] rounded-[22px] flex-shrink-0">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.name} className="w-16 h-16 rounded-xl object-cover" />
+            ) : (
+              <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center">
+                <span className="text-2xl font-bold text-[#7C9EE8] font-[family-name:var(--font-display)]">
+                  {user.name.charAt(0)}
+                </span>
+              </div>
             )}
-            <Badge variant="outline" className="text-[10px] sm:text-xs">
-              Joined {new Date(user.createdAt).toLocaleDateString()}
-            </Badge>
+          </div>
+          
+          <div className="min-w-0 flex-1">
+            <h3 className="text-xl font-bold text-[#1C1917] tracking-tight font-[family-name:var(--font-display)] truncate">
+              {user.name}
+            </h3>
+            <p className="text-sm text-[#78716C] mt-0.5 truncate">{user.email}</p>
+            
+            {/* Badges */}
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {user.role === "ADMIN" && (
+                <span className="inline-flex items-center gap-1.5 bg-[#EEF3FD] text-[#4A7BD4] border border-[#C9DAFF] rounded-lg px-2.5 py-1 text-xs font-semibold">
+                  <ShieldCheck size={12} />
+                  Admin
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 bg-[#F5F3F0] text-[#78716C] border border-[#EAE7E3] rounded-lg px-2.5 py-1 text-xs">
+                <Calendar size={12} />
+                Joined {new Date(user.createdAt).toLocaleDateString()}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex gap-1 sm:gap-2 flex-shrink-0">
-        {canDeleteUser(user.role) && (
-          <Button variant="destructive" size="sm" onClick={onDelete} className="h-8 sm:h-9">
-            <Trash2 size={14} className="sm:mr-1" />
-            <span className="hidden sm:inline">Delete</span>
-          </Button>
-        )}
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 sm:h-9 sm:w-9">
-          <X size={18} />
-        </Button>
+        
+        {/* Action buttons */}
+        <div className="flex gap-2 flex-shrink-0">
+          {canDeleteUser(user.role) && (
+            <button
+              onClick={onDelete}
+              className="rounded-xl w-9 h-9 border border-[#EAE7E3] bg-white hover:bg-[#FFF0F3] hover:border-[#F0A8C0] hover:text-red-500 transition-all duration-150 flex items-center justify-center"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="rounded-xl w-9 h-9 border border-[#EAE7E3] bg-white hover:bg-[#F5F3F0] transition-all duration-150 flex items-center justify-center"
+          >
+            <X size={16} />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
   );
 };

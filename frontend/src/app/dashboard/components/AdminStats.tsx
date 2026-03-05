@@ -10,76 +10,53 @@ interface AdminStatsProps {
   avgAppsPerUser: string;
 }
 
+// REDESIGNED: Soft pastel stat cards with hover animations and accent bars
 export const AdminStats = ({ totalUsers, totalCVs, totalApps, adminCount, avgCVsPerUser, avgAppsPerUser }: AdminStatsProps) => {
   const activeRate = totalUsers > 0 ? Math.round((totalApps / totalUsers) * 100) : 0;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-      <Card className="border-l-4 border-l-primary">
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 mb-8">
+      <Card className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-              <h3 className="text-3xl font-bold mt-2">{totalUsers}</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                {adminCount} admin{adminCount !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Users className="text-primary" size={24} />
-            </div>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">Total Users</span>
+          <h3 className="text-3xl font-bold mt-2 tracking-tight font-[family-name:var(--font-display)]">{totalUsers}</h3>
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            {adminCount} admin{adminCount !== 1 ? 's' : ''}
+          </p>
+          <div className="mt-4 h-1 rounded-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)]" />
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-blue-500">
+      <Card className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total CVs</p>
-              <h3 className="text-3xl font-bold mt-2">{totalCVs}</h3>
-              <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                <TrendingUp size={12} />
-                {avgCVsPerUser} avg/user
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-              <FileText className="text-blue-500" size={24} />
-            </div>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">Total CVs</span>
+          <h3 className="text-3xl font-bold mt-2 tracking-tight font-[family-name:var(--font-display)]">{totalCVs}</h3>
+          <p className="text-xs text-[var(--accent-mint)] mt-1 flex items-center gap-1">
+            <TrendingUp size={12} />
+            {avgCVsPerUser} avg/user
+          </p>
+          <div className="mt-4 h-1 rounded-full bg-[var(--accent-primary)]" />
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-cyan-500">
+      <Card className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Applications</p>
-              <h3 className="text-3xl font-bold mt-2">{totalApps}</h3>
-              <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                <TrendingUp size={12} />
-                {avgAppsPerUser} avg/user
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center">
-              <Mail className="text-cyan-500" size={24} />
-            </div>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">Applications</span>
+          <h3 className="text-3xl font-bold mt-2 tracking-tight font-[family-name:var(--font-display)]">{totalApps}</h3>
+          <p className="text-xs text-[var(--accent-mint)] mt-1 flex items-center gap-1">
+            <TrendingUp size={12} />
+            {avgAppsPerUser} avg/user
+          </p>
+          <div className="mt-4 h-1 rounded-full bg-[var(--accent-mint)]" />
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-slate-500">
+      <Card className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-card)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Active Rate</p>
-              <h3 className="text-3xl font-bold mt-2">{activeRate}%</h3>
-              <p className="text-xs text-muted-foreground mt-1">User engagement</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-slate-500/10 flex items-center justify-center">
-              <TrendingUp className="text-slate-500" size={24} />
-            </div>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">Active Rate</span>
+          <h3 className="text-3xl font-bold mt-2 tracking-tight font-[family-name:var(--font-display)]">{activeRate}%</h3>
+          <p className="text-xs text-[var(--text-secondary)] mt-1">User engagement</p>
+          <div className="mt-4 h-1 rounded-full bg-[var(--accent-peach)]" />
         </CardContent>
       </Card>
     </div>

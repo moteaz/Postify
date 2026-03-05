@@ -1,6 +1,6 @@
 import { memo } from "react";
 import Image from "next/image";
-import { Trash2, Eye, FileText, Mail, Users, Search, FileDown } from "lucide-react";
+import { Trash2, Eye, FileText, Mail, Users, Search, FileDown, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,92 +27,113 @@ const AdminUserListComponent = ({
   const { canDeleteUser } = usePermissions();
   
   return (
-    <Card>
-    <CardHeader>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <Card className="bg-white rounded-2xl border border-[#EAE7E3] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+      {/* Toolbar */}
+      <div className="px-5 sm:px-7 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <CardTitle className="text-xl">User Management</CardTitle>
-          <CardDescription>View and manage all platform users</CardDescription>
+          <h3 className="text-base font-semibold text-[#1C1917] font-[family-name:var(--font-display)]">User Management</h3>
+          <p className="text-xs text-[#A8A29E] mt-0.5">View and manage all platform users</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A8A29E]" size={16} />
             <Input
               placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 w-full sm:w-56 rounded-xl bg-[#F5F3F0] border-[#EAE7E3] focus:border-[#7C9EE8] focus:ring-2 focus:ring-[#7C9EE8]/20 transition-all duration-200"
             />
           </div>
-          <Button onClick={onExportUsers} variant="outline" className="gap-2">
+          {/* Export */}
+          <Button 
+            onClick={onExportUsers} 
+            variant="outline" 
+            className="rounded-xl bg-[#F5F3F0] border-[#EAE7E3] text-[#78716C] hover:bg-[#7C9EE8] hover:text-white hover:border-[#7C9EE8] transition-all duration-150 gap-2"
+          >
             <FileDown size={16} />
             <span className="hidden sm:inline">Export CSV</span>
             <span className="sm:hidden">Export</span>
           </Button>
         </div>
       </div>
-    </CardHeader>
-    <CardContent className="p-4 sm:p-6">
-      <div className="space-y-3">
+
+      {/* User List */}
+      <div className="divide-y divide-[#EAE7E3]">
         {users.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="mx-auto text-muted-foreground mb-4" size={48} />
-            <p className="text-muted-foreground">No users found</p>
+          <div className="py-16 text-center">
+            <div className="rounded-2xl bg-[#F5F3F0] p-5 mx-auto w-fit mb-4">
+              <Users className="text-[#A8A29E]" size={48} />
+            </div>
+            <p className="text-sm font-semibold text-[#1C1917]">No users found</p>
+            <p className="text-xs text-[#A8A29E] mt-1">Try adjusting your search</p>
           </div>
         ) : (
-          users.map((user) => (
-            <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent gap-3">
-              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          users.map((user, index) => (
+            <div 
+              key={user.id} 
+              className="px-5 sm:px-7 py-4 flex items-center gap-4 hover:bg-[#F9F7F4] transition-colors duration-150 cursor-pointer"
+              style={{ animation: `fadeIn 350ms ease-out ${index * 50}ms both` }}
+              onClick={() => onViewUser(user.id)}
+            >
+              {/* Avatar with gradient ring */}
+              <div className="p-[2px] bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0] rounded-[18px] flex-shrink-0">
                 {user.avatarUrl && (
                   <Image
                     src={user.avatarUrl}
                     alt={user.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+                    width={44}
+                    height={44}
+                    className="w-11 h-11 rounded-2xl object-cover"
                   />
                 )}
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold truncate">{user.name}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+              </div>
+              
+              {/* User info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-[#1C1917] truncate">{user.name}</p>
                   {user.role === "ADMIN" && (
-                    <span className="inline-block mt-1 text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
-                      ADMIN
+                    <span className="inline-flex items-center gap-1 bg-[#EEF3FD] text-[#4A7BD4] border border-[#C9DAFF] rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                      <ShieldCheck size={10} />
+                      Admin
                     </span>
                   )}
                 </div>
+                <p className="text-xs text-[#78716C] mt-0.5 truncate">{user.email}</p>
               </div>
-              <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-                <div className="flex gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <FileText size={14} className="sm:w-4 sm:h-4" /> {user._count.cvs}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Mail size={14} className="sm:w-4 sm:h-4" /> {user._count.applications}
-                  </span>
+              
+              {/* Stats + Actions */}
+              <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                {/* CV count - hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <FileText size={14} className="text-[#7C9EE8]" />
+                  <span className="text-sm font-medium text-[#78716C]">{user._count.cvs}</span>
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => onViewUser(user.id)} className="h-8 text-xs">
-                    <Eye size={14} /> View
-                  </Button>
-                  {canDeleteUser(user.role) && (
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => onDeleteUser(user.id, user.email)}
-                      className="h-8"
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  )}
+                {/* App count - hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <Mail size={14} className="text-[#F0A8C0]" />
+                  <span className="text-sm font-medium text-[#78716C]">{user._count.applications}</span>
                 </div>
+                {/* View button */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewUser(user.id);
+                  }}
+                  className="rounded-xl bg-[#F5F3F0] border-[#EAE7E3] text-[#78716C] hover:bg-[#7C9EE8] hover:text-white hover:border-[#7C9EE8] transition-all duration-150 gap-1.5 active:scale-95"
+                >
+                  <Eye size={13} />
+                  View
+                </Button>
               </div>
             </div>
           ))
         )}
       </div>
-    </CardContent>
-  </Card>
+    </Card>
   );
 };
 

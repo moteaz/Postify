@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { Mail, Eye } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/Pagination";
 import { ApplicationDetailModal } from "./ApplicationDetailModal";
 import type { Application, PaginationMeta } from "@/types";
@@ -18,56 +15,54 @@ export const UserApplicationsTab = ({ applications, pagination, onPageChange }: 
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="space-y-2 sm:space-y-3">
-          {applications.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <Mail className="mx-auto text-muted-foreground mb-3 sm:mb-4" size={40} />
-              <p className="text-sm sm:text-base text-muted-foreground">No applications generated</p>
+      <div className="p-5 max-h-[340px] overflow-y-auto space-y-3">
+        {applications.length === 0 ? (
+          <div className="text-center py-12">
+            <Mail className="mx-auto text-[#A8A29E] mb-4" size={40} />
+            <p className="text-sm text-[#A8A29E]">No applications generated</p>
+          </div>
+        ) : (
+          applications.map((app) => (
+            <div
+              key={app.id}
+              className="bg-white rounded-2xl px-5 py-4 border border-[#EAE7E3] hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex items-center gap-4"
+            >
+              <div className="rounded-xl p-2.5 bg-[#FFF0F6] text-[#F0A8C0] flex-shrink-0">
+                <Mail size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#1C1917] truncate">{app.subject}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-xs text-[#A8A29E] truncate">{app.recruiterEmail}</p>
+                  <span className="text-[#A8A29E]">•</span>
+                  <p className="text-xs text-[#A8A29E]">{new Date(app.generatedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className={`text-xs rounded-full px-2.5 py-1 font-semibold whitespace-nowrap ${
+                  app.status === 'SENT'
+                    ? 'bg-[#DCFCE7] text-[#166534]'
+                    : 'bg-[#FEF9C3] text-[#854D0E]'
+                }`}>
+                  {app.status}
+                </span>
+                <button
+                  onClick={() => setSelectedApp(app)}
+                  className="rounded-xl border border-[#EAE7E3] bg-white hover:bg-[#EEF3FD] px-3 py-2 text-xs font-medium text-[#4A7BD4] transition-all duration-150 flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
+                >
+                  <Eye size={14} />
+                  View
+                </button>
+              </div>
             </div>
-          ) : (
-            applications.map((app) => (
-              <Card key={app.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                        <Mail className="text-cyan-500" size={16} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm sm:text-base font-medium truncate">{app.subject}</p>
-                        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground mt-1">
-                          <span className="truncate max-w-[120px] sm:max-w-none">{app.recruiterEmail}</span>
-                          <span>•</span>
-                          <span>{new Date(app.generatedAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={app.status === 'SENT' ? 'default' : app.status === 'FAILED' ? 'destructive' : 'secondary'}
-                        className="text-[10px] sm:text-xs"
-                      >
-                        {app.status}
-                      </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedApp(app)}
-                        className="gap-1"
-                      >
-                        <Eye size={14} />
-                        <span className="hidden sm:inline">View</span>
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-        {pagination && <Pagination pagination={pagination} onPageChange={onPageChange} />}
+          ))
+        )}
       </div>
+      {pagination && applications.length > 0 && (
+        <div className="px-5 pb-5">
+          <Pagination pagination={pagination} onPageChange={onPageChange} />
+        </div>
+      )}
 
       {selectedApp && (
         <ApplicationDetailModal
