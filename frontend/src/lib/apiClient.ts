@@ -35,7 +35,9 @@ class ApiClient {
         
         // Handle network errors
         if (!error.response) {
-          console.error("Network error:", error.message);
+          if (process.env.NODE_ENV === 'development') {
+            console.error("Network error:", error.message);
+          }
         }
 
         return Promise.reject(error);

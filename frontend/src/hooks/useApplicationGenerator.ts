@@ -2,6 +2,9 @@ import { useState, useCallback } from "react";
 import { applicationService } from "@/services/api";
 import { handleApiError } from "@/utils/errorHandler";
 import { MESSAGES } from "@/config/messages";
+import { useRateLimit } from "@/hooks/useRateLimit";
+import { sanitizeInput } from "@/utils/security/sanitize";
+import { VALIDATION } from "@/utils/security/validation";
 import type { GeneratedContent } from "@/types";
 
 interface UseApplicationGeneratorReturn {
@@ -26,13 +29,23 @@ export function useApplicationGenerator(
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const { canProceed, recordAttempt, getRemainingTime } = useRateLimit(5, 60000);
 
   const handleGenerate = useCallback(async () => {
     if (!jobDescription.trim()) return;
 
+    if (!canProceed()) {
+      const remaining = getRemainingTime();
+      onError(`Rate limit exceeded. Please wait ${remaining} seconds.`);
+      return;
+    }
+
+    const sanitized = sanitizeInput(jobDescription, VALIDATION.MAX_JOB_DESCRIPTION_LENGTH);
+
     setIsGenerating(true);
+    recordAttempt();
     try {
-      const result = await applicationService.generateApplication(jobDescription);
+      const result = await applicationService.generateApplication(sanitized);
       setGeneratedContent(result.content);
       setApplicationId(result.applicationId);
     } catch (error) {
@@ -42,7 +55,7 @@ export function useApplicationGenerator(
     } finally {
       setIsGenerating(false);
     }
-  }, [jobDescription, onNavigateToCvs, onError]);
+  }, [jobDescription, onNavigateToCvs, onError, canProceed, recordAttempt, getRemainingTime]);
 
   const handleSend = useCallback(async (): Promise<void> => {
     if (!generatedContent || !applicationId) return;

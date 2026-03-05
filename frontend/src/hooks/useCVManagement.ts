@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { cvService } from "@/services/api";
 import { handleApiError } from "@/utils/errorHandler";
 import { MESSAGES } from "@/config/messages";
+import { validateFileSize, validateFileType } from "@/utils/security/validation";
 import type { CV } from "@/types";
 
 interface UseCVManagementReturn {
@@ -41,6 +42,16 @@ export function useCVManagement(
   const handleUploadCV = useCallback(async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!validateFileSize(file.size)) {
+      onError("File too large. Maximum size is 5MB.");
+      return;
+    }
+
+    if (!validateFileType(file.type)) {
+      onError("Invalid file type. Only PDF and DOCX files are allowed.");
+      return;
+    }
 
     try {
       await cvService.upload(file);
