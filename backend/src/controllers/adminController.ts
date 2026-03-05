@@ -104,7 +104,7 @@ export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Respons
         prisma.userCV.findMany({
             where: { userId: id },
             orderBy: { uploadedAt: 'desc' },
-            take: 10 // Limit CVs to 10 most recent
+            take: 10
         }),
         prisma.application.findMany({
             where: { userId: id },
@@ -145,9 +145,6 @@ export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response): 
     }
 
     await prisma.user.delete({ where: { id } });
-
-    // Activity log
-    console.log(`[ADMIN ACTION] ${req.user.email} deleted user ${user.email} at ${new Date().toISOString()}`);
 
     return ResponseHandler.success(res, null, 'User deleted successfully');
 });

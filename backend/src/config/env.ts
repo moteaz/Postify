@@ -17,11 +17,7 @@ const envSchema = z.object({
     OLLAMA_BASE_URL: z.string().url().optional(),
     SMTP_HOST: z.string().default('smtp.gmail.com'),
     SMTP_PORT: z.string().default('465'),
-    ADMIN_EMAILS: z.string().optional(),
-    // Cloudinary (optional, for future migration)
-    CLOUDINARY_CLOUD_NAME: z.string().optional(),
-    CLOUDINARY_API_KEY: z.string().optional(),
-    CLOUDINARY_API_SECRET: z.string().optional()
+    ADMIN_EMAILS: z.string().optional()
 });
 
 export const env = envSchema.parse(process.env);

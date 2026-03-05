@@ -2,7 +2,7 @@ import { memo } from "react";
 import { History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/Pagination";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import type { Application, PaginationMeta } from "@/types";
 
 interface HistoryTabProps {

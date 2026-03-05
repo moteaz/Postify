@@ -1,0 +1,10 @@
+{
+  "name": "Postify",
+  "short_name": "Postify",
+  "description": "AI-Powered Job Applications",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366F1",
+  "icons": []
+}

@@ -6,7 +6,6 @@ import { franc } from 'franc';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError } from '../utils/errors.js';
-import { logger } from '../infrastructure/logging/logger.js';
 import { Container } from '../di/container.js';
 import { CVRepository } from '../repositories/cvRepository.js';
 import { ApplicationRepository } from '../repositories/applicationRepository.js';
@@ -36,8 +35,6 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
     }
 
     const cvText = await parseCV(activeCV.fileKey, activeCV.mimeType);
-    logger.info('Parsed CV Text', cvText.substring(0, 200));
-    
 
     const language = detectLanguage(jobDescription);
 

@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 import { protect } from '../middleware/auth.js';
 import { uploadCV, getMyCVs, deleteCV, setActiveCV, setArchivedCV } from '../controllers/cvController.js';
 import { FILE_UPLOAD } from '../config/constants.js';
-import { sanitizeFilename } from '../utils/validators.js';
 import { uploadLimiter } from '../middleware/rateLimiter.js';
 
 const __filename = fileURLToPath(import.meta.url);

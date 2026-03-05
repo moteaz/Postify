@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { logger } from '../infrastructure/logging/logger.js';
-import { TokenRefreshError } from '../utils/customErrors.js';
-import { PROVIDERS } from '../config/index.js';
+import { TokenRefreshError } from '../utils/errors.js';
+import { PROVIDERS } from '../config/constants.js';
 import { OAuthTokenRepository } from '../repositories/oauthTokenRepository.js';
 import { env } from '../config/env.js';
 

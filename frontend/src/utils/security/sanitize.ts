@@ -12,14 +12,3 @@ export const sanitizeInput = (input: string, maxLength?: number): string => {
   
   return sanitized;
 };
-
-export const sanitizeEmail = (email: string): string => {
-  return email.trim().toLowerCase().substring(0, 254);
-};
-
-export const sanitizeHtml = (html: string): string => {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
-    ALLOWED_ATTR: []
-  });
-};

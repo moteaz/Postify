@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Plus, History, FileText, LogOut, Shield } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import type { User } from "@/types";
 

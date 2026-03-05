@@ -15,29 +15,20 @@ class ApiClient {
   }
 
   private setupInterceptors() {
-    // Request interceptor
     this.client.interceptors.request.use(
-      (config) => {
-        // Add loading state, auth tokens, etc.
-        return config;
-      },
+      (config) => config,
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        // Handle 401 (redirect to login)
         if (error.response?.status === 401) {
           window.location.href = "/login";
         }
         
-        // Handle network errors
-        if (!error.response) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error("Network error:", error.message);
-          }
+        if (!error.response && process.env.NODE_ENV === 'development') {
+          console.error("Network error:", error.message);
         }
 
         return Promise.reject(error);
@@ -45,7 +36,6 @@ class ApiClient {
     );
   }
 
-  // Generic methods
   async get<T>(url: string, config?: AxiosRequestConfig) {
     return this.client.get<T>(url, config);
   }

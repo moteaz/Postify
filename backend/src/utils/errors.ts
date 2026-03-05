@@ -27,3 +27,21 @@ export class UnauthorizedError extends AppError {
         super(message, 401);
     }
 }
+
+export class AIGenerationError extends AppError {
+    constructor(message: string = 'AI generation failed') {
+        super(message, 500);
+    }
+}
+
+export class EmailSendError extends AppError {
+    constructor(message: string = 'Email sending failed') {
+        super(message, 500);
+    }
+}
+
+export class TokenRefreshError extends AppError {
+    constructor(message: string = 'Token refresh failed') {
+        super(message, 401);
+    }
+}

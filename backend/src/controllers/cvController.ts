@@ -82,9 +82,7 @@ export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
         const localPath = path.join(__dirname, '../../uploads', cv.fileKey);
         try {
             await fs.unlink(localPath);
-        } catch (err) {
-            // File doesn't exist, ignore
-        }
+        } catch (err) {}
     });
 
     return ResponseHandler.success(res, null, 'CV deleted successfully');

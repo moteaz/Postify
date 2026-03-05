@@ -112,6 +112,3 @@ export const Toast = ({
     </div>
   );
 };
-
-// Keep the keyframes in globals.css
-

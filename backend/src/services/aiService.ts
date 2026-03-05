@@ -2,8 +2,8 @@ import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import { logger } from '../infrastructure/logging/logger.js';
 import { PromptBuilder } from './promptBuilder.js';
-import { AIGenerationError } from '../utils/customErrors.js';
-import { PROVIDERS } from '../config/index.js';
+import { AIGenerationError } from '../utils/errors.js';
+import { PROVIDERS } from '../config/constants.js';
 
 dotenv.config();
 
@@ -65,8 +65,6 @@ export const generateApplicationContent = async (
 ): Promise<GenerationResult> => {
     const prompt = PromptBuilder.buildCoverLetterPrompt(jobDescription, cvText, userName, language);
 
-    logger.info('Generating with provider', { provider: process.env.AI_PROVIDER || 'openai', model });
-
     try {
         const response = await aiClient.chat.completions.create({
             model: model,
@@ -80,8 +78,6 @@ export const generateApplicationContent = async (
 
         const content = response.choices[0].message.content;
         if (!content) throw new Error('AI generation returned empty content');
-
-        logger.info('Raw Response received');
 
         const start = content.indexOf('{');
         const end = content.lastIndexOf('}');

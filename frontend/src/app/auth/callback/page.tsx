@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiClient } from "@/lib/apiClient";
-import type { MeResponse } from "@/types";
+import type { User } from "@/types";
 import { Loader2 } from "lucide-react";
 
 export default function AuthCallback() {
@@ -12,7 +12,7 @@ export default function AuthCallback() {
     const { setUser } = useAuthStore();
 
     useEffect(() => {
-        apiClient.get<MeResponse>("/auth/me")
+        apiClient.get<{ data: { user: User } }>("/auth/me")
             .then((res) => {
                 setUser(res.data.data.user);
                 router.push("/dashboard");
