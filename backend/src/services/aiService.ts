@@ -1,20 +1,23 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import { logger } from '../utils/logger.js';
+import { PromptBuilder } from './promptBuilder.js';
+import { AIGenerationError } from '../utils/customErrors.js';
+import { PROVIDERS } from '../config/index.js';
 
 dotenv.config();
 
 const getAIClient = () => {
-    const provider = process.env.AI_PROVIDER || 'openai';
+    const provider = process.env.AI_PROVIDER || PROVIDERS.OPENAI;
 
-    if (provider === 'ollama') {
+    if (provider === PROVIDERS.OLLAMA) {
         return new OpenAI({
             baseURL: `${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}/v1`,
             apiKey: 'ollama',
         });
     }
 
-    if (provider === 'openrouter') {
+    if (provider === PROVIDERS.OPENROUTER) {
         return new OpenAI({
             baseURL: 'https://openrouter.ai/api/v1',
             apiKey: process.env.OPENROUTER_API_KEY,
@@ -25,7 +28,7 @@ const getAIClient = () => {
         });
     }
 
-    if (provider === 'huggingface') {
+    if (provider === PROVIDERS.HUGGINGFACE) {
         return new OpenAI({
             baseURL: 'https://router.huggingface.co/v1',
             apiKey: process.env.HF_TOKEN,
@@ -39,10 +42,10 @@ const getAIClient = () => {
 
 const aiClient = getAIClient();
 const getModel = () => {
-    const provider = process.env.AI_PROVIDER || 'openai';
-    if (provider === 'ollama') return process.env.OLLAMA_MODEL || 'llama3';
-    if (provider === 'openrouter') return process.env.OPENROUTER_MODEL || 'anthropic/claude-3-haiku';
-    if (provider === 'huggingface') return process.env.HF_MODEL || 'deepseek-ai/DeepSeek-R1:novita';
+    const provider = process.env.AI_PROVIDER || PROVIDERS.OPENAI;
+    if (provider === PROVIDERS.OLLAMA) return process.env.OLLAMA_MODEL || 'llama3';
+    if (provider === PROVIDERS.OPENROUTER) return process.env.OPENROUTER_MODEL || 'anthropic/claude-3-haiku';
+    if (provider === PROVIDERS.HUGGINGFACE) return process.env.HF_MODEL || 'deepseek-ai/DeepSeek-R1:novita';
     return process.env.OPENAI_MODEL || 'gpt-4o';
 };
 
@@ -60,35 +63,7 @@ export const generateApplicationContent = async (
     userName: string,
     language: string = 'English'
 ): Promise<GenerationResult> => {
-    const prompt = `
-    You are an expert career coach and professional writer. 
-    Analyze the following job description and candidate's CV.
-    
-    Job Description:
-    """
-    ${jobDescription}
-    """
-    
-    Candidate's CV (text extract):
-    """
-    ${cvText}
-    """
-    
-    Candidate's Name: ${userName}
-    Language to respond in: ${language}
-
-    Task:
-    1. Write a professional, tailored cover letter (max 350 words, formal tone).
-    2. Create a concise, compelling email subject line for the job application.
-    3. Extract the recruiter's email address if found in the job description.
-
-    Respond ONLY in valid JSON format with the following keys:
-    {
-      "coverLetter": "...",
-      "subject": "...",
-      "recruiterEmail": "..." or null
-    }
-  `;
+    const prompt = PromptBuilder.buildCoverLetterPrompt(jobDescription, cvText, userName, language);
 
     logger.info(`Generating with provider: ${process.env.AI_PROVIDER || 'openai'}, model: ${model}`);
 
@@ -99,7 +74,7 @@ export const generateApplicationContent = async (
                 { role: 'system', content: 'You are a professional recruiting assistant. You always respond in valid JSON.' },
                 { role: 'user', content: prompt }
             ],
-            response_format: process.env.AI_PROVIDER === 'openai' ? { type: 'json_object' } : undefined,
+            response_format: process.env.AI_PROVIDER === PROVIDERS.OPENAI ? { type: 'json_object' } : undefined,
             temperature: 0.7,
         });
 
@@ -128,13 +103,13 @@ export const generateApplicationContent = async (
         logger.error('Generation Exception', error.message);
 
         if (error.code === 'ECONNREFUSED') {
-            throw new Error(`Connection refused to AI provider. Is ${process.env.AI_PROVIDER === 'ollama' ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`);
+            throw new AIGenerationError(`Connection refused to AI provider. Is ${process.env.AI_PROVIDER === PROVIDERS.OLLAMA ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`);
         }
 
-        if (error.status === 404 && process.env.AI_PROVIDER === 'ollama') {
-            throw new Error(`Model '${model}' not found in Ollama. Run 'ollama pull ${model}' in your terminal.`);
+        if (error.status === 404 && process.env.AI_PROVIDER === PROVIDERS.OLLAMA) {
+            throw new AIGenerationError(`Model '${model}' not found in Ollama. Run 'ollama pull ${model}' in your terminal.`);
         }
 
-        throw new Error(`AI Provider Error: ${error.message}`);
+        throw new AIGenerationError(`AI Provider Error: ${error.message}`);
     }
 };

@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const users = await prisma.user.findMany({
         select: {
             id: true,
@@ -33,7 +33,7 @@ export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response) 
     return ResponseHandler.success(res, { users });
 });
 
-export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const users = await prisma.user.findMany({
         select: {
             email: true,
@@ -62,7 +62,7 @@ export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response) 
     res.send(csv);
 });
 
-export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
 
     const user = await prisma.user.findUnique({
@@ -85,7 +85,7 @@ export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Respons
     return ResponseHandler.success(res, { user });
 });
 
-export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
 
     if (id === req.user.id) {
@@ -110,7 +110,7 @@ export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response) =
     return ResponseHandler.success(res, null, 'User deleted successfully');
 });
 
-export const downloadCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const downloadCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { cvId } = req.params;
 
     const cv = await prisma.userCV.findUnique({

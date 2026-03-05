@@ -11,7 +11,7 @@ import { NotFoundError, ValidationError } from '../utils/errors.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.file) {
         throw new ValidationError('No file uploaded');
     }
@@ -38,7 +38,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
     return ResponseHandler.success(res, { cv }, 'CV uploaded successfully', 201);
 });
 
-export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const cvs = await prisma.userCV.findMany({
         where: { 
             userId: req.user.id,
@@ -50,7 +50,7 @@ export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response) => 
     return ResponseHandler.success(res, { cvs });
 });
 
-export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
 
     const cv = await prisma.userCV.findFirst({
@@ -83,7 +83,7 @@ export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response) => 
     return ResponseHandler.success(res, null, 'CV deleted successfully');
 });
 
-export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user.id;
 
@@ -112,7 +112,7 @@ export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response) 
     return ResponseHandler.success(res, { cv: updated }, 'Active CV updated');
 });
 
-export const setArchivedCV = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const setArchivedCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user.id;
 

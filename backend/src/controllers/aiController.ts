@@ -20,7 +20,7 @@ const detectLanguage = (text: string): string => {
     return langMap[langCode] || 'English';
 };
 
-export const generateContent = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const generateContent = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { jobDescription } = req.body;
     const userId = req.user.id;
 

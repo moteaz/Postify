@@ -9,7 +9,7 @@ import { isValidEmail } from '../utils/validators.js';
 import DOMPurify from 'isomorphic-dompurify';
 import { logger } from '../utils/logger.js';
 
-export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { applicationId, to, subject, body } = req.body;
     const userId = req.user.id;
 
@@ -47,7 +47,7 @@ export const sendApplication = asyncHandler(async (req: AuthRequest, res: Respon
     return ResponseHandler.success(res, null, 'Application sent successfully!');
 });
 
-export const getHistory = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const getHistory = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const history = await prisma.application.findMany({
         where: { userId: req.user.id },
         orderBy: { generatedAt: 'desc' },
