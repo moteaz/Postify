@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { Plus, History, FileText, LogOut, Shield } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { usePermissions } from "@/hooks/usePermissions";
 import type { User } from "@/types";
-import { UserRole } from "@/types";
 
 interface SidebarProps {
   user: User | null;
@@ -18,7 +18,7 @@ const tabs = [
 ];
 
 export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: SidebarProps) => {
-  const isAdmin = user?.role === UserRole.ADMIN;
+  const { canAccessAdmin } = usePermissions();
 
   return (
   <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-white flex flex-col">
@@ -60,7 +60,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
             <span className="sm:hidden">{shortLabel}</span>
           </button>
         ))}
-        {isAdmin && (
+        {canAccessAdmin && (
           <button
             onClick={() => onTabChange("admin")}
             className={cn(

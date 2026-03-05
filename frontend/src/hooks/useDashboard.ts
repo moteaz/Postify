@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { useAutoReset } from "./useAutoReset";
-import { TIMEOUTS } from "@/config/messages";
+import { useState, useEffect } from "react";
+import { useDashboardState } from "./useDashboardState";
 import { useApplications } from "./useApplications";
 import { useCVManagement } from "./useCVManagement";
 import { useApplicationGenerator } from "./useApplicationGenerator";
@@ -48,22 +47,20 @@ interface UseDashboardReturn {
 }
 
 export function useDashboard(): UseDashboardReturn | null {
-  const [activeTab, setActiveTab] = useState<DashboardTabType>(DashboardTab.NEW);
-  const [success, setSuccess] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
-  const [error, setError] = useAutoReset<string | null>(null, TIMEOUTS.TOAST_DURATION, null);
+  const state = useDashboardState();
   const [hasFetchedHistory, setHasFetchedHistory] = useState(false);
   const [hasFetchedCvs, setHasFetchedCvs] = useState(false);
-  const [hasFetchedAdmin, setHasFetchedAdmin] = useState(false); // kept for future use if needed
+  const [hasFetchedAdmin, setHasFetchedAdmin] = useState(false);
 
   const { user, handleLogout } = useAuth();
   const applications = useApplications();
-  const cvManagement = useCVManagement(setSuccess, setError);
+  const cvManagement = useCVManagement(state.setSuccess, state.setError);
   const generator = useApplicationGenerator(
-    setSuccess,
-    setError,
-    () => setActiveTab(DashboardTab.CVS)
+    state.setSuccess,
+    state.setError,
+    () => state.setActiveTab(DashboardTab.CVS)
   );
-  const admin = useAdmin(setSuccess, setError);
+  const admin = useAdmin(state.setSuccess, state.setError);
 
   useEffect(() => {
     if (!user) return;
@@ -92,7 +89,7 @@ export function useDashboard(): UseDashboardReturn | null {
   };
 
   const handleTabChange = (tab: DashboardTabType) => {
-    setActiveTab(tab);
+    state.setActiveTab(tab);
 
     if (!user) return;
 
@@ -117,7 +114,7 @@ export function useDashboard(): UseDashboardReturn | null {
 
   return {
     user,
-    activeTab,
+    ...state,
     setActiveTab: handleTabChange,
     jobDescription: generator.jobDescription,
     setJobDescription: generator.setJobDescription,
@@ -125,10 +122,6 @@ export function useDashboard(): UseDashboardReturn | null {
     generatedContent: generator.generatedContent,
     setGeneratedContent: generator.setGeneratedContent,
     isSending: generator.isSending,
-    success,
-    setSuccess,
-    error,
-    setError,
     history: applications.history,
     isLoadingHistory: applications.isLoadingHistory,
     selectedApplication: applications.selectedApplication,

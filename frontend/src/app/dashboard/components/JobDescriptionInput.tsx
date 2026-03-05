@@ -70,7 +70,7 @@ export const JobDescriptionInput = ({
 
       <Button
         onClick={onGenerate}
-        disabled={!value.trim() || isGenerating || !hasActiveCV}
+        disabled={!value?.trim() || isGenerating || !hasActiveCV}
         className="w-full h-12 gap-3"
       >
         {isGenerating ? (

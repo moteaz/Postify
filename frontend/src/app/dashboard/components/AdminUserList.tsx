@@ -4,6 +4,7 @@ import { Trash2, Eye, FileText, Mail, Users, Search, FileDown } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { usePermissions } from "@/hooks/usePermissions";
 import type { AdminUser } from "@/types";
 
 interface AdminUserListProps {
@@ -22,8 +23,11 @@ const AdminUserListComponent = ({
   onViewUser,
   onDeleteUser,
   onExportUsers
-}: AdminUserListProps) => (
-  <Card>
+}: AdminUserListProps) => {
+  const { canDeleteUser } = usePermissions();
+  
+  return (
+    <Card>
     <CardHeader>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -91,7 +95,7 @@ const AdminUserListComponent = ({
                   <Button size="sm" variant="outline" onClick={() => onViewUser(user.id)} className="h-8 text-xs">
                     <Eye size={14} /> View
                   </Button>
-                  {user.role !== "ADMIN" && (
+                  {canDeleteUser(user.role) && (
                     <Button
                       size="sm"
                       variant="destructive"
@@ -109,7 +113,8 @@ const AdminUserListComponent = ({
       </div>
     </CardContent>
   </Card>
-);
+  );
+};
 
 export const AdminUserList = memo(AdminUserListComponent);
 

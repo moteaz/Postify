@@ -1,6 +1,7 @@
 import { Trash2, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { usePermissions } from "@/hooks/usePermissions";
 import type { AdminUserDetails } from "@/types";
 
 interface UserDetailsHeaderProps {
@@ -9,8 +10,11 @@ interface UserDetailsHeaderProps {
   onDelete: () => void;
 }
 
-export const UserDetailsHeader = ({ user, onClose, onDelete }: UserDetailsHeaderProps) => (
-  <div className="p-4 sm:p-6 border-b bg-gradient-to-r from-primary/5 to-transparent">
+export const UserDetailsHeader = ({ user, onClose, onDelete }: UserDetailsHeaderProps) => {
+  const { canDeleteUser } = usePermissions();
+  
+  return (
+    <div className="p-4 sm:p-6 border-b bg-gradient-to-r from-primary/5 to-transparent">
     <div className="flex justify-between items-start gap-3">
       <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
         {user.avatarUrl && (
@@ -32,7 +36,7 @@ export const UserDetailsHeader = ({ user, onClose, onDelete }: UserDetailsHeader
         </div>
       </div>
       <div className="flex gap-1 sm:gap-2 flex-shrink-0">
-        {user.role !== "ADMIN" && (
+        {canDeleteUser(user.role) && (
           <Button variant="destructive" size="sm" onClick={onDelete} className="h-8 sm:h-9">
             <Trash2 size={14} className="sm:mr-1" />
             <span className="hidden sm:inline">Delete</span>
@@ -44,4 +48,5 @@ export const UserDetailsHeader = ({ user, onClose, onDelete }: UserDetailsHeader
       </div>
     </div>
   </div>
-);
+  );
+};

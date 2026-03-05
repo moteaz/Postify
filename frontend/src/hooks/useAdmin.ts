@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { adminService } from "@/services/adminApi";
+import { adminService } from "@/services/api";
 import { handleApiError } from "@/utils/errorHandler";
 import type { AdminUser, AdminUserDetails } from "@/types";
 
