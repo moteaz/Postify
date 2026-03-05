@@ -37,12 +37,13 @@ router.get(
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            sameSite: 'strict',
             maxAge: JWT.COOKIE_MAX_AGE,
+            path: '/',
         });
 
         const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || 'http://localhost:3000');
-        res.redirect(`${safeUrl}/auth/callback?token=${token}`);
+        res.redirect(`${safeUrl}/auth/callback`);
     }
 );
 

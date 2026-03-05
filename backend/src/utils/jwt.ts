@@ -5,7 +5,11 @@ import { JWT } from '../config/constants.js';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_change_me';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+}
 
 export const signToken = (userId: string): string => {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT.EXPIRY });

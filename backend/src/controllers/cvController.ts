@@ -79,7 +79,7 @@ export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
 
         await tx.userCV.delete({ where: { id } });
 
-        const localPath = path.join(__dirname, '../../uploads', cv.fileKey);
+        const localPath = path.join(__dirname, '../../uploads', path.basename(cv.fileKey));
         try {
             await fs.unlink(localPath);
         } catch (err) {}

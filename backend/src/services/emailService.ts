@@ -28,7 +28,7 @@ export class EmailService {
         const cv = await this.cvRepo.findById(cvId);
         if (!cv) throw new EmailSendError('CV not found');
 
-        const cvPath = path.join(process.cwd(), 'uploads', cv.fileKey);
+        const cvPath = path.join(process.cwd(), 'uploads', path.basename(cv.fileKey));
         if (!fs.existsSync(cvPath)) throw new EmailSendError('CV file missing on disk');
 
         const user = await this.userRepo.findById(userId);

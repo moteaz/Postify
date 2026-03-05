@@ -14,6 +14,10 @@ export const sendApplication = asyncHandler(async (req: AuthRequest, res: Respon
     const { applicationId, to, subject, body } = req.body;
     const userId = req.user.id;
 
+    if (!isValidEmail(to)) {
+        throw new ValidationError('Invalid recipient email address');
+    }
+
     const sanitizedSubject = DOMPurify.sanitize(subject, { ALLOWED_TAGS: [] });
     const sanitizedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
 

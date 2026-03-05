@@ -160,7 +160,7 @@ export const downloadCV = asyncHandler(async (req: AuthRequest, res: Response): 
         throw new NotFoundError('CV not found');
     }
 
-    const filePath = path.join(__dirname, '../../uploads', cv.fileKey);
+    const filePath = path.join(__dirname, '../../uploads', path.basename(cv.fileKey));
 
     try {
         await fs.access(filePath);
