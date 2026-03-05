@@ -5,7 +5,8 @@ import type {
   GeneratedContent,
   User,
   AdminUser,
-  AdminUserDetails
+  AdminUserDetails,
+  PaginatedResponse
 } from "@/types";
 
 // ============================================
@@ -26,9 +27,11 @@ export const authService = {
 // APPLICATION SERVICE
 // ============================================
 export const applicationService = {
-  async getHistory(): Promise<Application[]> {
-    const res = await apiClient.get<{ data: { history: Application[] } }>("/email/history");
-    return res.data.data.history;
+  async getHistory(page = 1, limit = 20): Promise<PaginatedResponse<Application>> {
+    const res = await apiClient.get<{ data: PaginatedResponse<Application> }>(
+      `/email/history?page=${page}&limit=${limit}`
+    );
+    return res.data.data;
   },
 
   async generateApplication(jobDescription: string): Promise<{ content: GeneratedContent; applicationId: string }> {
@@ -82,13 +85,17 @@ export const cvService = {
 // ADMIN SERVICE
 // ============================================
 export const adminService = {
-  async getAllUsers(): Promise<AdminUser[]> {
-    const res = await apiClient.get<{ data: { users: AdminUser[] } }>("/admin/users");
-    return res.data.data.users;
+  async getAllUsers(page = 1, limit = 20): Promise<PaginatedResponse<AdminUser>> {
+    const res = await apiClient.get<{ data: PaginatedResponse<AdminUser> }>(
+      `/admin/users?page=${page}&limit=${limit}`
+    );
+    return res.data.data;
   },
 
-  async getUserDetails(id: string): Promise<AdminUserDetails> {
-    const res = await apiClient.get<{ data: { user: AdminUserDetails } }>(`/admin/users/${id}`);
+  async getUserDetails(id: string, page = 1, limit = 20): Promise<AdminUserDetails> {
+    const res = await apiClient.get<{ data: { user: AdminUserDetails } }>(
+      `/admin/users/${id}?page=${page}&limit=${limit}`
+    );
     return res.data.data.user;
   },
 

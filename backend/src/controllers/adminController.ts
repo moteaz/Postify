@@ -4,33 +4,42 @@ import { prisma } from '../utils/prisma.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { parsePagination, buildPaginationResult } from '../utils/pagination.js';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            email: true,
-            name: true,
-            avatarUrl: true,
-            role: true,
-            createdAt: true,
-            _count: {
-                select: {
-                    cvs: true,
-                    applications: true
-                }
-            }
-        },
-        orderBy: { createdAt: 'desc' }
-    });
+    const { skip, take, page } = parsePagination(req.query);
 
-    return ResponseHandler.success(res, { users });
+    const [users, total] = await prisma.$transaction([
+        prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true,
+                role: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        cvs: true,
+                        applications: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take
+        }),
+        prisma.user.count()
+    ]);
+
+    const result = buildPaginationResult(users, total, page, take);
+    return ResponseHandler.success(res, result);
 });
 
 export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
@@ -64,16 +73,25 @@ export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response):
 
 export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
+    const { skip, take, page } = parsePagination(req.query);
 
     const user = await prisma.user.findUnique({
         where: { id },
-        include: {
-            cvs: {
-                orderBy: { uploadedAt: 'desc' }
-            },
-            applications: {
-                include: { cv: true },
-                orderBy: { generatedAt: 'desc' }
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true,
+            provider: true,
+            providerAccountId: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: {
+                select: {
+                    cvs: true,
+                    applications: true
+                }
             }
         }
     });
@@ -82,7 +100,31 @@ export const getUserDetails = asyncHandler(async (req: AuthRequest, res: Respons
         throw new NotFoundError('User not found');
     }
 
-    return ResponseHandler.success(res, { user });
+    const [cvs, applications] = await prisma.$transaction([
+        prisma.userCV.findMany({
+            where: { userId: id },
+            orderBy: { uploadedAt: 'desc' },
+            take: 10 // Limit CVs to 10 most recent
+        }),
+        prisma.application.findMany({
+            where: { userId: id },
+            include: { cv: true },
+            orderBy: { generatedAt: 'desc' },
+            skip,
+            take
+        })
+    ]);
+
+    const totalApplications = user._count.applications;
+    const paginatedApplications = buildPaginationResult(applications, totalApplications, page, take);
+
+    return ResponseHandler.success(res, {
+        user: {
+            ...user,
+            cvs,
+            applications: paginatedApplications
+        }
+    });
 });
 
 export const deleteUser = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
@@ -123,7 +165,9 @@ export const downloadCV = asyncHandler(async (req: AuthRequest, res: Response): 
 
     const filePath = path.join(__dirname, '../../uploads', cv.fileKey);
 
-    if (!fs.existsSync(filePath)) {
+    try {
+        await fs.access(filePath);
+    } catch {
         throw new NotFoundError('CV file not found on server');
     }
 

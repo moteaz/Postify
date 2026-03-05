@@ -1,17 +1,20 @@
 import { memo } from "react";
 import { History as HistoryIcon, ArrowRight, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Pagination } from "@/components/Pagination";
 import { cn } from "@/utils/cn";
-import type { Application } from "@/types";
+import type { Application, PaginationMeta } from "@/types";
 
 interface HistoryTabProps {
   history: Application[];
   isLoading: boolean;
   onViewDetails: (app: Application) => void;
   onCreateNew: () => void;
+  pagination: PaginationMeta | null;
+  onPageChange: (page: number) => void;
 }
 
-const HistoryTabComponent = ({ history, isLoading, onViewDetails, onCreateNew }: HistoryTabProps) => {
+const HistoryTabComponent = ({ history, isLoading, onViewDetails, onCreateNew, pagination, onPageChange }: HistoryTabProps) => {
   if (isLoading) {
     return (
       <div className="grid gap-2 sm:gap-3">
@@ -49,42 +52,45 @@ const HistoryTabComponent = ({ history, isLoading, onViewDetails, onCreateNew }:
   }
 
   return (
-    <div className="grid gap-2 sm:gap-3">
-      {history.map((app) => (
-        <div key={app.id} className="p-4 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 hover:shadow-card transition-all group">
-          <div className="flex items-start gap-3 sm:gap-4 mb-3">
-            <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
-              app.status === "SENT" ? "bg-green-50 text-green-600" :
-              app.status === "FAILED" ? "bg-red-50 text-red-600" : "bg-primary/10 text-primary"
-            )}>
-              {app.status === "SENT" ? <CheckCircle2 size={18} /> :
-               app.status === "FAILED" ? <AlertCircle size={18} /> : <FileText size={18} />}
+    <div className="space-y-4">
+      <div className="grid gap-2 sm:gap-3">
+        {history.map((app) => (
+          <div key={app.id} className="p-4 sm:p-5 rounded-lg sm:rounded-xl bg-white border border-neutral-200 hover:shadow-card transition-all group">
+            <div className="flex items-start gap-3 sm:gap-4 mb-3">
+              <div className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                app.status === "SENT" ? "bg-green-50 text-green-600" :
+                app.status === "FAILED" ? "bg-red-50 text-red-600" : "bg-primary/10 text-primary"
+              )}>
+                {app.status === "SENT" ? <CheckCircle2 size={18} /> :
+                 app.status === "FAILED" ? <AlertCircle size={18} /> : <FileText size={18} />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-sm sm:text-base text-neutral-900 mb-1 line-clamp-2">{app.subject || "No Subject"}</h4>
+                <p className="text-xs sm:text-sm text-neutral-500 truncate mb-1">{app.recruiterEmail}</p>
+                <p className="text-xs text-neutral-400">{new Date(app.generatedAt).toLocaleDateString()}</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm sm:text-base text-neutral-900 mb-1 line-clamp-2">{app.subject || "No Subject"}</h4>
-              <p className="text-xs sm:text-sm text-neutral-500 truncate mb-1">{app.recruiterEmail}</p>
-              <p className="text-xs text-neutral-400">{new Date(app.generatedAt).toLocaleDateString()}</p>
+            <div className="flex items-center justify-between gap-2">
+              <span className={cn(
+                "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider",
+                app.status === "SENT" ? "bg-green-50 text-green-700" :
+                app.status === "FAILED" ? "bg-red-50 text-red-700" : "bg-primary/10 text-primary"
+              )}>
+                {app.status}
+              </span>
+              <button
+                onClick={() => onViewDetails(app)}
+                className="px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all text-xs font-medium flex items-center gap-1.5"
+              >
+                View Details
+                <ArrowRight size={14} />
+              </button>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className={cn(
-              "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider",
-              app.status === "SENT" ? "bg-green-50 text-green-700" :
-              app.status === "FAILED" ? "bg-red-50 text-red-700" : "bg-primary/10 text-primary"
-            )}>
-              {app.status}
-            </span>
-            <button
-              onClick={() => onViewDetails(app)}
-              className="px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-all text-xs font-medium flex items-center gap-1.5"
-            >
-              View Details
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      {pagination && <Pagination pagination={pagination} onPageChange={onPageChange} />}
     </div>
   );
 };

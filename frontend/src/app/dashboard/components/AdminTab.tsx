@@ -4,21 +4,25 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { Pagination } from "@/components/Pagination";
 import { AdminStats } from "./AdminStats";
 import { AdminUserList } from "./AdminUserList";
 import { AdminUserDetailsModal } from "./AdminUserDetailsModal";
 import { useAdminStats } from "@/hooks/useAdminStats";
 import { useFilteredUsers } from "@/hooks/useFilteredUsers";
-import type { AdminUser, AdminUserDetails } from "@/types";
+import type { AdminUser, AdminUserDetails, PaginationMeta } from "@/types";
 
 interface AdminTabProps {
   users: AdminUser[];
   isLoading: boolean;
   selectedUser: AdminUserDetails | null;
-  onViewUser: (id: string) => void;
+  onViewUser: (id: string, page?: number) => void;
   onDeleteUser: (id: string) => void;
   onExportUsers: () => void;
   onCloseDetails: () => void;
+  pagination: PaginationMeta | null;
+  onPageChange: (page: number) => void;
+  onUserDetailsPageChange: (page: number) => void;
 }
 
 export function AdminTab({
@@ -28,7 +32,10 @@ export function AdminTab({
   onViewUser,
   onDeleteUser,
   onExportUsers,
-  onCloseDetails
+  onCloseDetails,
+  pagination,
+  onPageChange,
+  onUserDetailsPageChange
 }: AdminTabProps) {
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string; email: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,20 +81,24 @@ export function AdminTab({
     <>
       <AdminStats {...stats} />
       
-      <AdminUserList
-        users={filteredUsers}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onViewUser={onViewUser}
-        onDeleteUser={handleDeleteClick}
-        onExportUsers={onExportUsers}
-      />
+      <div className="space-y-4">
+        <AdminUserList
+          users={filteredUsers}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onViewUser={onViewUser}
+          onDeleteUser={handleDeleteClick}
+          onExportUsers={onExportUsers}
+        />
+        {pagination && <Pagination pagination={pagination} onPageChange={onPageChange} />}
+      </div>
 
       {selectedUser && (
         <AdminUserDetailsModal
           user={selectedUser}
           onClose={onCloseDetails}
           onDeleteUser={onDeleteUser}
+          onPageChange={onUserDetailsPageChange}
         />
       )}
 

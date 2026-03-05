@@ -59,6 +59,8 @@ model UserCV {
   updatedAt    DateTime      @updatedAt
 
   @@index([userId, isArchived])
+  @@index([userId, isActive])
+  @@index([isActive])
   @@map("user_cvs")
 }
 
@@ -81,7 +83,9 @@ model Application {
 
   @@index([userId, status])
   @@index([cvId])
-  @@index([userId, generatedAt])  
+  @@index([userId, generatedAt])
+  @@index([status])
+  @@index([userId, status, generatedAt])
   @@map("applications")
 }
 

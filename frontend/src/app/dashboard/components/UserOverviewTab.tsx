@@ -46,7 +46,7 @@ export const UserOverviewTab = ({ user }: UserOverviewTabProps) => (
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {user.applications.slice(0, 3).map((app) => (
+          {user.applications.data.slice(0, 3).map((app) => (
             <div key={app.id} className="flex items-center justify-between py-2 border-b last:border-0">
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-sm font-medium truncate">{app.subject}</p>
@@ -62,7 +62,7 @@ export const UserOverviewTab = ({ user }: UserOverviewTabProps) => (
               </Badge>
             </div>
           ))}
-          {user.applications.length === 0 && (
+          {user.applications.data.length === 0 && (
             <p className="text-xs sm:text-sm text-muted-foreground text-center py-4">No applications</p>
           )}
         </CardContent>

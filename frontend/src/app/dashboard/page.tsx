@@ -54,6 +54,11 @@ export default function Dashboard() {
     handleDeleteUser,
     handleExportUsers,
     handleCloseUserDetails,
+    historyPagination,
+    adminPagination,
+    handleHistoryPageChange,
+    handleAdminPageChange,
+    handleUserDetailsPageChange,
   } = dashboardData;
 
   return (
@@ -96,6 +101,8 @@ export default function Dashboard() {
               isLoading={isLoadingHistory}
               onViewDetails={setSelectedApplication}
               onCreateNew={() => setActiveTab("new")}
+              pagination={historyPagination}
+              onPageChange={handleHistoryPageChange}
             />
           )}
 
@@ -125,6 +132,9 @@ export default function Dashboard() {
               onDeleteUser={handleDeleteUser}
               onExportUsers={handleExportUsers}
               onCloseDetails={handleCloseUserDetails}
+              pagination={adminPagination}
+              onPageChange={handleAdminPageChange}
+              onUserDetailsPageChange={handleUserDetailsPageChange}
             />
           )}
         </div>

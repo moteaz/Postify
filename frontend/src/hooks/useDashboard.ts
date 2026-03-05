@@ -6,7 +6,7 @@ import { useApplicationGenerator } from "./useApplicationGenerator";
 import { useAuth } from "./useAuth";
 import { useAdmin } from "./useAdmin";
 import { DashboardTab, type DashboardTabType } from "@/types/enums";
-import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails } from "@/types";
+import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails, PaginationMeta } from "@/types";
 
 interface UseDashboardReturn {
   user: User;
@@ -40,10 +40,15 @@ interface UseDashboardReturn {
   adminUsers: AdminUser[];
   isLoadingAdminUsers: boolean;
   selectedAdminUser: AdminUserDetails | null;
-  handleViewUser: (id: string) => Promise<void>;
+  handleViewUser: (id: string, page?: number) => Promise<void>;
   handleDeleteUser: (id: string) => Promise<void>;
   handleExportUsers: () => Promise<void>;
   handleCloseUserDetails: () => void;
+  historyPagination: PaginationMeta | null;
+  adminPagination: PaginationMeta | null;
+  handleHistoryPageChange: (page: number) => Promise<void>;
+  handleUserDetailsPageChange: (page: number) => Promise<void>;
+  handleAdminPageChange: (page: number) => Promise<void>;
 }
 
 export function useDashboard(): UseDashboardReturn | null {
@@ -78,14 +83,28 @@ export function useDashboard(): UseDashboardReturn | null {
 
   const handleGenerateWithRefresh = async (): Promise<void> => {
     await generator.handleGenerate();
-    await applications.fetchHistory();
+    await applications.fetchHistory(1);
     setHasFetchedHistory(true);
   };
 
   const handleSendWithRefresh = async (): Promise<void> => {
     await generator.handleSend();
-    await applications.fetchHistory();
+    await applications.fetchHistory(1);
     setHasFetchedHistory(true);
+  };
+
+  const handleHistoryPageChange = async (page: number): Promise<void> => {
+    await applications.fetchHistory(page);
+  };
+
+  const handleAdminPageChange = async (page: number): Promise<void> => {
+    await admin.fetchUsers(page);
+  };
+
+  const handleUserDetailsPageChange = async (page: number): Promise<void> => {
+    if (admin.selectedUser) {
+      await admin.viewUser(admin.selectedUser.id, page);
+    }
   };
 
   const handleTabChange = (tab: DashboardTabType) => {
@@ -144,5 +163,10 @@ export function useDashboard(): UseDashboardReturn | null {
     handleDeleteUser: admin.deleteUser,
     handleExportUsers: admin.exportUsers,
     handleCloseUserDetails: admin.closeDetails,
+    historyPagination: applications.pagination,
+    adminPagination: admin.pagination,
+    handleHistoryPageChange,
+    handleAdminPageChange,
+    handleUserDetailsPageChange,
   };
 }

@@ -1,4 +1,5 @@
 import { env } from '../config/env.js';
+import { dbHealthCheck } from '../infrastructure/database/healthCheck.js';
 
 export class HealthCheckService {
     async checkAIProvider(): Promise<string> {
@@ -20,13 +21,15 @@ export class HealthCheckService {
 
     async getHealthStatus() {
         const aiStatus = await this.checkAIProvider();
+        const dbConnected = await dbHealthCheck.checkConnection();
         
         return {
-            status: 'ok',
+            status: dbConnected ? 'ok' : 'degraded',
             timestamp: new Date().toISOString(),
             service: 'Postify Backend',
             ai_provider: env.AI_PROVIDER,
-            ai_status: aiStatus
+            ai_status: aiStatus,
+            database: dbConnected ? 'connected' : 'disconnected'
         };
     }
 }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import mammoth from 'mammoth';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,11 +17,13 @@ export const parseCV = async (fileKey: string, mimeType: string): Promise<string
 
     logger.info('Processing file', { filePath });
 
-    if (!fs.existsSync(filePath)) {
+    try {
+        await fs.access(filePath);
+    } catch {
         throw new Error(`File not found at: ${filePath}`);
     }
 
-    const dataBuffer = fs.readFileSync(filePath);
+    const dataBuffer = await fs.readFile(filePath);
 
     if (mimeType === 'application/pdf') {
         try {

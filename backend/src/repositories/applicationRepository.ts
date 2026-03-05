@@ -18,6 +18,19 @@ export class ApplicationRepository {
         });
     }
 
+    async findByUserIdWithPagination(userId: string, skip: number, take: number): Promise<[any[], number]> {
+        return this.db.$transaction([
+            this.db.application.findMany({
+                where: { userId },
+                orderBy: { generatedAt: 'desc' },
+                include: { cv: true },
+                skip,
+                take
+            }),
+            this.db.application.count({ where: { userId } })
+        ]);
+    }
+
     async create(data: {
         userId: string;
         cvId: string;

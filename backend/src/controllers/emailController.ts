@@ -8,6 +8,7 @@ import { isValidEmail } from '../utils/validators.js';
 import { Container } from '../di/container.js';
 import { ApplicationRepository } from '../repositories/applicationRepository.js';
 import { EmailService } from '../services/emailService.js';
+import { parsePagination, buildPaginationResult } from '../utils/pagination.js';
 
 export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { applicationId, to, subject, body } = req.body;
@@ -45,8 +46,11 @@ export const sendApplication = asyncHandler(async (req: AuthRequest, res: Respon
 });
 
 export const getHistory = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+    const { skip, take, page } = parsePagination(req.query);
     const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
-    const history = await appRepo.findByUserId(req.user.id);
+    
+    const [history, total] = await appRepo.findByUserIdWithPagination(req.user.id, skip, take);
 
-    return ResponseHandler.success(res, { history });
+    const result = buildPaginationResult(history, total, page, take);
+    return ResponseHandler.success(res, result);
 });

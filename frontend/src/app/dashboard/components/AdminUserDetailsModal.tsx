@@ -13,9 +13,10 @@ interface AdminUserDetailsModalProps {
   user: AdminUserDetails;
   onClose: () => void;
   onDeleteUser: (id: string) => void;
+  onPageChange: (page: number) => void;
 }
 
-export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser }: AdminUserDetailsModalProps) => {
+export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser, onPageChange }: AdminUserDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -36,22 +37,28 @@ export const AdminUserDetailsModal = ({ user, onClose, onDeleteUser }: AdminUser
           />
           
           <UserDetailsStats 
-            cvsCount={user.cvs.length}
-            applicationsCount={user.applications.length}
-            applications={user.applications}
+            cvsCount={user._count.cvs}
+            applicationsCount={user._count.applications}
+            applications={user.applications.data}
           />
           
           <UserDetailsTabs 
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            cvsCount={user.cvs.length}
-            applicationsCount={user.applications.length}
+            cvsCount={user._count.cvs}
+            applicationsCount={user._count.applications}
           />
 
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {activeTab === 'overview' && <UserOverviewTab user={user} />}
             {activeTab === 'cvs' && <UserCVsTab cvs={user.cvs} />}
-            {activeTab === 'applications' && <UserApplicationsTab applications={user.applications} />}
+            {activeTab === 'applications' && (
+              <UserApplicationsTab 
+                applications={user.applications.data} 
+                pagination={user.applications.pagination}
+                onPageChange={onPageChange}
+              />
+            )}
           </div>
         </Card>
       </div>

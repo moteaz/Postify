@@ -78,8 +78,13 @@ export interface AdminUser extends User {
 }
 
 export interface AdminUserDetails extends User {
+  createdAt: string;
+  _count: {
+    cvs: number;
+    applications: number;
+  };
   cvs: CV[];
-  applications: Application[];
+  applications: PaginatedResponse<Application>;
 }
 
 export interface AdminUsersResponse extends ApiResponse<{
@@ -89,3 +94,18 @@ export interface AdminUsersResponse extends ApiResponse<{
 export interface AdminUserDetailsResponse extends ApiResponse<{
   user: AdminUserDetails;
 }> {}
+
+// Pagination types
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
