@@ -3,8 +3,6 @@ import { Plus, History, FileText, LogOut, Shield } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { User } from "@/types";
 import { UserRole } from "@/types";
-import Image from 'next/image';
-import Logo from '@/asset/logo.svg';
 
 interface SidebarProps {
   user: User | null;
@@ -24,10 +22,6 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
 
   return (
   <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-white flex flex-col">
-    <div className="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-neutral-200">
-      <div className="flex items-center gap-2">
-        <Image src={Logo} alt="Postify Logo" className="w-45 h-10" />
-      </div>
       <button
         onClick={onLogout}
         className="lg:hidden p-2 rounded-lg text-neutral-600 hover:bg-red-50 hover:text-red-600 transition-all"
@@ -35,7 +29,6 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout }: Sidebar
       >
         <LogOut size={20} />
       </button>
-    </div>
 
     <div className="hidden lg:flex p-4 border-b border-neutral-200 items-center gap-3 bg-gradient-to-r from-primary/5 to-transparent">
       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-md overflow-hidden">

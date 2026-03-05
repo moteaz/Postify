@@ -45,7 +45,7 @@ export const JobDescriptionInput = ({
           message={MESSAGES.NO_ACTIVE_CV_DESC}
           action={
             <Button onClick={onNavigateToCvs} size="sm" className="whitespace-nowrap">
-              Fix Now
+              Upload
             </Button>
           }
         />
