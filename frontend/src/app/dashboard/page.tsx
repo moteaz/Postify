@@ -85,10 +85,10 @@ export default function Dashboard() {
           {/* Mobile menu button */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-[var(--accent-primary)] text-white shadow-[var(--shadow-card)] flex items-center justify-center hover:scale-110 transition-transform"
+            className="lg:hidden fixed top-6 right-6 z-40 w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white shadow-[0_4px_20px_rgba(124,158,232,0.4)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_24px_rgba(124,158,232,0.5)] transition-all duration-300 active:scale-95"
             aria-label="Open menu"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <line x1="3" y1="18" x2="21" y2="18"/>
