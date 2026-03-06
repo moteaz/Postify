@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const siteConfig = {
   name: "Postify",
-  description: "Automate your job applications with AI. Generate personalized cover letters and send them directly from your Gmail in seconds.",
+  description: "AI-powered cover letter generator that creates personalized job applications in seconds. Upload your CV, paste job descriptions, and send professional cover letters directly via Gmail.",
   url: "https://postify.app",
   ogImage: "/og-image.png",
   links: {
@@ -13,11 +13,22 @@ export const siteConfig = {
 
 export const defaultMetadata: Metadata = {
   title: {
-    default: "Postify | AI-Powered Job Applications",
+    default: "Postify | Free AI Cover Letter Generator - Create Professional Job Applications in Seconds",
     template: "%s | Postify",
   },
-  description: siteConfig.description,
-  keywords: ["job applications", "AI", "cover letter", "automation", "Gmail", "career"],
+  description: "Generate personalized, professional cover letters instantly with AI. Upload your CV, paste any job description, and send applications directly via Gmail. 100% free forever. No credit card required.",
+  keywords: [
+    "AI cover letter generator",
+    "job application automation",
+    "personalized cover letters",
+    "AI job applications",
+    "cover letter writer",
+    "Gmail integration",
+    "CV management",
+    "job search tools",
+    "career automation",
+    "free cover letter generator"
+  ],
   authors: [{ name: "Postify Team" }],
   creator: "Postify",
   openGraph: {

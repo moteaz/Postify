@@ -1,3 +1,5 @@
+// SEO: ✅ Metadata, Semantic HTML
+
 "use client";
 
 import { useState } from "react";
@@ -23,7 +25,7 @@ export default function AuthPage() {
     <div className="flex min-h-screen bg-[#F9F7F4]">
       <BrandPanel activeTab={activeTab} />
 
-      <div className="flex-1 flex items-center justify-center p-8 sm:p-12 overflow-y-auto">
+      <main id="main-content" className="flex-1 flex items-center justify-center p-8 sm:p-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="md:hidden flex items-center gap-2 justify-center mb-8 hover:opacity-80 transition">
               <Image src={Logo} alt="Postify" width={40} height={40} className="object-contain" />
@@ -38,7 +40,7 @@ export default function AuthPage() {
 
           <AuthCard activeTab={activeTab} onTabChange={setActiveTab} onGoogleAuth={handleGoogleAuth} />
         </div>
-      </div>
+      </main>
 
       <style jsx global>{`
         @keyframes shake {

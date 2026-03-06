@@ -7,8 +7,11 @@ import Navbar from "@/components/landing/Navbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "Privacy Policy for Postify - How we collect, use, and protect your data",
+  title: "Privacy Policy - Postify",
+  description: "Learn how Postify collects, uses, and protects your data. Our privacy policy covers CV uploads, AI processing, email sending, and data security measures.",
+  alternates: {
+    canonical: "https://postify.app/privacy"
+  }
 };
 
 const sections = [

@@ -42,6 +42,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/signup',
+        destination: '/auth?mode=signup',
+        permanent: true,
+      },
+      {
+        source: '/login',
+        destination: '/auth?mode=login',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -122,13 +122,6 @@ export default function Navbar() {
                       <p className="text-[10px] text-[#A8A29E]">AI Cover Letters</p>
                     </div>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => setIsOpen(false)}
-                    className="w-8 h-8 rounded-xl bg-[#F5F3F0] border border-[#EAE7E3] flex items-center justify-center hover:bg-[#FFE4E6] hover:border-[#F0A8C0] transition-all duration-150"
-                  >
-                    <X size={15} className="text-[#78716C]" />
-                  </motion.button>
                 </div>
 
                 <motion.div

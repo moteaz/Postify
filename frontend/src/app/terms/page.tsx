@@ -7,8 +7,11 @@ import Navbar from "@/components/landing/Navbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions",
-  description: "Terms of Service for Postify - AI-powered job application platform",
+  title: "Terms & Conditions - Postify",
+  description: "Read Postify's Terms of Service. Understand your rights and responsibilities when using our AI-powered cover letter generator and job application platform.",
+  alternates: {
+    canonical: "https://postify.app/terms"
+  }
 };
 
 const sections = [
