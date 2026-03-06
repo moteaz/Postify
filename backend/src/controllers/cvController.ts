@@ -1,15 +1,18 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
 import { prisma } from '../utils/prisma.js';
-import path from 'path';
-import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { fileStorage } from '../services/fileStorageService.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.js';
+import { prisma } from '../utils/prisma.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ResponseHandler } from '../utils/response.js';
+import { NotFoundError, ValidationError } from '../utils/errors.js';
+import { fileStorage } from '../services/fileStorageService.js';
 
 export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.file) {
@@ -17,7 +20,9 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
     }
 
     const userId = req.user.id;
-    const { originalname, filename, size, mimetype } = req.file;
+    const { originalname, path: filePath, size, mimetype } = req.file;
+
+    const uploadResult = await fileStorage.uploadFile(filePath, originalname);
 
     const cv = await prisma.$transaction(async (tx) => {
         await tx.userCV.updateMany({
@@ -29,7 +34,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
             data: {
                 userId,
                 fileName: originalname,
-                fileKey: filename,
+                fileKey: uploadResult.fileKey,
                 fileSize: size,
                 mimeType: mimetype,
                 isActive: true,
@@ -37,7 +42,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
         });
     });
 
-    return ResponseHandler.success(res, { cv }, 'CV uploaded successfully', 201);
+    return ResponseHandler.success(res, { cv: { ...cv, url: uploadResult.url } }, 'CV uploaded successfully', 201);
 });
 
 export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
@@ -78,11 +83,7 @@ export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response): Pr
         }
 
         await tx.userCV.delete({ where: { id } });
-
-        const localPath = path.join(__dirname, '../../uploads', path.basename(cv.fileKey));
-        try {
-            await fs.unlink(localPath);
-        } catch (err) {}
+        await fileStorage.deleteFile(cv.fileKey);
     });
 
     return ResponseHandler.success(res, null, 'CV deleted successfully');

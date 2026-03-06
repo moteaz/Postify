@@ -5,12 +5,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
 import { parsePagination, buildPaginationResult } from '../utils/pagination.js';
-import path from 'path';
-import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { fileStorage } from '../services/fileStorageService.js';
 
 export const getAllUsers = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const { skip, take, page } = parsePagination(req.query);
@@ -160,13 +155,9 @@ export const downloadCV = asyncHandler(async (req: AuthRequest, res: Response): 
         throw new NotFoundError('CV not found');
     }
 
-    const filePath = path.join(__dirname, '../../uploads', path.basename(cv.fileKey));
-
-    try {
-        await fs.access(filePath);
-    } catch {
-        throw new NotFoundError('CV file not found on server');
-    }
-
-    res.download(filePath, cv.fileName);
+    const fileBuffer = await fileStorage.downloadFile(cv.fileKey);
+    
+    res.setHeader('Content-Type', cv.mimeType);
+    res.setHeader('Content-Disposition', `attachment; filename="${cv.fileName}"`);
+    res.send(fileBuffer);
 });

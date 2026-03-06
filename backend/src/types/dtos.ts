@@ -20,7 +20,7 @@ export interface EmailConfig {
     to: string;
     subject: string;
     body: string;
-    cvPath: string;
+    cvBuffer: Buffer;
     cvFileName: string;
     userEmail: string;
 }

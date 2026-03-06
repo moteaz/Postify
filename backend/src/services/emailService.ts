@@ -1,6 +1,4 @@
 import nodemailer from 'nodemailer';
-import path from 'path';
-import fs from 'fs';
 import { TokenManager } from './tokenManager.js';
 import { EmailConfig } from '../types/dtos.js';
 import { EmailSendError } from '../utils/errors.js';
@@ -8,6 +6,7 @@ import { SMTP } from '../config/constants.js';
 import { CVRepository } from '../repositories/cvRepository.js';
 import { UserRepository } from '../repositories/userRepository.js';
 import { env } from '../config/env.js';
+import { fileStorage } from './fileStorageService.js';
 
 export class EmailService {
     constructor(
@@ -28,8 +27,7 @@ export class EmailService {
         const cv = await this.cvRepo.findById(cvId);
         if (!cv) throw new EmailSendError('CV not found');
 
-        const cvPath = path.join(process.cwd(), 'uploads', path.basename(cv.fileKey));
-        if (!fs.existsSync(cvPath)) throw new EmailSendError('CV file missing on disk');
+        const cvBuffer = await fileStorage.downloadFile(cv.fileKey);
 
         const user = await this.userRepo.findById(userId);
 
@@ -37,7 +35,7 @@ export class EmailService {
             to,
             subject,
             body,
-            cvPath,
+            cvBuffer,
             cvFileName: cv.fileName,
             userEmail: user?.email || ''
         };
@@ -68,7 +66,7 @@ export class EmailService {
             attachments: [
                 {
                     filename: config.cvFileName,
-                    path: config.cvPath,
+                    content: config.cvBuffer,
                 },
             ],
         };

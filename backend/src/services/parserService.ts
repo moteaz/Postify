@@ -1,29 +1,16 @@
 import fs from 'fs/promises';
 import mammoth from 'mammoth';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { logger } from '../infrastructure/logging/logger.js';
+import { fileStorage } from './fileStorageService.js';
 
 const require = createRequire(import.meta.url);
 const { PDFParse } = require('pdf-parse');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export const parseCV = async (fileKey: string, mimeType: string): Promise<string> => {
-    const rootDir = path.join(__dirname, '../../');
-    const filePath = path.join(rootDir, 'uploads', fileKey);
+    logger.info('Processing file from Cloudinary', { fileKey });
 
-    logger.info('Processing file', { filePath });
-
-    try {
-        await fs.access(filePath);
-    } catch {
-        throw new Error(`File not found at: ${filePath}`);
-    }
-
-    const dataBuffer = await fs.readFile(filePath);
+    const dataBuffer = await fileStorage.downloadFile(fileKey);
 
     if (mimeType === 'application/pdf') {
         try {
