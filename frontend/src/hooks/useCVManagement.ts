@@ -9,6 +9,8 @@ interface UseCVManagementReturn {
   cvs: CV[];
   isLoadingCvs: boolean;
   isUpdatingCV: boolean;
+  isUploadingCV: boolean;
+  updatingCvId?: string;
   activeCV: CV | undefined;
   archiveConfirmation: { id: string; name: string } | null;
   setArchiveConfirmation: (confirm: { id: string; name: string } | null) => void;
@@ -25,6 +27,8 @@ export function useCVManagement(
   const [cvs, setCvs] = useState<CV[]>([]);
   const [isLoadingCvs, setIsLoadingCvs] = useState(false);
   const [isUpdatingCV, setIsUpdatingCV] = useState(false);
+  const [isUploadingCV, setIsUploadingCV] = useState(false);
+  const [updatingCvId, setUpdatingCvId] = useState<string | undefined>(undefined);
   const [archiveConfirmation, setArchiveConfirmation] = useState<{ id: string; name: string } | null>(null);
 
   const fetchCvs = useCallback(async (): Promise<void> => {
@@ -53,17 +57,22 @@ export function useCVManagement(
       return;
     }
 
+    setIsUploadingCV(true);
     try {
       await cvService.upload(file);
       onSuccess(MESSAGES.CV_UPLOAD_SUCCESS);
       await fetchCvs();
     } catch (error) {
       onError(handleApiError(error));
+    } finally {
+      setIsUploadingCV(false);
+      e.target.value = '';
     }
   }, [fetchCvs, onSuccess, onError]);
 
   const handleArchiveCV = useCallback(async (id: string): Promise<void> => {
     setIsUpdatingCV(true);
+    setUpdatingCvId(id);
     try {
       await cvService.setArchived(id);
       setArchiveConfirmation(null);
@@ -74,11 +83,13 @@ export function useCVManagement(
       onError(handleApiError(error));
     } finally {
       setIsUpdatingCV(false);
+      setUpdatingCvId(undefined);
     }
   }, [fetchCvs, onSuccess, onError]);
 
   const handleSetActiveCV = useCallback(async (id: string): Promise<void> => {
     setIsUpdatingCV(true);
+    setUpdatingCvId(id);
     try {
       await cvService.setActive(id);
       await fetchCvs();
@@ -87,6 +98,7 @@ export function useCVManagement(
       onError(handleApiError(error));
     } finally {
       setIsUpdatingCV(false);
+      setUpdatingCvId(undefined);
     }
   }, [fetchCvs, onSuccess, onError]);
 
@@ -96,6 +108,8 @@ export function useCVManagement(
     cvs,
     isLoadingCvs,
     isUpdatingCV,
+    isUploadingCV,
+    updatingCvId,
     activeCV,
     archiveConfirmation,
     setArchiveConfirmation,

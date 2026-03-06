@@ -8,6 +8,8 @@ interface CVsTabProps {
   cvs: CV[];
   isLoading: boolean;
   isUpdating: boolean;
+  isUploading: boolean;
+  updatingCvId?: string;
   archiveConfirm: { id: string; name: string } | null;
   onSetArchiveConfirm: (confirm: { id: string; name: string } | null) => void;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -23,6 +25,8 @@ export const CVsTab = ({
   cvs,
   isLoading,
   isUpdating,
+  isUploading,
+  updatingCvId,
   archiveConfirm,
   onSetArchiveConfirm,
   onUpload,
@@ -45,10 +49,11 @@ export const CVsTab = ({
         cvs={cvs}
         isLoading={isLoading}
         isUpdating={isUpdating}
+        updatingCvId={updatingCvId}
         onSetActive={onSetActive}
         onArchive={(id, name) => onSetArchiveConfirm({ id, name })}
       />
-      <CVUploadZone onUpload={onUpload} />
+      <CVUploadZone onUpload={onUpload} isUploading={isUploading} />
     </div>
     {archiveConfirm && (
       <ConfirmModal

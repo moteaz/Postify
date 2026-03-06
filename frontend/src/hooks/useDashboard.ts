@@ -29,6 +29,8 @@ interface UseDashboardReturn {
   cvs: CV[];
   isLoadingCvs: boolean;
   isUpdatingCV: boolean;
+  isUploadingCV: boolean;
+  updatingCvId?: string;
   archiveConfirm: { id: string; name: string } | null;
   setArchiveConfirm: (confirm: { id: string; name: string } | null) => void;
   handleUploadCV: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -148,6 +150,8 @@ export function useDashboard(): UseDashboardReturn | null {
     cvs: cvManagement.cvs,
     isLoadingCvs: cvManagement.isLoadingCvs,
     isUpdatingCV: cvManagement.isUpdatingCV,
+    isUploadingCV: cvManagement.isUploadingCV,
+    updatingCvId: cvManagement.updatingCvId,
     archiveConfirm: cvManagement.archiveConfirmation,
     setArchiveConfirm: cvManagement.setArchiveConfirmation,
     handleUploadCV: cvManagement.handleUploadCV,

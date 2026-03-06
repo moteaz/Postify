@@ -22,10 +22,6 @@ export class FileStorageService {
       type: "authenticated",
     });
 
-    console.log("Upload result:", {
-      public_id: uploadResult.public_id,
-      url: uploadResult.secure_url,
-    });
 
     await fs.unlink(filePath).catch(() => {});
 
@@ -77,7 +73,6 @@ export class FileStorageService {
         expires_at: Math.floor(Date.now() / 1000) + 60,
       });
 
-      console.log("Download URL:", url);
 
       const response = await fetch(url);
       if (!response.ok) {

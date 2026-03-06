@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { FileText, Trash } from "lucide-react";
+import { FileText, Trash, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { truncateFilename, formatFileSize } from "@/utils/fileUtils";
@@ -9,12 +9,13 @@ interface CVListProps {
   cvs: CV[];
   isLoading: boolean;
   isUpdating: boolean;
+  updatingCvId?: string;
   onSetActive: (id: string) => void;
   onArchive: (id: string, name: string) => void;
 }
 
 // REDESIGNED: Rounded cards with soft hover effects and mobile-optimized layout
-const CVListComponent = ({ cvs, isLoading, isUpdating, onSetActive, onArchive }: CVListProps) => {
+const CVListComponent = ({ cvs, isLoading, isUpdating, updatingCvId, onSetActive, onArchive }: CVListProps) => {
   if (isLoading) {
     return (
       <div className="grid gap-3 sm:gap-4">
@@ -78,16 +79,25 @@ const CVListComponent = ({ cvs, isLoading, isUpdating, onSetActive, onArchive }:
                   onClick={() => onSetActive(cv.id)}
                   className="flex-1 sm:flex-none rounded-xl h-9 text-xs sm:text-sm"
                 >
-                  Set Active
+                  {isUpdating && updatingCvId === cv.id ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    "Set Active"
+                  )}
                 </Button>
               )}
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => onArchive(cv.id, cv.fileName)}
+                disabled={isUpdating && updatingCvId === cv.id}
                 className="text-[var(--destructive)] hover:bg-red-50 rounded-xl h-9 w-9 p-0"
               >
-                <Trash size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
+                {isUpdating && updatingCvId === cv.id ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={1.5} />
+                )}
               </Button>
             </div>
           </div>

@@ -42,6 +42,8 @@ export default function Dashboard() {
     cvs,
     isLoadingCvs,
     isUpdatingCV,
+    isUploadingCV,
+    updatingCvId,
     archiveConfirm,
     setArchiveConfirm,
     handleUploadCV,
@@ -134,6 +136,8 @@ export default function Dashboard() {
               cvs={cvs}
               isLoading={isLoadingCvs}
               isUpdating={isUpdatingCV}
+              isUploading={isUploadingCV}
+              updatingCvId={updatingCvId}
               archiveConfirm={archiveConfirm}
               onSetArchiveConfirm={setArchiveConfirm}
               onUpload={handleUploadCV}
