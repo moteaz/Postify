@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Mail, Menu, X, Sparkles, Zap, LogIn, ChevronRight, ShieldCheck } from "lucide-react";
+import { Menu, X, Sparkles, Zap, LogIn, ChevronRight, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { staggerContainer, fadeUp } from "@/lib/animations";
+import Logo from "@/assets/Logo.png";
 
 const NAV_LINKS = [
   {
@@ -58,9 +60,7 @@ export default function Navbar() {
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#F9F7F4]/80 border-b border-[#EAE7E3]">
         <div className="h-16 max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-            <div className="rounded-xl p-1.5 bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0]">
-              <Mail className="text-white" size={14} />
-            </div>
+              <Image src={Logo} alt="Postify" width={40} height={40} className="object-contain" />
             <span className="font-[family-name:var(--font-display)] font-bold text-xl text-[#1C1917]">Postify</span>
           </Link>
 
@@ -116,9 +116,7 @@ export default function Navbar() {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#EAE7E3]">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0] flex items-center justify-center">
-                      <Mail size={14} className="text-white" />
-                    </div>
+                      <Image src={Logo} alt="Postify" width={40} height={40} className="object-contain" />
                     <div>
                       <p className="text-sm font-bold text-[#1C1917] font-[family-name:var(--font-display)]">Postify</p>
                       <p className="text-[10px] text-[#A8A29E]">AI Cover Letters</p>

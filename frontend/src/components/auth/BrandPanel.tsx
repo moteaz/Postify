@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Sparkles, Zap } from "lucide-react";
+import Logo from "@/assets/Logo.png";
 
 interface BrandPanelProps {
   activeTab: "login" | "signup";
@@ -24,7 +26,7 @@ export default function BrandPanel({ activeTab }: BrandPanelProps) {
 
       <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition relative z-10">
         <div className="rounded-xl p-2 bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0]">
-          <Mail className="text-white" size={16} />
+          <Image src={Logo} alt="Postify" width={40} height={20} className="object-contain" />
         </div>
         <span className="font-[family-name:var(--font-display)] font-bold text-2xl text-white">Postify</span>
       </Link>

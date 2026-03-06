@@ -5,14 +5,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { QueryProvider } from "@/components/QueryProvider";
 import "./globals.css";
 
-// REDESIGNED: Warm, characterful display font
 const bricolage = Bricolage_Grotesque({ 
   subsets: ["latin"], 
   display: "swap",
   variable: "--font-display"
 });
 
-// REDESIGNED: Clean, friendly body font
 const jakarta = Plus_Jakarta_Sans({ 
   subsets: ["latin"], 
   display: "swap",

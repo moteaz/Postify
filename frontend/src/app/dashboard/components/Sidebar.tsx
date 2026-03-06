@@ -1,4 +1,5 @@
 import { memo, useEffect } from "react";
+import Image from "next/image";
 import { PlusCircle, History, FileText, ShieldCheck, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -86,7 +87,14 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
             {/* Avatar with gradient ring */}
             <div className="p-[2.5px] bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0] rounded-2xl w-fit mb-3">
               {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} className="w-12 h-12 rounded-[14px] object-cover block" />
+                <Image 
+                  src={user.avatarUrl} 
+                  alt={user.name} 
+                  width={48} 
+                  height={48} 
+                  className="w-12 h-12 rounded-[14px] object-cover" 
+                  unoptimized
+                />
               ) : (
                 <div className="w-12 h-12 rounded-[14px] bg-white flex items-center justify-center">
                   <span className="text-lg font-bold text-[#7C9EE8] font-[family-name:var(--font-display)]">

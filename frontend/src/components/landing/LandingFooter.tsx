@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, ShieldCheck, Twitter, Github, Linkedin, ArrowUp, Clock, Send } from "lucide-react";
+import Image from "next/image";
+import { ShieldCheck, Twitter, Github, Linkedin, ArrowUp, Clock, Send, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
+import Logo from "@/assets/Logo.png";
 
 const PRODUCT_LINKS = [
   { href: "/", label: "Home" },
@@ -35,9 +37,7 @@ export default function LandingFooter() {
           {/* Brand Column */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2 w-fit">
-              <div className="rounded-xl p-1.5 bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0] shadow-sm">
-                <Mail className="text-white" size={16} />
-              </div>
+                <Image src={Logo} alt="Postify" width={30} height={30} className="object-contain" />
               <span className="font-[family-name:var(--font-display)] font-bold text-xl text-[#1C1917]">Postify</span>
             </Link>
             <p className="text-sm text-[#78716C] leading-relaxed max-w-xs">

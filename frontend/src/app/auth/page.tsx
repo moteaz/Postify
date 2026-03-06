@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { env } from "@/config/env";
 import BrandPanel from "@/components/auth/BrandPanel";
 import AuthCard from "@/components/auth/AuthCard";
+import Logo from "@/assets/Logo.png";
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -25,9 +26,7 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center p-8 sm:p-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="md:hidden flex items-center gap-2 justify-center mb-8 hover:opacity-80 transition">
-            <div className="rounded-xl p-1.5 bg-gradient-to-br from-[#7C9EE8] to-[#F0A8C0]">
-              <Mail className="text-white" size={14} />
-            </div>
+              <Image src={Logo} alt="Postify" width={40} height={40} className="object-contain" />
             <span className="font-[family-name:var(--font-display)] font-bold text-xl text-[#1C1917]">Postify</span>
           </Link>
 
