@@ -18,7 +18,7 @@ export default function AuthCallback() {
                 router.push("/dashboard");
             })
             .catch(() => {
-                router.push("/login?error=auth_failed");
+                router.push("/auth?mode=login&error=auth_failed");
             });
     }, [router, setUser]);
 

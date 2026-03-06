@@ -29,7 +29,7 @@ export default function Hero({ mounted }: HeroProps) {
       </p>
 
       <div className={`flex flex-col sm:flex-row items-center justify-center gap-3 mt-10 transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
-        <Link href="/signup" className="bg-[#1C1917] text-white px-7 py-3.5 rounded-2xl text-sm font-semibold hover:bg-[#7C9EE8] hover:shadow-[0_4px_20px_rgba(124,158,232,0.4)] transition-all duration-200 active:scale-95">
+        <Link href="/auth?mode=signup" className="bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white px-7 py-3.5 rounded-2xl text-sm font-semibold hover:shadow-[0_8px_24px_rgba(124,158,232,0.3)] hover:-translate-y-0.5 transition-all duration-200 active:scale-95">
           Start Writing for Free →
         </Link>
         <a href="#how-it-works" className="bg-white border border-[#EAE7E3] text-[#78716C] px-7 py-3.5 rounded-2xl text-sm font-medium hover:border-[#7C9EE8] hover:text-[#7C9EE8] transition-all duration-200">

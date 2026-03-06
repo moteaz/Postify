@@ -50,10 +50,10 @@ function DesktopNav() {
         </Link>
       ))}
       <Button variant="ghost" asChild>
-        <Link href="/login">Sign In</Link>
+        <Link href="/auth?mode=login">Sign In</Link>
       </Button>
       <Button asChild>
-        <Link href="/signup">Get Started</Link>
+        <Link href="/auth?mode=signup">Get Started</Link>
       </Button>
     </nav>
   );
@@ -87,10 +87,10 @@ function MobileNav({ onClose }: { onClose: () => void }) {
           </Link>
         ))}
         <Button variant="ghost" asChild className="justify-start">
-          <Link href="/login" onClick={onClose}>Sign In</Link>
+          <Link href="/auth?mode=login" onClick={onClose}>Sign In</Link>
         </Button>
         <Button asChild>
-          <Link href="/signup" onClick={onClose}>Get Started</Link>
+          <Link href="/auth?mode=signup" onClick={onClose}>Get Started</Link>
         </Button>
       </nav>
     </div>

@@ -25,7 +25,7 @@ const NAV_LINKS = [
     iconColor: "text-[#F0A8C0]",
   },
   {
-    href: "/login",
+    href: "/auth?mode=login",
     label: "Sign in",
     description: "Access your account",
     icon: LogIn,
@@ -67,10 +67,10 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Features</a>
             <a href="#how-it-works" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">How it works</a>
-            <Link href="/login" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Sign in</Link>
+            <Link href="/auth?mode=login" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Sign in</Link>
           </div>
 
-          <Link href="/signup" className="hidden sm:block bg-[#1C1917] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-[#7C9EE8] transition-all duration-200">
+          <Link href="/auth?mode=signup" className="hidden sm:block bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:shadow-[0_4px_16px_rgba(124,158,232,0.3)] hover:-translate-y-0.5 transition-all duration-200">
             Get Started Free
           </Link>
 
@@ -168,9 +168,9 @@ export default function Navbar() {
                 <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-2">
                   <motion.div variants={fadeUp}>
                     <Link
-                      href="/signup"
+                      href="/auth?mode=signup"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-[#1C1917] text-white text-sm font-semibold hover:bg-[#7C9EE8] hover:shadow-[0_4px_20px_rgba(124,158,232,0.35)] transition-all duration-200"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white text-sm font-semibold hover:shadow-[0_8px_24px_rgba(124,158,232,0.3)] transition-all duration-200"
                     >
                       <Zap size={15} />
                       Get Started Free
@@ -178,7 +178,7 @@ export default function Navbar() {
                   </motion.div>
                   <motion.div variants={fadeUp}>
                     <Link
-                      href="/login"
+                      href="/auth?mode=login"
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-[#F5F3F0] border border-[#EAE7E3] text-sm font-medium text-[#78716C] hover:border-[#7C9EE8] hover:text-[#7C9EE8] transition-all duration-150"
                     >

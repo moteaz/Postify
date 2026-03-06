@@ -3,12 +3,12 @@ import { Bot, Shield } from "lucide-react";
 
 const FOOTER_LINKS = {
   platform: [
-    { href: "/login", label: "Login" },
-    { href: "/signup", label: "Sign Up" },
+    { href: "/auth?mode=login", label: "Login" },
+    { href: "/auth?mode=signup", label: "Sign Up" },
   ],
   legal: [
-    { href: "#privacy", label: "Privacy" },
-    { href: "#terms", label: "Terms" },
+    { href: "/privacy", label: "Privacy" },
+    { href: "/terms", label: "Terms" },
   ],
 };
 

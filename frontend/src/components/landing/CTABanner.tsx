@@ -11,11 +11,11 @@ export default function CTABanner() {
           <div className="inline-block bg-white/10 text-white/70 text-xs rounded-full px-3 py-1 mb-6">✦ Free forever — no credit card needed</div>
           <h2 className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-bold text-white tracking-tight">Ready to write your next cover letter?</h2>
           <p className="text-[#A8A29E] text-base mt-4 max-w-md mx-auto">Join thousands of job seekers using Postify to stand out and get hired faster.</p>
-          <Link href="/signup" className="inline-block mt-8 bg-[#7C9EE8] text-white px-8 py-4 rounded-2xl text-base font-semibold hover:bg-[#F0A8C0] hover:shadow-[0_4px_24px_rgba(240,168,192,0.5)] transition-all duration-300 active:scale-95">
+          <Link href="/auth?mode=signup" className="inline-block mt-8 bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white px-8 py-4 rounded-2xl text-base font-semibold hover:shadow-[0_8px_24px_rgba(124,158,232,0.4)] hover:-translate-y-0.5 transition-all duration-200 active:scale-95">
             Start for Free →
           </Link>
           <div className="mt-4">
-            <Link href="/login" className="text-sm text-white/40 hover:text-white/70 transition">Already have an account? Sign in</Link>
+            <Link href="/auth?mode=login" className="text-sm text-white/40 hover:text-white/70 transition">Already have an account? Sign in</Link>
           </div>
         </div>
       </div>

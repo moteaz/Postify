@@ -8,10 +8,11 @@ import { env } from "@/config/env";
 import BrandPanel from "@/components/auth/BrandPanel";
 import AuthCard from "@/components/auth/AuthCard";
 
-export default function LoginPage() {
+export default function AuthPage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const mode = searchParams.get("mode") as "login" | "signup" | null;
+  const [activeTab, setActiveTab] = useState<"login" | "signup">(mode || "login");
 
   const handleGoogleAuth = async () => {
     window.location.href = `${env.apiUrl}/auth/google`;
