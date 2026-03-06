@@ -101,6 +101,7 @@ export default function Dashboard() {
 
           {activeTab === "new" && (
             <NewApplicationTab
+              key="new"
               jobDescription={jobDescription}
               onJobDescriptionChange={setJobDescription}
               generatedContent={generatedContent}
@@ -122,6 +123,7 @@ export default function Dashboard() {
 
           {activeTab === "history" && (
             <HistoryTab
+              key="history"
               history={history}
               isLoading={isLoadingHistory}
               onViewDetails={setSelectedApplication}
@@ -133,6 +135,7 @@ export default function Dashboard() {
 
           {activeTab === "cvs" && (
             <CVsTab
+              key="cvs"
               cvs={cvs}
               isLoading={isLoadingCvs}
               isUpdating={isUpdatingCV}
@@ -152,6 +155,7 @@ export default function Dashboard() {
 
           {activeTab === "admin" && (
             <AdminTab
+              key="admin"
               users={adminUsers}
               isLoading={isLoadingAdminUsers}
               selectedUser={selectedAdminUser}

@@ -44,7 +44,7 @@ export const CVsTab = ({
       onClearSuccess={onClearSuccess}
       onClearError={onClearError}
     />
-    <div className="space-y-6">
+    <div className="space-y-6 page-enter">
       <CVList
         cvs={cvs}
         isLoading={isLoading}

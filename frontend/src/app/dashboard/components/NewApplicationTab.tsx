@@ -54,7 +54,7 @@ export const NewApplicationTab = (props: NewApplicationTabProps) => {
         onClearSuccess={onClearSuccess}
         onClearError={onClearError}
       />
-      <div className="space-y-6">
+      <div className="space-y-6 page-enter">
         {generatedContent ? (
           <ApplicationEditor
             content={generatedContent}

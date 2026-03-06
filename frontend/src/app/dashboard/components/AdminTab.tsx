@@ -82,7 +82,9 @@ export function AdminTab({
       {/* Subtle gradient blob */}
       <div className="fixed top-0 right-0 w-96 h-96 bg-[#7C9EE8]/10 rounded-full blur-3xl pointer-events-none" />
       
-      <AdminStats {...stats} />
+      <div className="page-enter">
+        <AdminStats {...stats} />
+      </div>
       
       <div className="mt-8 space-y-4">
         <AdminUserList
