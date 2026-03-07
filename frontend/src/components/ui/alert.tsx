@@ -44,7 +44,7 @@ const titleVariants = {
 interface AlertProps extends VariantProps<typeof alertVariants> {
   icon: LucideIcon;
   title?: string;
-  message: string;
+  message: ReactNode;
   action?: ReactNode;
   className?: string;
 }

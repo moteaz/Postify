@@ -105,7 +105,7 @@ export const adminService = {
 
   async exportUsers(): Promise<void> {
     const res = await apiClient.get('/admin/users/export', { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const url = window.URL.createObjectURL(new Blob([res.data as BlobPart]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', `users-${Date.now()}.csv`);

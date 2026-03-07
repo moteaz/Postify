@@ -1,7 +1,7 @@
 import { Variants } from "framer-motion";
 
 // Easing constants
-export const EASE_OUT_SMOOTH = [0.25, 0.46, 0.45, 0.94];
+export const EASE_OUT_SMOOTH = [0.25, 0.46, 0.45, 0.94] as const;
 export const EASE_SPRING = { type: "spring" as const, stiffness: 300, damping: 28 };
 export const EASE_BOUNCE = { type: "spring" as const, stiffness: 400, damping: 20 };
 export const EASE_GENTLE = { type: "spring" as const, stiffness: 200, damping: 30 };

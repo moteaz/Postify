@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function useFocusTrap(isActive: boolean): React.RefObject<HTMLDivElement> {
+export function useFocusTrap(isActive: boolean): React.RefObject<HTMLDivElement | null> {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
