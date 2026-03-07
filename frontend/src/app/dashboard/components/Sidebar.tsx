@@ -92,8 +92,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
                   alt={user.name} 
                   width={48} 
                   height={48} 
-                  className="w-12 h-12 rounded-[14px] object-cover" 
-                  unoptimized
+                  className="w-12 h-12 rounded-[14px] object-cover"
                 />
               ) : (
                 <div className="w-12 h-12 rounded-[14px] bg-white flex items-center justify-center">

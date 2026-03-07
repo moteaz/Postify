@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { ToastContainer } from "@/components/ToastContainer";
 import { useApplicationValidation } from "@/hooks/useApplicationValidation";
 import { JobDescriptionInput } from "./JobDescriptionInput";
@@ -23,7 +24,7 @@ interface NewApplicationTabProps {
   onNavigateToCvs: () => void;
 }
 
-export const NewApplicationTab = (props: NewApplicationTabProps) => {
+export const NewApplicationTab = memo((props: NewApplicationTabProps) => {
   const {
     jobDescription,
     onJobDescriptionChange,
@@ -43,7 +44,7 @@ export const NewApplicationTab = (props: NewApplicationTabProps) => {
     onNavigateToCvs,
   } = props;
 
-  const activeCV = cvs.find((cv) => cv.isActive);
+  const activeCV = useMemo(() => cvs.find((cv) => cv.isActive), [cvs]);
   const validation = useApplicationValidation(generatedContent);
 
   return (
@@ -79,4 +80,6 @@ export const NewApplicationTab = (props: NewApplicationTabProps) => {
       </div>
     </>
   );
-};
+});
+
+NewApplicationTab.displayName = 'NewApplicationTab';

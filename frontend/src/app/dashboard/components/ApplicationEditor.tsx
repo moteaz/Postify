@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ interface ApplicationEditorProps {
   onDiscard: () => void;
 }
 
-export const ApplicationEditor = ({
+export const ApplicationEditor = memo(({
   content,
   activeCV,
   validation,
@@ -30,6 +31,18 @@ export const ApplicationEditor = ({
   onDiscard,
 }: ApplicationEditorProps) => {
   const { isEmailValid, isSubjectValid, canSend } = validation;
+
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onContentChange({ ...content, recruiterEmail: e.target.value });
+  }, [content, onContentChange]);
+
+  const handleSubjectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onContentChange({ ...content, subject: e.target.value });
+  }, [content, onContentChange]);
+
+  const handleCoverLetterChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onContentChange({ ...content, coverLetter: e.target.value });
+  }, [content, onContentChange]);
 
   return (
     <div className="space-y-4">
@@ -42,7 +55,7 @@ export const ApplicationEditor = ({
           <Input
             type="email"
             value={content.recruiterEmail || ""}
-            onChange={(e) => onContentChange({ ...content, recruiterEmail: e.target.value })}
+            onChange={handleEmailChange}
             className={`rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] ${content.recruiterEmail && !isEmailValid ? "border-red-300 focus:ring-red-500/20" : ""}`}
             placeholder="recruiter@company.com"
           />
@@ -59,7 +72,7 @@ export const ApplicationEditor = ({
           <Input
             type="text"
             value={content.subject}
-            onChange={(e) => onContentChange({ ...content, subject: e.target.value })}
+            onChange={handleSubjectChange}
             className={`rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] ${content.subject && !isSubjectValid ? "border-red-300 focus:ring-red-500/20" : ""}`}
             placeholder="Application for [Position]"
           />
@@ -76,7 +89,7 @@ export const ApplicationEditor = ({
         <label className="text-sm font-semibold text-[#1C1917]">Tailored Cover Letter</label>
         <Textarea
           value={content.coverLetter}
-          onChange={(e) => onContentChange({ ...content, coverLetter: e.target.value })}
+          onChange={handleCoverLetterChange}
           className="h-96 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
         />
       </div>
@@ -125,4 +138,6 @@ export const ApplicationEditor = ({
       </div>
     </div>
   );
-};
+});
+
+ApplicationEditor.displayName = 'ApplicationEditor';

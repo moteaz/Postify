@@ -81,7 +81,13 @@ export function useDashboard(): UseDashboardReturn | null {
       cvManagement.fetchCvs();
       setHasFetchedCvs(true);
     }
-  }, [user, hasFetchedHistory, hasFetchedCvs, applications, cvManagement]);
+
+    // Fetch admin data on mount if already on admin tab
+    if (state.activeTab === DashboardTab.ADMIN && user.role === "ADMIN" && !hasFetchedAdmin) {
+      admin.fetchUsers();
+      setHasFetchedAdmin(true);
+    }
+  }, [user, hasFetchedHistory, hasFetchedCvs, hasFetchedAdmin, state.activeTab, applications, cvManagement, admin]);
 
   const handleGenerateWithRefresh = async (): Promise<void> => {
     await generator.handleGenerate();
