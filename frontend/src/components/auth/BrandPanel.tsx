@@ -31,13 +31,15 @@ export default function BrandPanel({ activeTab }: BrandPanelProps) {
         <span className="font-[family-name:var(--font-display)] font-bold text-2xl text-white">Postify</span>
       </Link>
 
-      <div className="relative z-10 transition-opacity duration-300">
-        <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
-          {copy[activeTab].headline}
-        </h1>
-        <p className="text-[#A8A29E] text-base mt-3 leading-relaxed max-w-xs">
-          {copy[activeTab].sub}
-        </p>
+      <div className="relative z-10">
+        <div className="min-h-[180px]">
+          <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight transition-opacity duration-200">
+            {copy[activeTab].headline}
+          </h1>
+          <p className="text-[#A8A29E] text-base mt-3 leading-relaxed max-w-xs transition-opacity duration-200">
+            {copy[activeTab].sub}
+          </p>
+        </div>
 
         <div className="mt-8 space-y-3">
           <div className="flex items-center gap-3">

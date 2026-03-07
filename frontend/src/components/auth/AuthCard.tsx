@@ -71,7 +71,7 @@ export default function AuthCard({ activeTab, onTabChange, onGoogleAuth }: AuthC
 
       {/* Content */}
       <div className={`mt-7 transition-all duration-200 ${animating ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"}`}>
-        <div>
+        <div className="min-h-[72px]">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#1C1917] tracking-tight">
             {content[activeTab].title}
           </h2>
