@@ -18,14 +18,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F9F7F4] overflow-x-hidden">
+    <div className="min-h-screen bg-[#F9F7F4]">
       <ScrollProgressBar />
       <Navbar />
-      <Hero mounted={mounted} />
-      <SocialProof />
-      <HowItWorks />
-      <FeaturesSection />
-      <CTABanner />
+      <main id="main-content">
+        <Hero mounted={mounted} />
+        <SocialProof />
+        <HowItWorks />
+        <FeaturesSection />
+        <CTABanner />
+      </main>
       <LandingFooter />
       <style jsx global>{`
         @keyframes shimmer {

@@ -30,8 +30,15 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href="https://postify.app" />
         <meta name="theme-color" content="#6366F1" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          .skip-link{position:absolute;left:-9999px;z-index:999;padding:1rem;background:#1C1917;color:#fff;text-decoration:none;border-radius:0.5rem}
+          .skip-link:focus{left:1rem;top:1rem}
+        `}} />
       </head>
       <body className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] antialiased font-[family-name:var(--font-body)]">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <QueryProvider>
           <ErrorBoundary>
             {children}
