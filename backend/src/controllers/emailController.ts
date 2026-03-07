@@ -3,12 +3,13 @@ import { AuthRequest } from '../middleware/auth.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
-import DOMPurify from 'isomorphic-dompurify';
 import { isValidEmail } from '../utils/validators.js';
 import { Container } from '../di/container.js';
 import { ApplicationRepository } from '../repositories/applicationRepository.js';
 import { EmailService } from '../services/emailService.js';
 import { parsePagination, buildPaginationResult } from '../utils/pagination.js';
+import { JSDOM } from 'jsdom';
+import DOMPurify from 'dompurify';
 
 export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { applicationId, to, subject, body } = req.body;
@@ -18,8 +19,11 @@ export const sendApplication = asyncHandler(async (req: AuthRequest, res: Respon
     throw new ValidationError('Invalid recipient email address');
   }
 
-  const sanitizedSubject = DOMPurify.sanitize(subject, { ALLOWED_TAGS: [] });
-  const sanitizedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
+  const window = new JSDOM('').window;
+  const purify = DOMPurify(window);
+
+  const sanitizedSubject = purify.sanitize(subject, { ALLOWED_TAGS: [] });
+  const sanitizedBody = purify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
 
   const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
   const emailService = Container.resolve<EmailService>('emailService');
