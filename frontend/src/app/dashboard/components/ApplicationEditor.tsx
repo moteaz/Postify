@@ -91,6 +91,7 @@ export const ApplicationEditor = memo(({
           value={content.coverLetter}
           onChange={handleCoverLetterChange}
           className="h-96 rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
+          spellCheck={false}
         />
       </div>
 

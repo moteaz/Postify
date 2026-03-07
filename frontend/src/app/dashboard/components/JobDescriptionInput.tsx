@@ -74,6 +74,7 @@ export const JobDescriptionInput = memo(({
         placeholder="Paste the job description here (e.g., from LinkedIn or Indeed)..."
         className="w-full h-80 p-6 rounded-2xl bg-white border border-[#EAE7E3] focus:ring-2 focus:ring-[#7C9EE8]/20 focus:border-[#7C9EE8] outline-none transition-all resize-none text-base leading-relaxed disabled:opacity-50 disabled:bg-[#F5F3F0] shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
         disabled={!hasActiveCV}
+        spellCheck={false}
       />
 
       <Button
