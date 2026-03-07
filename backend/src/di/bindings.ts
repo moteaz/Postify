@@ -8,17 +8,30 @@ import { TokenManager } from '../services/tokenManager.js';
 import { EmailService } from '../services/emailService.js';
 
 export const initializeContainer = () => {
-    Container.register('prisma', () => prisma);
-    
-    Container.register('userRepository', () => new UserRepository(Container.resolve('prisma')));
-    Container.register('cvRepository', () => new CVRepository(Container.resolve('prisma')));
-    Container.register('applicationRepository', () => new ApplicationRepository(Container.resolve('prisma')));
-    Container.register('oauthTokenRepository', () => new OAuthTokenRepository(Container.resolve('prisma')));
-    
-    Container.register('tokenManager', () => new TokenManager(Container.resolve('oauthTokenRepository')));
-    Container.register('emailService', () => new EmailService(
+  Container.register('prisma', () => prisma);
+
+  Container.register('userRepository', () => new UserRepository(Container.resolve('prisma')));
+  Container.register('cvRepository', () => new CVRepository(Container.resolve('prisma')));
+  Container.register(
+    'applicationRepository',
+    () => new ApplicationRepository(Container.resolve('prisma'))
+  );
+  Container.register(
+    'oauthTokenRepository',
+    () => new OAuthTokenRepository(Container.resolve('prisma'))
+  );
+
+  Container.register(
+    'tokenManager',
+    () => new TokenManager(Container.resolve('oauthTokenRepository'))
+  );
+  Container.register(
+    'emailService',
+    () =>
+      new EmailService(
         Container.resolve('tokenManager'),
         Container.resolve('cvRepository'),
         Container.resolve('userRepository')
-    ));
+      )
+  );
 };

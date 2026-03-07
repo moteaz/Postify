@@ -11,7 +11,6 @@ import emailRoutes from './routes/emailRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
-import { logger } from './infrastructure/logging/logger.js';
 import { env } from './config/env.js';
 import { initializeContainer } from './di/bindings.js';
 import { HealthCheckService } from './services/healthCheckService.js';
@@ -20,26 +19,30 @@ initializeContainer();
 
 const app = express();
 
-app.use(helmet({
+app.use(
+  helmet({
     contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'https:'],
-        },
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-}));
-app.use(cors({
+  })
+);
+app.use(
+  cors({
     origin: (origin, callback) => {
-        if (!origin || env.CLIENT_URL === origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+      if (!origin || env.CLIENT_URL === origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     },
-    credentials: true
-}));
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -52,9 +55,9 @@ app.use('/api/email', emailRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/health', async (req, res) => {
-    const healthService = new HealthCheckService();
-    const status = await healthService.getHealthStatus();
-    res.json(status);
+  const healthService = new HealthCheckService();
+  const status = await healthService.getHealthStatus();
+  res.json(status);
 });
 
 app.use(errorHandler);

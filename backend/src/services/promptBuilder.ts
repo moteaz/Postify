@@ -1,11 +1,11 @@
 export class PromptBuilder {
-    static buildCoverLetterPrompt(
-        jobDescription: string,
-        cvText: string,
-        userName: string,
-        language: string
-    ): string {
-        return `
+  static buildCoverLetterPrompt(
+    jobDescription: string,
+    cvText: string,
+    userName: string,
+    language: string
+  ): string {
+    return `
 You are an expert career coach and professional writer. 
 Analyze the following job description and candidate's CV.
 
@@ -33,5 +33,5 @@ Respond ONLY in valid JSON format with the following keys:
   "subject": "...",
   "recruiterEmail": "..." or null
 }`;
-    }
+  }
 }

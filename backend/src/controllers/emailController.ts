@@ -10,51 +10,51 @@ import { ApplicationRepository } from '../repositories/applicationRepository.js'
 import { EmailService } from '../services/emailService.js';
 import { parsePagination, buildPaginationResult } from '../utils/pagination.js';
 
-export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-    const { applicationId, to, subject, body } = req.body;
-    const userId = req.user.id;
+export const sendApplication = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { applicationId, to, subject, body } = req.body;
+  const userId = req.user.id;
 
-    if (!isValidEmail(to)) {
-        throw new ValidationError('Invalid recipient email address');
-    }
+  if (!isValidEmail(to)) {
+    throw new ValidationError('Invalid recipient email address');
+  }
 
-    const sanitizedSubject = DOMPurify.sanitize(subject, { ALLOWED_TAGS: [] });
-    const sanitizedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
+  const sanitizedSubject = DOMPurify.sanitize(subject, { ALLOWED_TAGS: [] });
+  const sanitizedBody = DOMPurify.sanitize(body, { ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] });
 
-    const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
-    const emailService = Container.resolve<EmailService>('emailService');
+  const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
+  const emailService = Container.resolve<EmailService>('emailService');
 
-    const application = await appRepo.findById(applicationId, userId);
+  const application = await appRepo.findById(applicationId, userId);
 
-    if (!application) {
-        throw new NotFoundError('Application not found');
-    }
+  if (!application) {
+    throw new NotFoundError('Application not found');
+  }
 
-    await emailService.sendApplicationEmail(
-        userId,
-        to,
-        sanitizedSubject,
-        sanitizedBody,
-        application.cvId
-    );
+  await emailService.sendApplicationEmail(
+    userId,
+    to,
+    sanitizedSubject,
+    sanitizedBody,
+    application.cvId
+  );
 
-    await appRepo.updateStatus(applicationId, {
-        status: 'SENT',
-        sentAt: new Date(),
-        recruiterEmail: to,
-        subject: sanitizedSubject,
-        coverLetter: sanitizedBody,
-    });
+  await appRepo.updateStatus(applicationId, {
+    status: 'SENT',
+    sentAt: new Date(),
+    recruiterEmail: to,
+    subject: sanitizedSubject,
+    coverLetter: sanitizedBody,
+  });
 
-    return ResponseHandler.success(res, null, 'Application sent successfully!');
+  ResponseHandler.success(res, null, 'Application sent successfully!');
 });
 
-export const getHistory = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-    const { skip, take, page } = parsePagination(req.query);
-    const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
-    
-    const [history, total] = await appRepo.findByUserIdWithPagination(req.user.id, skip, take);
+export const getHistory = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { skip, take, page } = parsePagination(req.query);
+  const appRepo = Container.resolve<ApplicationRepository>('applicationRepository');
 
-    const result = buildPaginationResult(history, total, page, take);
-    return ResponseHandler.success(res, result);
+  const [history, total] = await appRepo.findByUserIdWithPagination(req.user.id, skip, take);
+
+  const result = buildPaginationResult(history, total, page, take);
+  ResponseHandler.success(res, result);
 });
