@@ -54,7 +54,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.get('/health', async (req, res) => {
+app.get('/api/health', async (req, res) => {
   const healthService = new HealthCheckService();
   const status = await healthService.getHealthStatus();
   res.json(status);
