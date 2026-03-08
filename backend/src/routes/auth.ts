@@ -24,7 +24,7 @@ router.get(
   (req, res) => {
     const user = req.user as any;
     if (!user) {
-      const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || 'https://postify-6fqh.onrender.com/api/auth/google/callback');
+      const safeUrl = validateRedirectUrl(process.env.CLIENT_URL||'');
       return res.redirect(`${safeUrl}/login?error=no_user`);
     }
 
@@ -38,7 +38,7 @@ router.get(
       path: '/',
     });
 
-    const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || 'https://postify-6fqh.onrender.com/api/auth/google/callback');
+    const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || '');
     res.redirect(`${safeUrl}/auth/callback`);
   }
 );
