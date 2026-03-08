@@ -39,7 +39,7 @@ router.get(
     });
 
     const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || 'http://localhost:3000');
-    res.redirect(`${safeUrl}/auth/callback/test`);
+    res.redirect(`${safeUrl}/auth/callback`);
   }
 );
 
