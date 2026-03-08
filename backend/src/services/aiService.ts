@@ -7,15 +7,8 @@ import { PROVIDERS } from '../config/constants.js';
 
 dotenv.config();
 
-const getAIClient = () => {
+const getAIClient = (): OpenAI => {
   const provider = process.env.AI_PROVIDER || PROVIDERS.OPENAI;
-
-  if (provider === PROVIDERS.OLLAMA) {
-    return new OpenAI({
-      baseURL: `${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}/v1`,
-      apiKey: 'ollama',
-    });
-  }
 
   if (provider === PROVIDERS.OPENROUTER) {
     return new OpenAI({
@@ -41,9 +34,8 @@ const getAIClient = () => {
 };
 
 const aiClient = getAIClient();
-const getModel = () => {
+const getModel = (): string => {
   const provider = process.env.AI_PROVIDER || PROVIDERS.OPENAI;
-  if (provider === PROVIDERS.OLLAMA) return process.env.OLLAMA_MODEL || 'llama3';
   if (provider === PROVIDERS.OPENROUTER)
     return process.env.OPENROUTER_MODEL || 'anthropic/claude-3-haiku';
   if (provider === PROVIDERS.HUGGINGFACE)
@@ -104,15 +96,15 @@ export const generateApplicationContent = async (
   } catch (error) {
     logger.error('Generation Exception', { message: (error as Error).message });
 
-    if ((error as any).code === 'ECONNREFUSED') {
+    if ((error as { code?: string }).code === 'ECONNREFUSED') {
       throw new AIGenerationError(
-        `Connection refused to AI provider. Is ${process.env.AI_PROVIDER === PROVIDERS.OLLAMA ? 'Ollama' : 'OpenAI'} running at ${process.env.OLLAMA_BASE_URL}?`
+        `Connection refused to AI provider. Check if the service is running.`
       );
     }
 
-    if ((error as any).status === 404 && process.env.AI_PROVIDER === PROVIDERS.OLLAMA) {
+    if ((error as { status?: number }).status === 404) {
       throw new AIGenerationError(
-        `Model '${model}' not found in Ollama. Run 'ollama pull ${model}' in your terminal.`
+        `Model '${model}' not found. Please check your AI provider configuration.`
       );
     }
 

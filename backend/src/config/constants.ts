@@ -30,7 +30,6 @@ export const ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'
 export const PROVIDERS = {
   GMAIL: 'gmail',
   GOOGLE: 'GOOGLE',
-  OLLAMA: 'ollama',
   OPENROUTER: 'openrouter',
   HUGGINGFACE: 'huggingface',
   OPENAI: 'openai',

@@ -36,7 +36,7 @@
 ### 🎯 User Features
 
 - **Google OAuth Authentication** - Secure sign-in with Google account
-- **CV Management** - Upload, manage, and archive multiple CVs (PDF/DOCX)
+- **CV Management** - Upload, manage, and remove multiple CVs (PDF/DOCX)
 - **AI Cover Letter Generation** - Personalized cover letters using GPT-4o/Ollama/OpenRouter/HuggingFace
 - **Multi-Language Support** - Auto-detects job description language (English, French, German, Spanish)
 - **Gmail Integration** - Send applications directly from your Gmail account
@@ -104,36 +104,36 @@ Postify/
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | Next.js 16 | React framework with SSR/SSG |
-| | React 19 | UI library |
-| | TypeScript 5.9 | Type safety |
-| | TailwindCSS 4 | Utility-first CSS |
-| | shadcn/ui | Component library |
-| | TanStack Query | Server state management |
-| | Zustand | Client state management |
-| | Axios | HTTP client |
-| **Backend** | Express.js 5 | Web framework |
-| | TypeScript 5.9 | Type safety |
-| | Prisma 6.19 | ORM and migrations |
-| | Passport.js | OAuth authentication |
-| | Zod | Schema validation |
-| | Helmet | Security headers |
-| | Multer | File uploads |
-| **Database** | PostgreSQL 14+ | Relational database |
-| **Storage** | Cloudinary | CV file storage (CDN) |
-| **AI** | OpenAI GPT-4o | Cover letter generation |
-| | Ollama | Local AI alternative |
-| | OpenRouter | Multi-model API |
-| | HuggingFace | Open-source models |
-| **Email** | Gmail API | Email sending |
-| | Nodemailer | SMTP client |
-| **DevOps** | Docker | Containerization |
-| | GitHub Actions | CI/CD (future) |
-| **Code Quality** | ESLint | Linting |
-| | Prettier | Code formatting |
-| | TypeScript | Static analysis |
+| Layer            | Technology     | Purpose                      |
+| ---------------- | -------------- | ---------------------------- |
+| **Frontend**     | Next.js 16     | React framework with SSR/SSG |
+|                  | React 19       | UI library                   |
+|                  | TypeScript 5.9 | Type safety                  |
+|                  | TailwindCSS 4  | Utility-first CSS            |
+|                  | shadcn/ui      | Component library            |
+|                  | TanStack Query | Server state management      |
+|                  | Zustand        | Client state management      |
+|                  | Axios          | HTTP client                  |
+| **Backend**      | Express.js 5   | Web framework                |
+|                  | TypeScript 5.9 | Type safety                  |
+|                  | Prisma 6.19    | ORM and migrations           |
+|                  | Passport.js    | OAuth authentication         |
+|                  | Zod            | Schema validation            |
+|                  | Helmet         | Security headers             |
+|                  | Multer         | File uploads                 |
+| **Database**     | PostgreSQL 14+ | Relational database          |
+| **Storage**      | Cloudinary     | CV file storage (CDN)        |
+| **AI**           | OpenAI GPT-4o  | Cover letter generation      |
+|                  | Ollama         | Local AI alternative         |
+|                  | OpenRouter     | Multi-model API              |
+|                  | HuggingFace    | Open-source models           |
+| **Email**        | Gmail API      | Email sending                |
+|                  | Nodemailer     | SMTP client                  |
+| **DevOps**       | Docker         | Containerization             |
+|                  | GitHub Actions | CI/CD (future)               |
+| **Code Quality** | ESLint         | Linting                      |
+|                  | Prettier       | Code formatting              |
+|                  | TypeScript     | Static analysis              |
 
 ---
 
@@ -306,7 +306,7 @@ docker-compose up -d
 **docker-compose.yml** (create in root):
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -443,6 +443,7 @@ Logs are output in JSON format:
 ```
 
 **Log Levels:**
+
 - `error` - Critical errors
 - `warn` - Warnings
 - `info` - General information
@@ -636,7 +637,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
       - run: npm ci
       - run: npm run lint
       - run: npm test
@@ -755,6 +756,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `docs` - Documentation
@@ -815,32 +817,32 @@ Or via HTTP-only cookie (set automatically after login).
 
 ### Endpoints
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
+| Method             | Endpoint                   | Auth  | Description                     |
+| ------------------ | -------------------------- | ----- | ------------------------------- |
 | **Authentication** |
-| GET | `/auth/google` | No | Initiate Google OAuth |
-| GET | `/auth/google/callback` | No | OAuth callback |
-| GET | `/auth/me` | Yes | Get current user |
-| POST | `/auth/logout` | No | Logout user |
-| **CV Management** |
-| POST | `/cv/upload` | Yes | Upload CV (multipart/form-data) |
-| GET | `/cv` | Yes | Get user's CVs |
-| PUT | `/cv/:id/active` | Yes | Set CV as active |
-| PUT | `/cv/:id/archive` | Yes | Archive/unarchive CV |
-| DELETE | `/cv/:id` | Yes | Delete CV |
-| **AI Generation** |
-| POST | `/ai/generate` | Yes | Generate cover letter |
-| **Email** |
-| POST | `/email/send` | Yes | Send application |
-| GET | `/email/history` | Yes | Get application history |
-| **Admin** |
-| GET | `/admin/users` | Admin | Get all users |
-| GET | `/admin/users/:id` | Admin | Get user details |
-| DELETE | `/admin/users/:id` | Admin | Delete user |
-| GET | `/admin/users/export` | Admin | Export users to CSV |
-| GET | `/admin/cv/:cvId/download` | Admin | Download user CV |
-| **Health** |
-| GET | `/health` | No | Health check |
+| GET                | `/auth/google`             | No    | Initiate Google OAuth           |
+| GET                | `/auth/google/callback`    | No    | OAuth callback                  |
+| GET                | `/auth/me`                 | Yes   | Get current user                |
+| POST               | `/auth/logout`             | No    | Logout user                     |
+| **CV Management**  |
+| POST               | `/cv/upload`               | Yes   | Upload CV (multipart/form-data) |
+| GET                | `/cv`                      | Yes   | Get user's CVs                  |
+| PUT                | `/cv/:id/active`           | Yes   | Set CV as active                |
+| PUT                | `/cv/:id/archive`          | Yes   | Archive/unarchive CV            |
+| DELETE             | `/cv/:id`                  | Yes   | Delete CV                       |
+| **AI Generation**  |
+| POST               | `/ai/generate`             | Yes   | Generate cover letter           |
+| **Email**          |
+| POST               | `/email/send`              | Yes   | Send application                |
+| GET                | `/email/history`           | Yes   | Get application history         |
+| **Admin**          |
+| GET                | `/admin/users`             | Admin | Get all users                   |
+| GET                | `/admin/users/:id`         | Admin | Get user details                |
+| DELETE             | `/admin/users/:id`         | Admin | Delete user                     |
+| GET                | `/admin/users/export`      | Admin | Export users to CSV             |
+| GET                | `/admin/cv/:cvId/download` | Admin | Download user CV                |
+| **Health**         |
+| GET                | `/health`                  | No    | Health check                    |
 
 ### Example Request
 
@@ -884,7 +886,7 @@ This project is licensed under the **MIT License**.
 ```
 MIT License
 
-Copyright (c) 2025 Postify
+Copyright (c) 2026 Postify
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -911,10 +913,10 @@ SOFTWARE.
 
 **Your Name**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
-- Portfolio: [yourportfolio.com](https://yourportfolio.com)
+- GitHub: [@moetaz](https://github.com/moteaz)
+- LinkedIn: [MoetazHalleb](https://www.linkedin.com/in/motezhalleb/)
+- Email: mootazhalleb@gmail.com
+- Portfolio: [https://moetazhalleb.netlify.app/]
 
 ---
 
@@ -931,8 +933,8 @@ SOFTWARE.
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/postify/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/postify/discussions)
+- **Issues:** [GitHub Issues](https://github.com/moteaz/postify/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/moteaz/postify/discussions)
 - **Email:** support@postify.app
 
 ---
@@ -941,6 +943,6 @@ SOFTWARE.
 
 **⭐ Star this repo if you find it helpful!**
 
-Made with ❤️ by the Postify Team
+Made with ❤️ by the Moteaz
 
 </div>

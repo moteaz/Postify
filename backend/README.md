@@ -2020,7 +2020,7 @@ SOFTWARE.
 
 **Postify Team**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@moteaz](https://github.com/yourusername)
 - Email: support@postify.app
 - Website: [postify.app](https://postify.app)
 
@@ -2070,8 +2070,8 @@ Future versions will use: `/api/v2`, `/api/v3`, etc.
 
 **⭐ Star this repo if you find it helpful!**
 
-Made with ❤️ by the Postify Team
+Made with ❤️ by the Moetaz
 
-[Report Bug](https://github.com/yourusername/postify/issues) · [Request Feature](https://github.com/yourusername/postify/issues) · [Documentation](https://docs.postify.app)
+[Report Bug](https://github.com/moteaz/postify/issues) · [Request Feature](https://github.com/moteaz/postify/issues) · 
 
 </div>

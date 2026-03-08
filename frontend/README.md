@@ -16,9 +16,11 @@
 ## 📸 Screenshots
 
 ### Desktop View
+
 ![Desktop Dashboard](https://via.placeholder.com/1200x675/7C9EE8/FFFFFF?text=Desktop+Dashboard+View)
 
 ### Mobile View
+
 <img src="https://via.placeholder.com/375x812/F0A8C0/FFFFFF?text=Mobile+View" alt="Mobile View" width="375">
 
 ---
@@ -45,6 +47,7 @@
 ## ✨ Features
 
 ### UI/UX Features
+
 - **Modern Design System** - Warm, airy color palette with rounded corners and soft shadows
 - **Responsive Layout** - Mobile-first design that adapts seamlessly from 320px to 4K displays
 - **Dark Mode Ready** - CSS variables for easy theme switching (foundation in place)
@@ -53,6 +56,7 @@
 - **Toast Notifications** - Custom toast system with auto-dismiss and stacking
 
 ### Performance Features
+
 - **Server-Side Rendering (SSR)** - Landing page and auth pages for SEO and fast initial load
 - **Static Site Generation (SSG)** - Legal pages (Terms, Privacy) pre-rendered at build time
 - **Client-Side Rendering (CSR)** - Dashboard for dynamic, personalized content
@@ -61,6 +65,7 @@
 - **Font Optimization** - Google Fonts with `next/font` for zero layout shift
 
 ### Accessibility (a11y)
+
 - **WCAG AA Compliant** - All color contrasts meet 4.5:1 minimum ratio
 - **Keyboard Navigation** - Full keyboard support with visible focus indicators
 - **Screen Reader Support** - Semantic HTML, ARIA labels, and skip links
@@ -69,6 +74,7 @@
 - **ESLint a11y Plugin** - Automated accessibility checks during development
 
 ### Responsive Design
+
 - **Breakpoints:**
   - Mobile: 320px - 767px
   - Tablet: 768px - 1023px
@@ -81,25 +87,25 @@
 
 ## 🛠️ Tech Stack
 
-| Category | Technology | Version | Purpose |
-|----------|-----------|---------|---------|
-| **Framework** | Next.js | 16.1.6 | React framework with App Router |
-| **Language** | TypeScript | 5.9.3 | Type safety and developer experience |
-| **UI Library** | React | 19.2.3 | Component-based UI |
-| **Styling** | Tailwind CSS | 4.0 | Utility-first CSS framework |
-| **Component Library** | shadcn/ui | Latest | Accessible, customizable components |
-| **Animations** | Framer Motion | 11.15.0 | Declarative animations |
-| **Data Fetching** | TanStack Query | 5.90.21 | Server state management |
-| **State Management** | Zustand | 5.0.11 | Lightweight global state |
-| **HTTP Client** | Axios | 1.13.5 | Promise-based HTTP client |
-| **Form Handling** | React Hook Form | 7.54.2 | Performant form validation |
-| **Validation** | Zod | 3.24.1 | TypeScript-first schema validation |
-| **Security** | DOMPurify | 3.3.2 | XSS sanitization |
-| **Icons** | Lucide React | 0.575.0 | Beautiful, consistent icons |
-| **Fonts** | Google Fonts | - | Bricolage Grotesque, Plus Jakarta Sans |
-| **Development** | ESLint | 9.x | Code linting |
-| | Prettier | 3.8.1 | Code formatting |
-| | TypeScript ESLint | 8.56.1 | TypeScript-specific linting |
+| Category              | Technology        | Version | Purpose                                |
+| --------------------- | ----------------- | ------- | -------------------------------------- |
+| **Framework**         | Next.js           | 16.1.6  | React framework with App Router        |
+| **Language**          | TypeScript        | 5.9.3   | Type safety and developer experience   |
+| **UI Library**        | React             | 19.2.3  | Component-based UI                     |
+| **Styling**           | Tailwind CSS      | 4.0     | Utility-first CSS framework            |
+| **Component Library** | shadcn/ui         | Latest  | Accessible, customizable components    |
+| **Animations**        | Framer Motion     | 11.15.0 | Declarative animations                 |
+| **Data Fetching**     | TanStack Query    | 5.90.21 | Server state management                |
+| **State Management**  | Zustand           | 5.0.11  | Lightweight global state               |
+| **HTTP Client**       | Axios             | 1.13.5  | Promise-based HTTP client              |
+| **Form Handling**     | React Hook Form   | 7.54.2  | Performant form validation             |
+| **Validation**        | Zod               | 3.24.1  | TypeScript-first schema validation     |
+| **Security**          | DOMPurify         | 3.3.2   | XSS sanitization                       |
+| **Icons**             | Lucide React      | 0.575.0 | Beautiful, consistent icons            |
+| **Fonts**             | Google Fonts      | -       | Bricolage Grotesque, Plus Jakarta Sans |
+| **Development**       | ESLint            | 9.x     | Code linting                           |
+|                       | Prettier          | 3.8.1   | Code formatting                        |
+|                       | TypeScript ESLint | 8.56.1  | TypeScript-specific linting            |
 
 ---
 
@@ -108,12 +114,15 @@
 Before you begin, ensure you have the following installed:
 
 ### Required Software
+
 - **Node.js** ≥ 20.0.0 ([Download](https://nodejs.org/))
 - **npm** ≥ 10.0.0 (comes with Node.js)
 - **Git** ([Download](https://git-scm.com/downloads))
 
 ### Backend API
+
 The backend API must be running and accessible:
+
 - **Development:** `http://localhost:5000`
 - **Production:** `https://api.postify.app`
 
@@ -158,17 +167,20 @@ NODE_ENV=development
 #### Environment Variable Explanation
 
 **Public Variables (`NEXT_PUBLIC_*`):**
+
 - Exposed to the browser (client-side)
 - Can be accessed in components via `process.env.NEXT_PUBLIC_*`
 - Used for API URLs, public keys, feature flags
 - **Never put secrets here** (API keys, tokens, etc.)
 
 **Private Variables (no prefix):**
+
 - Only available server-side (API routes, server components)
 - Not exposed to the browser
 - Use for sensitive data like API secrets
 
 **Example Usage:**
+
 ```typescript
 // ✅ Correct - Public variable in client component
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -258,7 +270,7 @@ services:
   frontend:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NEXT_PUBLIC_API_URL: http://backend:5000
     depends_on:
@@ -423,25 +435,25 @@ Postify uses a warm, airy color system with excellent contrast ratios:
 
 ```css
 /* Primary Colors */
---bg-base: #F9F7F4;           /* Warm off-white background */
---bg-card: #FFFFFF;           /* Pure white cards */
---bg-muted: #F3F0EC;          /* Subtle gray for sections */
+--bg-base: #f9f7f4; /* Warm off-white background */
+--bg-card: #ffffff; /* Pure white cards */
+--bg-muted: #f3f0ec; /* Subtle gray for sections */
 
 /* Accent Colors */
---accent-primary: #7C9EE8;    /* Soft blue (primary actions) */
---accent-secondary: #F0A8C0;  /* Soft pink (secondary accents) */
---accent-mint: #15803D;       /* Green (success states) */
---accent-peach: #F5C4A0;      /* Peach (tertiary accents) */
+--accent-primary: #7c9ee8; /* Soft blue (primary actions) */
+--accent-secondary: #f0a8c0; /* Soft pink (secondary accents) */
+--accent-mint: #15803d; /* Green (success states) */
+--accent-peach: #f5c4a0; /* Peach (tertiary accents) */
 
 /* Text Colors (WCAG AA Compliant) */
---text-primary: #1C1917;      /* 16.1:1 contrast ratio ✓ */
---text-secondary: #57534E;    /* 7.4:1 contrast ratio ✓ */
---text-muted: #78716C;        /* 4.6:1 contrast ratio ✓ */
+--text-primary: #1c1917; /* 16.1:1 contrast ratio ✓ */
+--text-secondary: #57534e; /* 7.4:1 contrast ratio ✓ */
+--text-muted: #78716c; /* 4.6:1 contrast ratio ✓ */
 
 /* Borders & Shadows */
---border: #EAE7E3;
---shadow-soft: 0 2px 16px rgba(0,0,0,0.06);
---shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+--border: #eae7e3;
+--shadow-soft: 0 2px 16px rgba(0, 0, 0, 0.06);
+--shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
 ```
 
 ### Typography
@@ -451,20 +463,21 @@ Postify uses a warm, airy color system with excellent contrast ratios:
 
 ```typescript
 // Font configuration in app/layout.tsx
-const bricolage = Bricolage_Grotesque({ 
-  subsets: ["latin"], 
-  display: "swap",
-  variable: "--font-display"
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
-const jakarta = Plus_Jakarta_Sans({ 
-  subsets: ["latin"], 
-  display: "swap",
-  variable: "--font-body"
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
 });
 ```
 
 **Usage:**
+
 ```tsx
 <h1 className="font-[family-name:var(--font-display)]">Heading</h1>
 <p className="font-[family-name:var(--font-body)]">Body text</p>
@@ -475,6 +488,7 @@ const jakarta = Plus_Jakarta_Sans({
 Postify uses **shadcn/ui** - a collection of accessible, customizable components built with Radix UI and Tailwind CSS.
 
 **Key Components:**
+
 - `Button` - Primary, secondary, outline, ghost variants
 - `Card` - Container with header, content, footer
 - `Dialog` - Modal dialogs with overlay
@@ -499,6 +513,7 @@ npx shadcn@latest add dropdown-menu
 ```
 
 This will:
+
 1. Download the component to `src/components/ui/`
 2. Install required dependencies
 3. Update `components.json` configuration
@@ -522,9 +537,9 @@ import axios from 'axios';
 import { env } from '@/config/env';
 
 const apiClient = axios.create({
-  baseURL: env.apiUrl,           // http://localhost:5000
-  withCredentials: true,         // Send cookies with requests
-  timeout: 30000,                // 30 second timeout
+  baseURL: env.apiUrl, // http://localhost:5000
+  withCredentials: true, // Send cookies with requests
+  timeout: 30000, // 30 second timeout
 });
 ```
 
@@ -534,15 +549,15 @@ const apiClient = axios.create({
 
 ```typescript
 // Interceptor automatically includes cookies
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(config => {
   // Cookies sent automatically via withCredentials: true
   return config;
 });
 
 // Handle 401 Unauthorized responses
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
       // Redirect to login
       window.location.href = '/login';
@@ -553,6 +568,7 @@ apiClient.interceptors.response.use(
 ```
 
 **Why HTTP-only cookies?**
+
 - ✅ Immune to XSS attacks (JavaScript can't access)
 - ✅ Automatically sent with every request
 - ✅ Secure flag in production (HTTPS only)
@@ -569,10 +585,10 @@ export const authService = {
     const res = await apiClient.get('/auth/me');
     return res.data.data.user;
   },
-  
+
   async logout(): Promise<void> {
     await apiClient.post('/auth/logout');
-  }
+  },
 };
 
 // CV Management
@@ -581,23 +597,24 @@ export const cvService = {
     const res = await apiClient.get('/cv');
     return res.data.data.cvs;
   },
-  
+
   async upload(file: File): Promise<void> {
     const formData = new FormData();
     formData.append('cv', file);
     await apiClient.post('/cv/upload', formData);
-  }
+  },
 };
 
 // AI Generation
 export const applicationService = {
   async generateApplication(jobDescription: string) {
-    const res = await apiClient.post('/ai/generate', 
+    const res = await apiClient.post(
+      '/ai/generate',
       { jobDescription },
       { timeout: 120000 } // 2 minute timeout for AI
     );
     return res.data.data;
-  }
+  },
 };
 ```
 
@@ -606,27 +623,27 @@ export const applicationService = {
 ```typescript
 // src/utils/errorHandler.ts
 export function handleApiError(error: unknown): string {
-  const apiError = error as { 
-    response?: { 
-      data?: { 
-        error?: string; 
-        message?: string; 
-        details?: any[] 
-      } 
-    } 
+  const apiError = error as {
+    response?: {
+      data?: {
+        error?: string;
+        message?: string;
+        details?: any[];
+      };
+    };
   };
-  
+
   // Validation errors
   if (apiError.response?.data?.details) {
-    return apiError.response.data.details
-      .map((d: any) => d.message)
-      .join(', ');
+    return apiError.response.data.details.map((d: any) => d.message).join(', ');
   }
-  
+
   // Standard error message
-  return apiError.response?.data?.error 
-    || apiError.response?.data?.message 
-    || 'An unexpected error occurred';
+  return (
+    apiError.response?.data?.error ||
+    apiError.response?.data?.message ||
+    'An unexpected error occurred'
+  );
 }
 ```
 
@@ -651,11 +668,11 @@ export const newService = {
     const res = await apiClient.get('/items');
     return res.data.data.items;
   },
-  
+
   async createItem(data: CreateItemDto): Promise<Item> {
     const res = await apiClient.post('/items', data);
     return res.data.data.item;
-  }
+  },
 };
 ```
 
@@ -670,7 +687,7 @@ import { handleApiError } from '@/utils/errorHandler';
 export function useItems() {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -682,7 +699,7 @@ export function useItems() {
       setIsLoading(false);
     }
   }, []);
-  
+
   return { items, isLoading, fetchItems };
 }
 ```
@@ -704,22 +721,26 @@ useEffect(() => {
 ### Login Flow (UI Perspective)
 
 1. **User clicks "Sign in with Google":**
+
    ```tsx
-   <button onClick={() => window.location.href = `${apiUrl}/auth/google`}>
+   <button onClick={() => (window.location.href = `${apiUrl}/auth/google`)}>
      Sign in with Google
    </button>
    ```
 
 2. **Backend handles OAuth, sets HTTP-only cookie, redirects back:**
+
    ```
    User → Google OAuth → Backend → Sets cookie → Redirects to /auth/callback
    ```
 
 3. **Frontend fetches user profile:**
+
    ```typescript
    // src/hooks/useAuth.ts
    useEffect(() => {
-     authService.getCurrentUser()
+     authService
+       .getCurrentUser()
        .then(setUser)
        .catch(() => {
          logout();
@@ -738,10 +759,10 @@ useEffect(() => {
 ```typescript
 const handleLogout = async () => {
   try {
-    await authService.logout();  // Clears cookie on backend
+    await authService.logout(); // Clears cookie on backend
   } finally {
-    logout();                    // Clears Zustand store
-    router.replace('/');         // Redirect to home
+    logout(); // Clears Zustand store
+    router.replace('/'); // Redirect to home
   }
 };
 ```
@@ -754,14 +775,14 @@ const handleLogout = async () => {
 // src/middleware.ts (if implemented)
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
-  
+
   if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/auth', request.url));
   }
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*']
+  matcher: ['/dashboard/:path*'],
 };
 ```
 
@@ -772,18 +793,19 @@ export const config = {
 export function useAuth() {
   const router = useRouter();
   const { user, setUser, logout } = useAuthStore();
-  
+
   useEffect(() => {
     if (!user) {
-      authService.getCurrentUser()
+      authService
+        .getCurrentUser()
         .then(setUser)
         .catch(() => {
           logout();
-          router.replace('/');  // Redirect if not authenticated
+          router.replace('/'); // Redirect if not authenticated
         });
     }
   }, [user, router, setUser, logout]);
-  
+
   return { user, handleLogout };
 }
 ```
@@ -793,12 +815,14 @@ export function useAuth() {
 **Where:** HTTP-only cookie (set by backend)
 
 **Why HTTP-only cookie?**
+
 - ✅ **XSS Protection:** JavaScript cannot access the cookie
 - ✅ **Automatic:** Browser sends cookie with every request
 - ✅ **Secure:** HTTPS-only in production
 - ✅ **CSRF Protection:** SameSite=Strict attribute
 
 **Alternative (NOT used):**
+
 - ❌ localStorage - Vulnerable to XSS attacks
 - ❌ sessionStorage - Vulnerable to XSS attacks
 - ❌ In-memory only - Lost on page refresh
@@ -806,15 +830,18 @@ export function useAuth() {
 ### Redirect Behavior
 
 **Unauthenticated users:**
+
 - Accessing `/dashboard` → Redirect to `/`
 - Accessing `/auth` → Show login page
 
 **Authenticated users:**
+
 - Accessing `/` → Can view landing page
 - Accessing `/auth` → Can re-authenticate
 - Accessing `/dashboard` → Show dashboard
 
 ---
+
 ## 🧪 Testing
 
 ### Test Structure
@@ -878,12 +905,12 @@ npm run test:e2e -- --debug
 
 ### Test Coverage Goals
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Statements | ≥ 80% | 75% |
-| Branches | ≥ 75% | 70% |
-| Functions | ≥ 80% | 72% |
-| Lines | ≥ 80% | 74% |
+| Metric     | Target | Current |
+| ---------- | ------ | ------- |
+| Statements | ≥ 80%  | 75%     |
+| Branches   | ≥ 75%  | 70%     |
+| Functions  | ≥ 80%  | 72%     |
+| Lines      | ≥ 80%  | 74%     |
 
 ### Writing New Tests
 
@@ -899,15 +926,15 @@ describe('Button', () => {
     render(<Button>Click me</Button>);
     expect(screen.getByText('Click me')).toBeInTheDocument();
   });
-  
+
   it('calls onClick when clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     fireEvent.click(screen.getByText('Click me'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
-  
+
   it('is disabled when disabled prop is true', () => {
     render(<Button disabled>Click me</Button>);
     expect(screen.getByText('Click me')).toBeDisabled();
@@ -927,20 +954,20 @@ jest.mock('@/services/api', () => ({
     getCurrentUser: jest.fn().mockResolvedValue({
       id: '1',
       email: 'test@example.com',
-      name: 'Test User'
-    })
-  }
+      name: 'Test User',
+    }),
+  },
 }));
 
 describe('useAuth', () => {
   it('fetches user on mount', async () => {
     const { result } = renderHook(() => useAuth());
-    
+
     await waitFor(() => {
       expect(result.current.user).toEqual({
         id: '1',
         email: 'test@example.com',
-        name: 'Test User'
+        name: 'Test User',
       });
     });
   });
@@ -956,28 +983,30 @@ import { test, expect } from '@playwright/test';
 test.describe('Authentication', () => {
   test('should redirect to Google OAuth', async ({ page }) => {
     await page.goto('http://localhost:3000/auth');
-    
-    const googleButton = page.getByRole('button', { 
-      name: /continue with google/i 
+
+    const googleButton = page.getByRole('button', {
+      name: /continue with google/i,
     });
-    
+
     await expect(googleButton).toBeVisible();
-    
+
     // Click would redirect to Google (don't actually test OAuth)
     // await googleButton.click();
   });
-  
+
   test('should show dashboard after login', async ({ page }) => {
     // Mock authentication cookie
-    await page.context().addCookies([{
-      name: 'token',
-      value: 'mock-jwt-token',
-      domain: 'localhost',
-      path: '/'
-    }]);
-    
+    await page.context().addCookies([
+      {
+        name: 'token',
+        value: 'mock-jwt-token',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
     await page.goto('http://localhost:3000/dashboard');
-    
+
     await expect(page.getByText(/new application/i)).toBeVisible();
   });
 });
@@ -995,11 +1024,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.tsx',
-  ],
+  collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts', '!src/**/*.stories.tsx'],
 };
 ```
 
@@ -1047,7 +1072,7 @@ Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 1.0,
-  
+
   // Filter out sensitive data
   beforeSend(event) {
     // Remove cookies, tokens, etc.
@@ -1070,7 +1095,7 @@ try {
 } catch (error) {
   Sentry.captureException(error, {
     tags: { feature: 'cv-upload' },
-    extra: { userId: user.id }
+    extra: { userId: user.id },
   });
 }
 ```
@@ -1084,18 +1109,19 @@ try {
 export function reportWebVitals(metric: NextWebVitalsMetric) {
   // Send to analytics
   console.log(metric);
-  
+
   // Send to Sentry
   if (process.env.NODE_ENV === 'production') {
     Sentry.captureMessage(`Web Vital: ${metric.name}`, {
       level: 'info',
-      extra: metric
+      extra: metric,
     });
   }
 }
 ```
 
 **Metrics Tracked:**
+
 - **FCP** (First Contentful Paint) - Time to first content render
 - **LCP** (Largest Contentful Paint) - Time to largest content render
 - **CLS** (Cumulative Layout Shift) - Visual stability
@@ -1129,15 +1155,16 @@ lhci autorun --collect.url=http://localhost:3000
 
 ### Rendering Strategy by Page
 
-| Page | Strategy | Reason |
-|------|----------|--------|
-| `/` (Landing) | SSR | SEO, dynamic content, fast initial load |
-| `/auth` | SSR | SEO, fast initial load |
-| `/dashboard` | CSR | Personalized, requires authentication |
-| `/privacy` | SSG | Static content, pre-rendered at build |
-| `/terms` | SSG | Static content, pre-rendered at build |
+| Page          | Strategy | Reason                                  |
+| ------------- | -------- | --------------------------------------- |
+| `/` (Landing) | SSR      | SEO, dynamic content, fast initial load |
+| `/auth`       | SSR      | SEO, fast initial load                  |
+| `/dashboard`  | CSR      | Personalized, requires authentication   |
+| `/privacy`    | SSG      | Static content, pre-rendered at build   |
+| `/terms`      | SSG      | Static content, pre-rendered at build   |
 
 **SSR (Server-Side Rendering):**
+
 ```typescript
 // Default in Next.js 14 App Router
 export default async function Page() {
@@ -1148,6 +1175,7 @@ export default async function Page() {
 ```
 
 **SSG (Static Site Generation):**
+
 ```typescript
 // Force static generation
 export const dynamic = 'force-static';
@@ -1158,21 +1186,23 @@ export default function Page() {
 ```
 
 **CSR (Client-Side Rendering):**
+
 ```typescript
 'use client'; // Client component
 
 export default function Page() {
   const [data, setData] = useState(null);
-  
+
   useEffect(() => {
     fetch('...').then(r => r.json()).then(setData);
   }, []);
-  
+
   return <div>{data}</div>;
 }
 ```
 
 **ISR (Incremental Static Regeneration):**
+
 ```typescript
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -1191,10 +1221,10 @@ export default async function Page() {
 import Image from 'next/image';
 
 // ✅ Correct - Optimized
-<Image 
-  src="/logo.png" 
-  alt="Logo" 
-  width={200} 
+<Image
+  src="/logo.png"
+  alt="Logo"
+  width={200}
   height={100}
   priority // For above-the-fold images
 />
@@ -1204,6 +1234,7 @@ import Image from 'next/image';
 ```
 
 **Benefits:**
+
 - Automatic WebP/AVIF conversion
 - Lazy loading by default
 - Responsive images
@@ -1224,7 +1255,7 @@ export default {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com', // Cloudinary CDN
-      }
+      },
     ],
   },
 };
@@ -1283,34 +1314,38 @@ npm uninstall [package-name]
 
 ### Lighthouse Score Targets
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| **Performance** | ≥ 90 | 92 |
-| **Accessibility** | ≥ 95 | 97 |
-| **Best Practices** | ≥ 90 | 95 |
-| **SEO** | ≥ 90 | 100 |
+| Metric             | Target | Current |
+| ------------------ | ------ | ------- |
+| **Performance**    | ≥ 90   | 92      |
+| **Accessibility**  | ≥ 95   | 97      |
+| **Best Practices** | ≥ 90   | 95      |
+| **SEO**            | ≥ 90   | 100     |
 
 **How to Improve Scores:**
 
 **Performance:**
+
 - Use `next/image` for all images
 - Minimize JavaScript bundle size
 - Enable compression (Gzip/Brotli)
 - Use CDN for static assets
 
 **Accessibility:**
+
 - Semantic HTML (`<nav>`, `<main>`, `<article>`)
 - ARIA labels on interactive elements
 - Sufficient color contrast (4.5:1 minimum)
 - Keyboard navigation support
 
 **Best Practices:**
+
 - HTTPS in production
 - No console errors
 - Secure cookies (HttpOnly, Secure, SameSite)
 - CSP headers
 
 **SEO:**
+
 - Meta tags (title, description)
 - Canonical URLs
 - Sitemap.xml
@@ -1330,11 +1365,13 @@ npm uninstall [package-name]
 **Manual Deployment:**
 
 1. **Install Vercel CLI:**
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Login:**
+
    ```bash
    vercel login
    ```
@@ -1351,11 +1388,11 @@ Go to Vercel Dashboard → Project → Settings → Environment Variables
 
 Add the following:
 
-| Variable | Value | Environment |
-|----------|-------|-------------|
-| `NEXT_PUBLIC_API_URL` | `https://api.postify.app` | Production |
-| `NEXT_PUBLIC_API_URL` | `http://localhost:5000` | Development |
-| `NODE_ENV` | `production` | Production |
+| Variable              | Value                     | Environment |
+| --------------------- | ------------------------- | ----------- |
+| `NEXT_PUBLIC_API_URL` | `https://api.postify.app` | Production  |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:5000`   | Development |
+| `NODE_ENV`            | `production`              | Production  |
 
 **Automatic Deployments:**
 
@@ -1366,16 +1403,19 @@ Add the following:
 ### Manual Deployment
 
 **Build Command:**
+
 ```bash
 npm run build
 ```
 
 **Start Command:**
+
 ```bash
 npm run start
 ```
 
 **Output Directory:**
+
 ```
 .next/
 ```
@@ -1411,7 +1451,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NEXT_PUBLIC_API_URL: https://api.postify.app
       NODE_ENV: production
@@ -1472,6 +1512,7 @@ services:
 ### Component Creation Guidelines
 
 **1. File Naming:**
+
 - Use PascalCase for component files: `MyComponent.tsx`
 - Use camelCase for utility files: `myHelper.ts`
 - Use kebab-case for CSS modules: `my-component.module.css`
@@ -1491,7 +1532,7 @@ interface MyComponentProps {
 
 export function MyComponent({ title, onAction, className }: MyComponentProps) {
   const [isActive, setIsActive] = useState(false);
-  
+
   return (
     <div className={cn('base-classes', className)}>
       <h2>{title}</h2>
@@ -1502,6 +1543,7 @@ export function MyComponent({ title, onAction, className }: MyComponentProps) {
 ```
 
 **3. Component Location:**
+
 - **Shared components:** `src/components/`
 - **Page-specific components:** `src/app/[page]/components/`
 - **UI primitives:** `src/components/ui/`
@@ -1509,6 +1551,7 @@ export function MyComponent({ title, onAction, className }: MyComponentProps) {
 ### Naming Conventions
 
 **Variables:**
+
 ```typescript
 // ✅ Correct
 const userName = 'John';
@@ -1522,6 +1565,7 @@ const clickHandler = () => {};
 ```
 
 **Components:**
+
 ```typescript
 // ✅ Correct
 export function UserProfile() {}
@@ -1533,6 +1577,7 @@ export const user_avatar = () => {};
 ```
 
 **Types/Interfaces:**
+
 ```typescript
 // ✅ Correct
 interface User {}
@@ -1615,6 +1660,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `docs` - Documentation
@@ -1680,9 +1726,8 @@ SOFTWARE.
 
 **Postify Team**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@moteaz](https://github.com/moteaz)
 - Email: support@postify.app
-- Website: [postify.app](https://postify.app)
 
 ---
 
@@ -1699,10 +1744,9 @@ SOFTWARE.
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/postify/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/postify/discussions)
+- **Issues:** [GitHub Issues](https://github.com/moteaz/postify/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/moteaz/postify/discussions)
 - **Email:** support@postify.app
-- **Documentation:** [docs.postify.app](https://docs.postify.app)
 
 ---
 
@@ -1720,8 +1764,8 @@ SOFTWARE.
 
 **⭐ Star this repo if you find it helpful!**
 
-Made with ❤️ by the Postify Team
+Made with ❤️ by the Moetaz
 
-[Report Bug](https://github.com/yourusername/postify/issues) · [Request Feature](https://github.com/yourusername/postify/issues) · [Documentation](https://docs.postify.app)
+[Report Bug](https://github.com/moteaz/postify/issues) · [Request Feature](https://github.com/moteaz/postify/issues) · [Documentation](https://docs.postify.app)
 
 </div>
