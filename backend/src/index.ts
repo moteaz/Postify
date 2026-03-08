@@ -5,7 +5,7 @@ import { logger } from './infrastructure/logging/logger.js';
 const PORT = env.PORT;
 
 const server = app.listen(PORT, () => {
-  logger.info(`🚀 Postify Backend running on http://localhost:${PORT}`);
+  logger.info(`🚀 Postify Backend Server running on port:${PORT}`);
 });
 
 process.on('SIGTERM', () => {
