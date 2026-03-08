@@ -16,7 +16,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
 
   const uploadResult = await fileStorage.uploadFile(filePath, originalname);
 
-  const cv = await prisma.$transaction(async tx => {
+  const cv = await prisma.$transaction(async (tx: any) => {
     await tx.userCV.updateMany({
       where: { userId },
       data: { isActive: false },
@@ -57,7 +57,7 @@ export const getMyCVs = asyncHandler(async (req: AuthRequest, res: Response) => 
 export const deleteCV = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as { id: string };
 
-  await prisma.$transaction(async tx => {
+  await prisma.$transaction(async (tx: any) => {
     const cv = await tx.userCV.findFirst({
       where: { id, userId: req.user.id },
       include: {
@@ -94,7 +94,7 @@ export const setActiveCV = asyncHandler(async (req: AuthRequest, res: Response) 
   const { id } = req.params as { id: string };
   const userId = req.user.id;
 
-  const updated = await prisma.$transaction(async tx => {
+  const updated = await prisma.$transaction(async (tx: any) => {
     const cv = await tx.userCV.findFirst({
       where: { id, userId },
     });

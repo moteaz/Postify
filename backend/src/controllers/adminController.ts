@@ -57,7 +57,7 @@ export const exportUsers = asyncHandler(async (req: AuthRequest, res: Response) 
   const csv = [
     'Email,Name,Role,Joined,CVs,Applications',
     ...users.map(
-      u =>
+      (u: any) =>
         `${u.email},${u.name || 'N/A'},${u.role},${new Date(u.createdAt).toLocaleDateString()},${u._count.cvs},${u._count.applications}`
     ),
   ].join('\n');
