@@ -18,7 +18,7 @@ export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<"login" | "signup">(mode || "login");
 
   const handleGoogleAuth = async () => {
-    window.location.href = `${env.apiUrl}/auth/google`;
+    window.location.href = `${env.apiUrl}/api/auth/google`;
   };
 
   return (
