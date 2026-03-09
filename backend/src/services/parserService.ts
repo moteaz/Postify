@@ -4,23 +4,20 @@ import { logger } from '../infrastructure/logging/logger.js';
 import { fileStorage } from './fileStorageService.js';
 
 const require = createRequire(import.meta.url);
-const { PDFParse } = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 
-export const parseCV = async (fileKey: string, mimeType: string): Promise<string> => {
-  logger.info('Processing file from Cloudinary', { fileKey });
+export const parseCV = async (input: Buffer | string, mimeType: string): Promise<string> => {
+  logger.info('Parsing CV', { type: typeof input === 'string' ? 'fileKey' : 'buffer' });
 
-  const dataBuffer = await fileStorage.downloadFile(fileKey);
+  const dataBuffer = typeof input === 'string'
+    ? await fileStorage.downloadFile(input)
+    : input;
 
   if (mimeType === 'application/pdf') {
     try {
-      const parser = new PDFParse({
-        data: dataBuffer,
-        verbosity: 0,
-      });
+      const result = await pdfParse(dataBuffer);
 
-      const result = await parser.getText();
-
-      if (!result || !result.text) {
+      if (!result?.text) {
         throw new Error('PDF parsing completed but returned no text content.');
       }
 
