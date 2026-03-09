@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import dns from 'node:dns';
+import { google } from 'googleapis';
 import { TokenManager } from './tokenManager.js';
 import { EmailConfig } from '../types/dtos.js';
 import { EmailSendError } from '../utils/errors.js';
@@ -47,27 +47,13 @@ export class EmailService {
   }
 
   private async sendEmail(config: EmailConfig, accessToken: string): Promise<any> {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      lookup: (hostname: string, options: any, callback: any) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
-      connectionTimeout: 60000,
-      greetingTimeout: 60000,
-      socketTimeout: 60000,
-      logger: true,
-      debug: true,
-      auth: {
-        type: 'OAuth2',
-        user: config.userEmail,
-        clientId: env.GOOGLE_CLIENT_ID,
-        clientSecret: env.GOOGLE_CLIENT_SECRET,
-        accessToken,
-      },
-    } as any);
+    const oauth2Client = new google.auth.OAuth2(
+      env.GOOGLE_CLIENT_ID,
+      env.GOOGLE_CLIENT_SECRET
+    );
+    oauth2Client.setCredentials({ access_token: accessToken });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
     const mailOptions = {
       from: config.userEmail,
@@ -83,6 +69,27 @@ export class EmailService {
       ],
     };
 
-    return transporter.sendMail(mailOptions);
+    // Use nodemailer merely to construct the raw MIME payload
+    const transporter = nodemailer.createTransport({
+      streamTransport: true,
+      buffer: true,
+    } as any);
+
+    const info = await transporter.sendMail(mailOptions);
+    const messageBuffer = (info as any).message as Buffer;
+
+    // Convert to Base64url appropriate for the Gmail API
+    const encodedMessage = messageBuffer
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    return await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
   }
 }
