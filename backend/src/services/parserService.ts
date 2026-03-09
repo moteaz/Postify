@@ -4,7 +4,7 @@ import { logger } from '../infrastructure/logging/logger.js';
 import { fileStorage } from './fileStorageService.js';
 
 const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+const {pdfParse} = require('pdf-parse');
 
 export const parseCV = async (input: Buffer | string, mimeType: string): Promise<string> => {
   logger.info('Parsing CV', { type: typeof input === 'string' ? 'fileKey' : 'buffer' });
@@ -15,7 +15,7 @@ export const parseCV = async (input: Buffer | string, mimeType: string): Promise
 
   if (mimeType === 'application/pdf') {
     try {
-      const result = await pdfParse(dataBuffer);
+      const result = await new pdfParse({dataBuffer});
 
       if (!result?.text) {
         throw new Error('PDF parsing completed but returned no text content.');
