@@ -51,6 +51,7 @@ model UserCV {
   fileKey      String // S3 object key or local path
   fileSize     Int
   mimeType     String
+  parsedText   String?       @db.Text
   isActive     Boolean       @default(true)
   isArchived   Boolean       @default(false)
   archivedAt   DateTime?

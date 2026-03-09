@@ -5,6 +5,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
 import { fileStorage } from '../services/fileStorageService.js';
+import { parseCV } from '../services/parserService.js';
 
 export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => {
   if (!req.file) {
@@ -14,6 +15,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
   const userId = req.user.id;
   const { originalname, buffer, size, mimetype } = req.file;
 
+  const parsedText = await parseCV(buffer, mimetype);
   const uploadResult = await fileStorage.uploadFile(buffer, originalname);
 
   const cv = await prisma.$transaction(async (tx: any) => {
@@ -29,6 +31,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
         fileKey: uploadResult.fileKey,
         fileSize: size,
         mimeType: mimetype,
+        parsedText,
         isActive: true,
       },
     });

@@ -34,13 +34,15 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
     throw new NotFoundError('Please upload a CV first');
   }
 
-  const cvText = await parseCV(activeCV.fileKey, activeCV.mimeType);
+  if (!activeCV.parsedText) {
+    throw new NotFoundError('CV content not available. Please re-upload your CV');
+  }
 
   const language = detectLanguage(jobDescription);
 
   const result = await generateApplicationContent(
     jobDescription,
-    cvText,
+    activeCV.parsedText,
     req.user.name || 'Candidate',
     language
   );
