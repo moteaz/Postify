@@ -13,7 +13,7 @@ export class EmailService {
     private tokenManager: TokenManager,
     private cvRepo: CVRepository,
     private userRepo: UserRepository
-  ) {}
+  ) { }
 
   async sendApplicationEmail(
     userId: string,
@@ -48,7 +48,11 @@ export class EmailService {
       host: SMTP.HOST,
       port: SMTP.PORT,
       secure: SMTP.SECURE,
+      requireTLS: true,
       family: 4,
+      localAddress: '0.0.0.0',
+      logger: true,
+      debug: true,
       auth: {
         type: 'OAuth2',
         user: config.userEmail,
