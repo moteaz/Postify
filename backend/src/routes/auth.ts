@@ -2,9 +2,9 @@ import { Router } from 'express';
 import passport from 'passport';
 import { signToken } from '../utils/jwt.js';
 import { protect } from '../middleware/auth.js';
-import { validateRedirectUrl } from '../utils/validators.js';
 import { JWT } from '../config/constants.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
+import { env } from '../config/env.js';
 
 const router = Router();
 
@@ -24,8 +24,7 @@ router.get(
   (req, res) => {
     const user = req.user as any;
     if (!user) {
-      const safeUrl = validateRedirectUrl(process.env.CLIENT_URL||'');
-      return res.redirect(`${safeUrl}/login?error=no_user`);
+      return res.redirect(`${env.CLIENT_URL}/login?error=no_user`);
     }
 
     const token = signToken(user.id);
@@ -38,8 +37,7 @@ router.get(
       path: '/',
     });
 
-    const safeUrl = validateRedirectUrl(process.env.CLIENT_URL || '');
-    res.redirect(`${safeUrl}/auth/callback`);
+    res.redirect(`${env.CLIENT_URL}/auth/callback`);
   }
 );
 

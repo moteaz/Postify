@@ -25,7 +25,11 @@ export const RATE_LIMIT = {
   UPLOAD_MAX: 10,
 } as const;
 
-export const ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:5173'];
+export const ALLOWED_ORIGINS = [
+  process.env.CLIENT_URL || 'http://localhost:3000',
+  'http://localhost:3000',
+  'http://localhost:5173'
+];
 
 export const PROVIDERS = {
   GMAIL: 'gmail',
