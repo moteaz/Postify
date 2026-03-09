@@ -128,7 +128,7 @@ Postify/
 |                  | OpenRouter     | Multi-model API              |
 |                  | HuggingFace    | Open-source models           |
 | **Email**        | Gmail API      | Email sending                |
-|                  | Nodemailer     | SMTP client                  |
+|                  | Nodemailer     | MIME generator               |
 | **DevOps**       | Docker         | Containerization             |
 |                  | GitHub Actions | CI/CD (future)               |
 | **Code Quality** | ESLint         | Linting                      |
@@ -212,8 +212,7 @@ HF_TOKEN=your-huggingface-token
 HF_MODEL=deepseek-ai/DeepSeek-R1:novita
 
 # Email Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
+# No SMTP config required, Gmail API uses OAuth credentials
 
 # Cloudinary (for CV storage)
 CLOUDINARY_CLOUD_NAME=your-cloud-name

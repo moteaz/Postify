@@ -83,7 +83,7 @@ This process consumes significant time and energy, often resulting in generic, l
 
 ### FR-08 — Email Provider Authorization
 - The system shall support OAuth 2.0 authorization for Gmail API so the email is sent from the user's own Gmail account.
-- Alternatively, the system shall support SMTP/SendGrid for platform-managed sending.
+- Alternatively, the system shall support platform-managed sending (e.g. Resend, SendGrid) via HTTP APIs.
 
 ---
 
@@ -293,7 +293,7 @@ This process consumes significant time and energy, often resulting in generic, l
 | **R-03** | AI generates inaccurate or unprofessional content | Medium | High | Allow full user editing before send; add quality prompt engineering |
 | **R-04** | CV content exposure to AI provider | Low | High | Implement user consent screen; use data processing agreements |
 | **R-05** | Data breach / CV theft | Low | Critical | Encrypt files at rest; strict access control; pen testing |
-| **R-06** | Email marked as spam by recipient | Medium | Medium | Use proper email headers; encourage Gmail OAuth; SPF/DKIM for SMTP |
+| **R-06** | Email marked as spam by recipient | Medium | Medium | Use proper email headers; encourage Gmail OAuth; SPF/DKIM for platform sending |
 | **R-07** | User bypasses review and sends wrong email | Medium | Medium | Add confirmation dialog; show preview before sending |
 | **R-08** | Exceeding cloud infrastructure costs | Low | Medium | Set budget alerts; implement rate limiting per user |
 | **R-09** | GDPR non-compliance | Low | Critical | Implement data deletion flow; privacy policy; DPA with AI provider |

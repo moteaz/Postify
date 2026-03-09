@@ -134,8 +134,8 @@ Postify automates job application processes by generating personalized cover let
 
 #### Gmail API
 - **Purpose:** Send job applications
-- **Protocol:** SMTP with OAuth 2.0
-- **Port:** 465 (secure)
+- **Protocol:** HTTP REST with OAuth 2.0
+- **Port:** 443 (HTTPS)
 - **Data Flow:** Outbound only
 
 #### Cloudinary
@@ -307,7 +307,7 @@ Postify automates job application processes by generating personalized cover let
 
 #### Critical Dependencies
 - Google OAuth API availability
-- Gmail SMTP service availability
+- Gmail REST API service availability
 - Cloudinary service availability
 - At least one AI provider availability
 - PostgreSQL database availability

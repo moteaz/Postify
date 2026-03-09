@@ -64,7 +64,7 @@
 │                      EXTERNAL SERVICES                           │
 │  ┌──────────┬──────────┬──────────┬──────────┬──────────────┐  │
 │  │  Google  │  Gmail   │Cloudinary│   AI     │  Nodemailer  │  │
-│  │  OAuth   │   API    │   CDN    │ Providers│    SMTP      │  │
+│  │  OAuth   │   API    │   CDN    │ Providers│    MIME      │  │
 │  └──────────┴──────────┴──────────┴──────────┴──────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -683,23 +683,22 @@ purify.sanitize(body, {
 ### 6.2 Gmail API Integration
 
 **Authentication:**
-- OAuth 2.0 with refresh tokens
-- Automatic token refresh via googleapis library
+- OAuth 2.0 with access tokens
+- Handled dynamically per-user via `googleapis`
 
-**Email Sending:**
+**Email Construction & Sending:**
 ```typescript
-nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    type: 'OAuth2',
-    user: userEmail,
-    clientId: GOOGLE_CLIENT_ID,
-    clientSecret: GOOGLE_CLIENT_SECRET,
-    accessToken: validAccessToken
-  }
-})
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+// Build raw MIME email using Nodemailer streamTransport
+const transporter = nodemailer.createTransport({ streamTransport: true, buffer: true } as any);
+const info = await transporter.sendMail(mailOptions);
+const encodedMessage = (info as any).message.toString('base64url');
+
+await gmail.users.messages.send({
+  userId: 'me',
+  requestBody: { raw: encodedMessage }
+});
 ```
 
 ### 6.3 Cloudinary Integration
@@ -777,10 +776,6 @@ CLIENT_URL=https://postify.app
 # AI
 AI_PROVIDER=openai
 OPENAI_API_KEY=...
-
-# Email
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
 
 # Storage
 CLOUDINARY_CLOUD_NAME=...

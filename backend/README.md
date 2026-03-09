@@ -90,7 +90,7 @@
 | | pdf-parse | 2.4.5 | PDF text extraction |
 | | mammoth | 1.11.0 | DOCX text extraction |
 | **AI Integration** | OpenAI SDK | 6.24.0 | AI provider client |
-| **Email** | Nodemailer | 8.0.1 | SMTP client |
+| **Email** | Nodemailer + Gmail API | 8.0.1 | Email MIME building and Delivery via OAuth |
 | | googleapis | 171.4.0 | Gmail API integration |
 | **Development** | tsx | 4.21.0 | TypeScript execution |
 | | ESLint | 9.39.4 | Code linting |
@@ -202,9 +202,7 @@ HF_MODEL=deepseek-ai/DeepSeek-R1:novita
 # ============================================
 # EMAIL CONFIGURATION
 # ============================================
-# Gmail SMTP settings (default values shown)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
+# Gmail API requires no additional SMTP configuration as it uses the Google OAuth credentials above.
 
 # ============================================
 # CLOUDINARY FILE STORAGE
