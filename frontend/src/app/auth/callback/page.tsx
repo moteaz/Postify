@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiClient } from "@/lib/apiClient";
 import type { User } from "@/types";
@@ -9,9 +9,15 @@ import { Loader2 } from "lucide-react";
 
 export default function AuthCallback() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { setUser } = useAuthStore();
 
     useEffect(() => {
+        const token = searchParams.get('token');
+        if (token) {
+            localStorage.setItem('auth_token', token);
+        }
+
         apiClient.get<{ data: { user: User } }>("/auth/me")
             .then((res) => {
                 setUser(res.data.data.user);
@@ -20,7 +26,7 @@ export default function AuthCallback() {
             .catch(() => {
                 router.push("/auth?mode=login&error=auth_failed");
             });
-    }, [router, setUser]);
+    }, [router, setUser, searchParams]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted/30">

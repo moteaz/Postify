@@ -37,7 +37,9 @@ router.get(
       path: '/',
     });
 
-    res.redirect(`${env.CLIENT_URL}/auth/callback`);
+    // Fix: Appending the token to the URL so the cross-origin frontend can capture it.
+    // This bypasses Safari's strict 3rd-party cookie blocking.
+    res.redirect(`${env.CLIENT_URL}/auth/callback?token=${token}`);
   }
 );
 

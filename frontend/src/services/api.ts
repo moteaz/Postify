@@ -20,6 +20,9 @@ export const authService = {
 
   async logout(): Promise<void> {
     await apiClient.post("/auth/logout");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
+    }
   }
 };
 
@@ -75,7 +78,7 @@ export const cvService = {
   async setActive(id: string): Promise<void> {
     await apiClient.put(`/cv/${id}/active`);
   },
-  
+
   async setArchived(id: string): Promise<void> {
     await apiClient.put(`/cv/${id}/archive`);
   }

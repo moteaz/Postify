@@ -41,8 +41,8 @@ app.use(
         'http://localhost:3000',
         'http://localhost:5173'
       ];
-      
-      if (!origin || allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
+
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
