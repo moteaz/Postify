@@ -36,7 +36,13 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.CLIENT_URL === origin) {
+      const allowedOrigins = [
+        env.CLIENT_URL,
+        'http://localhost:3000',
+        'http://localhost:5173'
+      ];
+      
+      if (!origin || allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
