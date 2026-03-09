@@ -48,9 +48,10 @@ export class EmailService {
       host: SMTP.HOST,
       port: SMTP.PORT,
       secure: SMTP.SECURE,
-      requireTLS: true,
       family: 4,
-      localAddress: '0.0.0.0',
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
       logger: true,
       debug: true,
       auth: {

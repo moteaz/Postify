@@ -1,6 +1,9 @@
 import app from './app.js';
 import { env } from './config/env.js';
 import { logger } from './infrastructure/logging/logger.js';
+import dns from 'node:dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const PORT = env.PORT;
 

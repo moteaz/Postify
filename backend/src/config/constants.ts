@@ -41,6 +41,6 @@ export const PROVIDERS = {
 
 export const SMTP = {
   HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
-  PORT: parseInt(process.env.SMTP_PORT || '587'),
-  SECURE: false,
+  PORT: parseInt(process.env.SMTP_PORT || '465'),
+  SECURE: true,
 } as const;
