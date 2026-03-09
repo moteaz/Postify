@@ -68,14 +68,11 @@ export class FileStorageService {
     const cleanKey = fileKey.replace('postify/cvs/cvs/', 'postify/cvs/');
 
     try {
-      console.log('Downloading file:', { fileKey, cleanKey });
       const url = cloudinary.utils.private_download_url(cleanKey, 'pdf', {
         resource_type: 'raw',
         type: 'authenticated',
         expires_at: Math.floor(Date.now() / 1000) + 60,
       });
-
-      console.log('Generated URL:', url);
 
       const response = await fetch(url);
       if (!response.ok) {
