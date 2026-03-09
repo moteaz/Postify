@@ -12,9 +12,9 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
   }
 
   const userId = req.user.id;
-  const { originalname, path: filePath, size, mimetype } = req.file;
+  const { originalname, buffer, size, mimetype } = req.file;
 
-  const uploadResult = await fileStorage.uploadFile(filePath, originalname);
+  const uploadResult = await fileStorage.uploadFile(buffer, originalname);
 
   const cv = await prisma.$transaction(async (tx: any) => {
     await tx.userCV.updateMany({

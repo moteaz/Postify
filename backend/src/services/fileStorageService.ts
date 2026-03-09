@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { UploadApiResponse } from 'cloudinary';
 import { cloudinary } from '../config/cloudinary.js';
 
 export interface FileUploadResult {
@@ -7,17 +7,26 @@ export interface FileUploadResult {
 }
 
 export class FileStorageService {
-  async uploadFile(filePath: string, fileName: string): Promise<FileUploadResult> {
-    const uploadResult = await cloudinary.uploader.upload(filePath, {
-      resource_type: 'image',
-      folder: 'postify/cvs',
-      public_id: fileName.replace(/\.[^/.]+$/, ''),
-      use_filename: true,
-      format: 'pdf',
-      type: 'authenticated',
-    });
 
-    await fs.unlink(filePath).catch(() => {});
+  async uploadFile(buffer: Buffer, fileName: string): Promise<FileUploadResult> {
+    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'raw',
+          folder: 'postify/cvs',
+          public_id: fileName.replace(/\.[^/.]+$/, ''),
+          use_filename: true,
+          format: 'pdf',
+          type: 'authenticated',
+        },
+        (error, result) => {
+          if (error || !result) return reject(error);
+          resolve(result);
+        }
+      );
+
+      uploadStream.end(buffer);
+    });
 
     return {
       fileKey: uploadResult.public_id,
@@ -26,12 +35,12 @@ export class FileStorageService {
   }
 
   async deleteFile(fileKey: string): Promise<void> {
-    await cloudinary.uploader.destroy(fileKey, { resource_type: 'image' }).catch(() => {});
+    await cloudinary.uploader.destroy(fileKey, { resource_type: 'raw' }).catch(() => {});
   }
 
   async fileExists(fileKey: string): Promise<boolean> {
     try {
-      await cloudinary.api.resource(fileKey, { resource_type: 'image' });
+      await cloudinary.api.resource(fileKey, { resource_type: 'raw' });
       return true;
     } catch {
       return false;
@@ -41,7 +50,7 @@ export class FileStorageService {
   getFileUrl(fileKey: string): string {
     const cleanKey = fileKey.replace('postify/cvs/cvs/', 'postify/cvs/');
     return cloudinary.url(cleanKey, {
-      resource_type: 'image',
+      resource_type: 'raw',
       secure: true,
       format: 'pdf',
     });
@@ -49,7 +58,7 @@ export class FileStorageService {
 
   getOptimizedUrl(fileKey: string): string {
     return cloudinary.url(fileKey, {
-      resource_type: 'image',
+      resource_type: 'raw',
       secure: true,
       format: 'pdf',
     });
@@ -60,7 +69,7 @@ export class FileStorageService {
 
     try {
       const url = cloudinary.utils.private_download_url(cleanKey, 'pdf', {
-        resource_type: 'image',
+        resource_type: 'raw',
         type: 'authenticated',
         expires_at: Math.floor(Date.now() / 1000) + 60,
       });
