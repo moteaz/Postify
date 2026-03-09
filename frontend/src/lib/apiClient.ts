@@ -6,7 +6,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: env.apiUrl,
+      baseURL: `${env.apiUrl}/api`,
       withCredentials: true,
       timeout: 30000,
     });
