@@ -4,7 +4,7 @@ import { logger } from '../infrastructure/logging/logger.js';
 import { fileStorage } from './fileStorageService.js';
 
 const require = createRequire(import.meta.url);
-const { pdfParse } = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 
 export const parseCV = async (input: Buffer | string, mimeType: string): Promise<string> => {
   logger.info('Parsing CV', { type: typeof input === 'string' ? 'fileKey' : 'buffer' });
@@ -13,7 +13,7 @@ export const parseCV = async (input: Buffer | string, mimeType: string): Promise
 
   if (mimeType === 'application/pdf') {
     try {
-      const parser = new pdfParse({ data: dataBuffer, verbosity: 0 });
+      const parser = new PDFParse({ data: dataBuffer, verbosity: 0 });
       const result = await parser.getText();
 
       if (!result?.text) {
