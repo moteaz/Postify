@@ -48,6 +48,7 @@ export class EmailService {
       host: SMTP.HOST,
       port: SMTP.PORT,
       secure: SMTP.SECURE,
+      family: 4,
       auth: {
         type: 'OAuth2',
         user: config.userEmail,
