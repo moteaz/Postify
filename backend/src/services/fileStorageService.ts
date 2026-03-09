@@ -75,6 +75,8 @@ export class FileStorageService {
         expires_at: Math.floor(Date.now() / 1000) + 60,
       });
 
+      console.log('Generated URL:', url);
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
