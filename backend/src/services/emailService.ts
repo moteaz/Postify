@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { TokenManager } from './tokenManager.js';
 import { EmailConfig } from '../types/dtos.js';
 import { EmailSendError } from '../utils/errors.js';
@@ -7,6 +8,7 @@ import { CVRepository } from '../repositories/cvRepository.js';
 import { UserRepository } from '../repositories/userRepository.js';
 import { env } from '../config/env.js';
 import { fileStorage } from './fileStorageService.js';
+import { logger } from '../infrastructure/logging/logger.js';
 
 export class EmailService {
   constructor(
@@ -28,6 +30,7 @@ export class EmailService {
     if (!cv) throw new EmailSendError('CV not found');
 
     const cvBuffer = await fileStorage.downloadFile(cv.fileKey);
+    logger.info(`File downloaded, size: ${cvBuffer.length} bytes`);
 
     const user = await this.userRepo.findById(userId);
 
@@ -45,13 +48,16 @@ export class EmailService {
 
   private async sendEmail(config: EmailConfig, accessToken: string): Promise<any> {
     const transporter = nodemailer.createTransport({
-      host: SMTP.HOST,
-      port: SMTP.PORT,
-      secure: SMTP.SECURE,
-      family: 4,
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      lookup: (hostname: string, options: any, callback: any) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+      },
+      connectionTimeout: 60000,
+      greetingTimeout: 60000,
+      socketTimeout: 60000,
       logger: true,
       debug: true,
       auth: {
