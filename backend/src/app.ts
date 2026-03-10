@@ -13,13 +13,16 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import { env } from './config/env.js';
 import { initializeContainer } from './di/bindings.js';
-import { HealthCheckService } from './services/healthCheckService.js';
 
 initializeContainer();
 
 const app = express();
 
 app.set('trust proxy', 1);
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use(
   helmet({
@@ -36,11 +39,7 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        env.CLIENT_URL,
-        'http://localhost:3000',
-        'http://localhost:5173'
-      ];
+      const allowedOrigins = [env.CLIENT_URL, 'http://localhost:3000', 'http://localhost:5173'];
 
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
@@ -61,12 +60,6 @@ app.use('/api/cv', cvRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/admin', adminRoutes);
-
-app.get('/api/health', async (req, res) => {
-  const healthService = new HealthCheckService();
-  const status = await healthService.getHealthStatus();
-  res.json(status);
-});
 
 app.use(errorHandler);
 

@@ -4,12 +4,15 @@ import { dbHealthCheck } from '../infrastructure/database/healthCheck.js';
 export class HealthCheckService {
   async checkAIProvider(): Promise<string> {
     try {
-      if (env.AI_PROVIDER === 'ollama') {
+      if (env.AI_PROVIDER === 'huggingface') {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2000);
-        await fetch(`${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}/api/tags`, {
-          signal: controller.signal,
-        });
+        await fetch(
+          `${process.env.HUGGINGFACE_BASE_URL || 'https://api-inference.huggingface.co'}/api/tags`,
+          {
+            signal: controller.signal,
+          }
+        );
         clearTimeout(timeoutId);
         return 'online';
       }

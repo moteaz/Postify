@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.js';
-import { parseCV } from '../services/parserService.js';
 import { generateApplicationContent } from '../services/aiService.js';
 import { franc } from 'franc';
 import { asyncHandler } from '../utils/asyncHandler.js';
