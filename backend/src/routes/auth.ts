@@ -12,7 +12,7 @@ router.get(
   '/google',
   authLimiter,
   passport.authenticate('google', {
-    scope: ['profile', 'email', 'https://mail.google.com/'],
+    scope: ['profile', 'email', 'https://www.googleapis.com/auth/gmail.send'],
     accessType: 'offline',
     prompt: 'consent',
   })
@@ -52,7 +52,7 @@ router.post('/logout', (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/'
+    path: '/',
   });
   res.json({ success: true, message: 'Logged out successfully' });
 });
