@@ -174,10 +174,10 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
           </nav>
         </div>
 
-        {/* Logout button */}
+        {/* Logout button - hidden on mobile, shown on desktop */}
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#78716C] hover:bg-[#FFF0F3] hover:text-red-500 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none"
+          className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#78716C] hover:bg-[#FFF0F3] hover:text-red-500 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none"
         >
           <div className="p-1.5 rounded-lg bg-[#F5F3F0] group-hover:bg-[#FFE4E6] transition-colors duration-150">
             <LogOut size={15} className="text-[#A8A29E] group-hover:text-red-400" />
