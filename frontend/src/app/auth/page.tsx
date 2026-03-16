@@ -1,5 +1,3 @@
-// SEO: ✅ Metadata, Semantic HTML
-
 "use client";
 
 import { useState } from "react";
