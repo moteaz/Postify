@@ -31,8 +31,16 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          window.location.href = "/login";
+        const requestUrl = error.config?.url ?? '';
+        const isAuthCheck = requestUrl.includes('/auth/me');
+
+        // Only redirect on 401 for protected routes, NOT for the initial
+        // /auth/me check — otherwise we get an infinite redirect loop on "/"
+        if (error.response?.status === 401 && !isAuthCheck) {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth_token');
+            window.location.href = "/";
+          }
         }
 
         if (!error.response && process.env.NODE_ENV === 'development') {

@@ -57,7 +57,7 @@ function AuthCallbackContent() {
             <div className="flex flex-col items-center space-y-4">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
                 <p className="text-lg font-medium text-muted-foreground animate-pulse">
-                    Authenticating...
+                    Loading...
                 </p>
             </div>
         </div>
