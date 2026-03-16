@@ -25,7 +25,7 @@ export function AuthCheck({ children }: { children: React.ReactNode }) {
   }, [router, setUser]);
 
   if (isChecking) {
-    return null;
+    return <div className="min-h-screen bg-[#F9F7F4]" />;
   }
 
   return <>{children}</>;
