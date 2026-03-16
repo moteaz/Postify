@@ -20,6 +20,7 @@ const sections = [
   { id: "ai-processing", title: "AI Processing of Your Data" },
   { id: "storage", title: "Data Storage & Security" },
   { id: "third-party", title: "Third-Party Services" },
+  { id: "google-data-sharing", title: "Google User Data Sharing and Disclosure" },
   { id: "retention", title: "Data Retention" },
   { id: "rights", title: "Your Rights" },
   { id: "cookies", title: "Cookies & Analytics" },
@@ -38,7 +39,7 @@ export default function PrivacyPage() {
           <div className="max-w-3xl">
             <div className="mb-8">
               <Badge className="mb-4 bg-[#7C9EE8]/10 text-[#7C9EE8] border-[#7C9EE8]/20">
-                Last updated: January 15, 2025
+                Last updated: March 16, 2026
               </Badge>
               <h1 className="text-4xl sm:text-5xl font-bold text-[#1C1917] mb-4 font-[family-name:var(--font-display)]">
                 Privacy Policy
@@ -168,7 +169,7 @@ export default function PrivacyPage() {
                   <h3 className="text-lg font-semibold text-[#1C1917] mb-2">AI Service Providers</h3>
                   <p>
                     We may use third-party AI services (such as OpenAI) to process your CV and generate cover letters. 
-                    These providers have their own privacy policies and data handling practices.
+                    These providers process data solely to perform the requested AI functionality on behalf of Postify and are required to maintain appropriate security and confidentiality measures.
                   </p>
                 </div>
 
@@ -182,6 +183,126 @@ export default function PrivacyPage() {
 
                 <p className="mt-4">
                   We carefully vet all third-party services and require them to maintain appropriate security measures.
+                </p>
+              </LegalSection>
+
+              <LegalSection id="google-data-sharing" title="Google User Data Sharing and Disclosure">
+                <p>
+                  Postify uses Google APIs to provide authentication and email functionality. This section explains how 
+                  we collect, use, and share Google user data in compliance with the{" "}
+                  <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer"
+                     className="text-[#7C9EE8] hover:underline">
+                    Google API Services User Data Policy
+                  </a>.
+                </p>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">Google User Data We Collect</h3>
+                  <p>When you authenticate with Google OAuth, we collect and store:</p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li><strong>Email address:</strong> Used for account identification and communication</li>
+                    <li><strong>Full name:</strong> Used for personalization and account management</li>
+                    <li><strong>Profile picture:</strong> Used for display in your dashboard</li>
+                    <li><strong>Gmail sending permission:</strong> Scope to send emails on your behalf when you request it</li>
+                  </ul>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">How We Use Google User Data</h3>
+                  <p>Google user data is used exclusively for:</p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li><strong>Authentication:</strong> Secure sign-in to your Postify account</li>
+                    <li><strong>Account Personalization:</strong> Displaying your name and profile picture</li>
+                    <li><strong>Email Sending:</strong> Sending job applications via Gmail only when you explicitly request it</li>
+                    <li><strong>Service Delivery:</strong> Providing core functionality of the Postify platform</li>
+                  </ul>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">Google User Data Sharing and Disclosure</h3>
+                  <p>
+                    <strong>Postify does not sell, rent, or share Google user data with third parties for marketing, 
+                    advertising, or any commercial purpose.</strong>
+                  </p>
+                  <p className="mt-2">
+                    Google user data may only be shared in the following limited circumstances:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li>
+                      <strong>Service Providers:</strong> Trusted cloud infrastructure, hosting, and AI processing providers who process data solely on behalf of Postify under strict confidentiality agreements.
+                    </li>
+                    <li>
+                      <strong>Legal Requirements:</strong> When required by law, court order, or government request, we will 
+                      disclose only the minimum information necessary
+                    </li>
+                    <li>
+                      <strong>Security and Fraud Prevention:</strong> To detect, prevent, or address fraud, security issues, 
+                      or technical problems
+                    </li>
+                    <li>
+                      <strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets, your data 
+                      may be transferred as part of that transaction (you will be notified)
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">Restrictions on Use</h3>
+                  <p>
+                    <strong>Google user data is never used for:</strong>
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li>Advertising or marketing purposes</li>
+                    <li>Profiling or behavioral analysis unrelated to service delivery</li>
+                    <li>Combining with data from other sources for targeting</li>
+                    <li>Training generalized artificial intelligence or machine learning models.</li>
+                    <li>Any purpose other than providing the Postify service</li>
+                  </ul>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">Your Control Over Google Data</h3>
+                  <p>
+                    You have full control over your Google data:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li>
+                      <strong>Revoke Access:</strong> You can revoke Postify&apos;s access to your Google account at any time 
+                      through your{" "}
+                      <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer"
+                         className="text-[#7C9EE8] hover:underline">
+                        Google Account settings
+                      </a>
+                    </li>
+                    <li>
+                      <strong>Delete Account:</strong> Deleting your Postify account will remove all stored Google user data 
+                      within 30 days
+                    </li>
+                    <li>
+                      <strong>Data Access:</strong> You can request a copy of all Google data we store about you
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-[#1C1917] mb-2">Gmail API Specific Terms</h3>
+                  <p>
+                    When you authorize Postify to send emails via Gmail:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 mt-2">
+                    <li>Postify only uses the Gmail API to send emails that you explicitly request to send.</li>
+                    <li>Postify does not read, store, or analyze your Gmail inbox, email content, or contacts.</li>
+                    <li>We send emails only when you explicitly request to send an application</li>
+                    <li>You can revoke Gmail access independently from your Google Account settings</li>
+                  </ul>
+                </div>
+
+                <p className="mt-4 text-sm text-[#78716C]">
+                  For more information about how Google handles your data, please review{" "}
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer"
+                     className="text-[#7C9EE8] hover:underline">
+                    Google&apos;s Privacy Policy
+                  </a>.
                 </p>
               </LegalSection>
 
