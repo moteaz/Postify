@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { LogOut } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import {
   Sidebar,
@@ -86,30 +84,18 @@ export default function Dashboard() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto p-6 sm:p-8">
-          {/* Mobile header with menu and logout */}
-          <div className="lg:hidden fixed top-6 right-6 z-40 flex items-center gap-2">
-            {/* Mobile logout button */}
-            <button
-              onClick={handleLogout}
-              className="w-11 h-11 rounded-xl bg-white border border-[#EAE7E3] text-[#78716C] hover:bg-[#FFF0F3] hover:text-red-500 hover:border-red-200 transition-all duration-150 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none"
-              aria-label="Logout"
-              title="Logout"
-            >
-              <LogOut size={18} />
-            </button>
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white shadow-[0_4px_20px_rgba(124,158,232,0.4)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_24px_rgba(124,158,232,0.5)] transition-all duration-300 active:scale-95"
-              aria-label="Open menu"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
-          </div>
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden fixed top-6 right-6 z-40 w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white shadow-[0_4px_20px_rgba(124,158,232,0.4)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_24px_rgba(124,158,232,0.5)] transition-all duration-300 active:scale-95"
+            aria-label="Open menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
 
           <DashboardHeader activeTab={activeTab} />
 
