@@ -1,8 +1,9 @@
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import Image from "next/image";
 import { PlusCircle, History, FileText, ShieldCheck, LogOut, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
+import { LogoutConfirmSheet } from "./LogoutConfirmSheet";
 import type { User } from "@/types";
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ const tabs = [
 
 export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, onClose }: SidebarProps) => {
   const { canAccessAdmin } = usePermissions();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -47,6 +49,16 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
     onClose();
   };
 
+  const handleLogoutClick = () => {
+    onClose();
+    setShowLogoutConfirm(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutConfirm(false);
+    onLogout();
+  };
+
   return (
     <>
       {/* Mobile backdrop overlay */}
@@ -64,7 +76,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
         className={cn(
           "fixed md:relative inset-y-0 left-0 z-50 w-72 md:w-64 h-screen",
           "bg-[#F5F3F0] border-r border-[#EAE7E3]",
-          "flex flex-col justify-between px-4 py-6",
+          "flex flex-col px-4 py-6",
           "transition-transform duration-300 ease-in-out",
           "md:translate-x-0 shadow-2xl md:shadow-none",
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -108,8 +120,8 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
               {user?.name}
             </p>
 
-            {/* Email with tooltip */}
-            <p className="text-xs text-[#A8A29E] mt-0.5 truncate" title={user?.email}>
+            {/* Email - full display */}
+            <p className="text-xs text-[#A8A29E] mt-0.5 break-all leading-tight">
               {user?.email}
             </p>
 
@@ -128,7 +140,7 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
           </p>
 
           {/* Navigation */}
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {tabs.map(({ id, icon: Icon, label }) => {
               const isActive = activeTab === id;
               return (
@@ -171,22 +183,25 @@ export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, o
                 Admin
               </button>
             )}
+
+            {/* Logout button as tab */}
+            <button
+              onClick={handleLogoutClick}
+              aria-label="Log out of Postify"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 hover:shadow-sm transition-all duration-150 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none mt-2"
+            >
+              <LogOut size={17} strokeWidth={1.6} className="text-red-500" />
+              Log out
+            </button>
           </nav>
         </div>
-
-        {/* Logout button - hidden on mobile, shown on desktop */}
-        <button
-          onClick={onLogout}
-          className="hidden md:flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#78716C] hover:bg-[#FFF0F3] hover:text-red-500 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none"
-        >
-          <div className="p-1.5 rounded-lg bg-[#F5F3F0] group-hover:bg-[#FFE4E6] transition-colors duration-150">
-            <LogOut size={15} className="text-[#A8A29E] group-hover:text-red-400" />
-          </div>
-          Logout
-        </button>
       </aside>
 
-
+      <LogoutConfirmSheet 
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </>
   );
 });

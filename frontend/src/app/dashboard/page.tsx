@@ -82,20 +82,24 @@ export default function Dashboard() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-6 sm:p-8">
-          {/* Mobile menu button */}
+      <main className="flex-1 overflow-y-auto flex flex-col">
+        {/* Mobile top bar */}
+        <div className="lg:hidden sticky top-0 z-30 h-14 bg-white/80 backdrop-blur-md border-b border-[#EAE7E3] flex items-center px-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden fixed top-6 right-6 z-40 w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white shadow-[0_4px_20px_rgba(124,158,232,0.4)] flex items-center justify-center hover:scale-110 hover:shadow-[0_6px_24px_rgba(124,158,232,0.5)] transition-all duration-300 active:scale-95"
-            aria-label="Open menu"
+            aria-label="Open navigation menu"
+            aria-expanded={sidebarOpen}
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-[#78716C] hover:bg-[#F5F3F0] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none min-w-[44px] min-h-[44px]"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
+        </div>
+
+        <div className="max-w-5xl mx-auto p-6 sm:p-8 w-full">
 
           <DashboardHeader activeTab={activeTab} />
 
