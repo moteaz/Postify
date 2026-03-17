@@ -21,8 +21,11 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.get('/health', (req, res) => {
-  console.log('Health check ping received at', new Date().toISOString());
   res.status(200).send('OK');
+});
+app.get('/cron', (req, res) => {
+  console.log('Cron ping received at', new Date().toISOString());
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.use(
