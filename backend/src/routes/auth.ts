@@ -12,7 +12,7 @@ router.get(
   '/google',
   authLimiter,
   passport.authenticate('google', {
-    scope: ['profile', 'email', 'https://www.googleapis.com/auth/gmail.send'],
+    scope: ['openid','profile', 'email', 'https://www.googleapis.com/auth/gmail.send'],
     accessType: 'offline',
     prompt: 'consent',
   })

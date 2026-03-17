@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
   // Protected routes that require authentication
   const isProtectedRoute = pathname.startsWith('/dashboard');
-  
+
   // Public routes that should redirect to dashboard if authenticated
   const isAuthRoute = pathname === '/auth' || pathname.startsWith('/auth?');
 

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const siteConfig = {
   name: "Postify",
   description: "AI-powered cover letter generator that creates personalized job applications in seconds. Upload your CV, paste job descriptions, and send professional cover letters directly via Gmail.",
-  url: "https://postify.app",
+  url: "https://posttify.vercel.app",
   ogImage: "/og-image.png",
   links: {
     twitter: "https://twitter.com/postify",
@@ -12,6 +12,7 @@ export const siteConfig = {
 };
 
 export const defaultMetadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: "Postify | Free AI Cover Letter Generator - Create Professional Job Applications in Seconds",
     template: "%s | Postify",
