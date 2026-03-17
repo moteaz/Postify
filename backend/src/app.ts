@@ -21,6 +21,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.get('/health', (req, res) => {
+  console.log('Health check ping received at', new Date().toISOString());
   res.status(200).send('OK');
 });
 
