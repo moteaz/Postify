@@ -1,37 +1,65 @@
 import { UploadApiResponse } from 'cloudinary';
 import { cloudinary } from '../config/cloudinary.js';
+import PQueue from 'p-queue';
+import { logger } from '../infrastructure/logging/logger.js';
 
 export interface FileUploadResult {
   fileKey: string;
   url: string;
 }
 
+// Limit concurrent Cloudinary uploads to 3 (Render free tier optimal)
+const uploadQueue = new PQueue({ concurrency: 3 });
+
 export class FileStorageService {
 
   async uploadFile(buffer: Buffer, fileName: string): Promise<FileUploadResult> {
-    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'raw',
-          folder: 'postify/cvs',
-          public_id: fileName.replace(/\.[^/.]+$/, ''),
-          use_filename: true,
-          format: 'pdf',
-          type: 'authenticated',
-        },
-        (error, result) => {
-          if (error || !result) return reject(error);
-          resolve(result);
+    return uploadQueue.add(async () => {
+      const maxRetries = 3;
+      let lastError: Error | null = null;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                resource_type: 'raw',
+                folder: 'postify/cvs',
+                public_id: fileName.replace(/\.[^/.]+$/, ''),
+                use_filename: true,
+                format: 'pdf',
+                type: 'authenticated',
+              },
+              (error, result) => {
+                if (error || !result) return reject(error);
+                resolve(result);
+              }
+            );
+
+            uploadStream.end(buffer);
+          });
+
+          return {
+            fileKey: uploadResult.public_id,
+            url: uploadResult.secure_url,
+          };
+        } catch (error: any) {
+          lastError = error;
+          const isRateLimit = error?.http_code === 420 || error?.http_code === 429;
+
+          if (isRateLimit && attempt < maxRetries) {
+            const delay = Math.pow(2, attempt) * 500; // Exponential backoff: 1s, 2s, 4s
+            logger.warn(`Cloudinary rate limit hit, retrying in ${delay}ms`, { attempt });
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+
+          throw error;
         }
-      );
+      }
 
-      uploadStream.end(buffer);
+      throw lastError || new Error('Upload failed after retries');
     });
-
-    return {
-      fileKey: uploadResult.public_id,
-      url: uploadResult.secure_url,
-    };
   }
 
   async deleteFile(fileKey: string): Promise<void> {

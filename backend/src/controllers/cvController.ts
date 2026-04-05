@@ -5,7 +5,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ResponseHandler } from '../utils/response.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
 import { fileStorage } from '../services/fileStorageService.js';
-import { parseCV } from '../services/parserService.js';
+import { publishCVJob } from '../queue/cvQueue.js';
 
 export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => {
   if (!req.file) {
@@ -15,9 +15,7 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
   const userId = req.user.id;
   const { originalname, buffer, size, mimetype } = req.file;
 
-  const parsedText = await parseCV(buffer, mimetype);
-  const uploadResult = await fileStorage.uploadFile(buffer, originalname);
-
+  // Create DB record immediately with temporary fileKey
   const cv = await prisma.$transaction(async (tx: any) => {
     await tx.userCV.updateMany({
       where: { userId },
@@ -28,20 +26,31 @@ export const uploadCV = asyncHandler(async (req: AuthRequest, res: Response) => 
       data: {
         userId,
         fileName: originalname,
-        fileKey: uploadResult.fileKey,
+        fileKey: `temp-${Date.now()}-${originalname}`, // Temporary key
         fileSize: size,
         mimeType: mimetype,
-        parsedText,
+        status: 'PENDING',
+        parsedText: null,
         isActive: true,
       },
     });
   });
 
+  // Publish job with buffer - worker will upload to Cloudinary
+  await publishCVJob({
+    cvId: cv.id,
+    fileKey: cv.fileKey,
+    mimeType: mimetype,
+    userId,
+    buffer: buffer.toString('base64'), // Send buffer as base64
+  });
+
+  // Return immediately - upload happens in worker
   ResponseHandler.success(
     res,
-    { cv: { ...cv, url: uploadResult.url } },
-    'CV uploaded successfully',
-    201
+    { cv },
+    'CV upload queued for processing',
+    202
   );
 });
 

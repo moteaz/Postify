@@ -1,605 +1,464 @@
-# Phase 2 — System Design
-## Postify — AI-Powered Job Application Assistant
+# System Design — Postify MVP
+## AI-Powered Job Application Assistant
 
-> **Document Version**: 1.0  
-> **Date**: 2026-02-24  
-> **Status**: Draft  
+> **Document Version**: 2.0
+> **Date**: 2026-07-10
+> **Status**: Reflects actual MVP implementation
 > **Role**: Senior System Architect
 
 ---
 
-## 1. High-Level Architecture (HLD)
+## 1. High-Level Architecture
 
-The system follows a **3-Tier Architecture** with a clear separation between:
+The system follows a **3-Tier Architecture**:
 
-1. **Presentation Tier** — Next.js 14 frontend (SSR + CSR hybrid), deployed on Vercel
-2. **Application Tier** — Dedicated **Express.js** REST API server (Node.js 20), handling all business logic, AI orchestration, and email dispatch
-3. **Data Tier** — PostgreSQL (relational data) + cloud object storage (CVs)
+1. **Presentation Tier** — Next.js (App Router) frontend, deployed on Vercel
+2. **Application Tier** — Express.js 5 REST API (Node.js 20, TypeScript), deployed on Render
+3. **Data Tier** — PostgreSQL via Prisma ORM + Cloudinary for CV file storage
 
-Additionally, **two external service integrations** are first-class concerns:
-- **AI API** (OpenAI GPT-4 / Google Gemini) for content generation
-- **Gmail API** for email delivery directly from the user's own Gmail account
-
-The architecture is **cloud-native**: Next.js frontend on Vercel, Express.js backend on Railway / Render / AWS, and Supabase for database + storage.
+Four external service integrations are first-class concerns:
+- **Google OAuth 2.0 + Gmail API** — authentication and email delivery from the user's own Gmail account
+- **AI Provider** — pluggable: OpenAI GPT-4o / OpenRouter / HuggingFace / Ollama
+- **Cloudinary** — authenticated CV file storage (CDN)
+- **RabbitMQ** — async message queue for CV upload/parse pipeline
 
 ---
 
-## 2. Tech Stack Recommendation
+## 2. Actual Tech Stack (MVP)
 
 ### Frontend
-| Layer | Technology | Rationale |
-|---|---|---|
-| Framework | **Next.js 14** (App Router) | SSR/SSG, file-based routing, excellent DX, Vercel-native |
-| Language | **TypeScript** | Type safety, maintainability |
-| Styling | **Tailwind CSS** | Rapid UI development, responsive design |
-| UI Components | **shadcn/ui** | Accessible, customizable components built on Radix UI |
-| State Management | **Zustand** | Lightweight, simple client state (no Redux overhead) |
-| Forms | **React Hook Form + Zod** | Performant forms with schema validation |
-| HTTP Client | **Axios / fetch** | API calls to backend routes |
-
-### Backend
-| Layer | Technology | Rationale |
-|---|---|---|
-| Runtime | **Node.js 20 LTS** | V8 engine, async I/O, large ecosystem |
-| Framework | **Express.js** (dedicated REST API server) | Flexible, mature, clean separation from frontend |
-| Language | **TypeScript** | Type safety, consistent with frontend |
-| Auth | **Passport.js** + **Google OAuth 2.0** | Industry-standard OAuth middleware for Express |
-| Middleware | **express-session** + **express-rate-limit** | Session management and rate limiting |
-| File Upload | **Multer** | Multipart file handling for CV uploads |
-| File Parsing | **pdf-parse / mammoth** | Parse CV content (PDF/DOCX) for AI prompt injection |
-| Email | **Nodemailer** + **Gmail API** (googleapis) | Send emails from user's Gmail account |
-| Validation | **Zod** | Runtime schema validation for all API inputs |
-
-### Database
-| Layer | Technology | Rationale |
-|---|---|---|
-| Primary DB | **PostgreSQL 16** | ACID, relational integrity, mature ecosystem |
-| ORM | **Prisma** | Type-safe DB access, schema migrations, great DX |
-| Dev Hosting | **Local PostgreSQL** | Run locally during development |
-| Prod Hosting | **Supabase** or **AWS RDS** | Managed PostgreSQL for production |
-| File Storage | **AWS S3** or **Supabase Storage** | Scalable object storage for CVs |
-
-### AI Integration
-| Layer | Technology | Rationale |
-|---|---|---|
-| Primary | **OpenAI GPT-4o** via official SDK | Best quality for professional writing tasks |
-| Fallback | **Google Gemini Pro** | Cost-effective alternative, good at extraction tasks |
-| Language Detection | **franc** (npm) | Lightweight library to detect JD language; prompt AI to respond in same language |
-
-### Email Integration
-| Layer | Technology | Rationale |
-|---|---|---|
-| Preferred | **Gmail API** (OAuth 2.0) | Email sent from user's own account; high deliverability |
-| Alternative | **SendGrid / Resend** | Platform-managed sending; simpler but less personal |
-
-### DevOps & Infrastructure
 | Layer | Technology |
 |---|---|
-| Frontend Hosting | **Vercel** (Next.js) |
-| Backend Hosting | **Railway** or **Render** (Express.js server) |
-| CI/CD | **GitHub Actions** |
-| Monitoring | **Sentry** (errors) + **Vercel Analytics** |
-| Secrets | `.env` + platform environment variables |
-| Storage | **AWS S3** or **Supabase Storage** |
+| Framework | Next.js (App Router) |
+| Language | TypeScript 5.9 |
+| Styling | TailwindCSS 4 + shadcn/ui |
+| State | Zustand (client) + TanStack Query (server) |
+| HTTP | Axios |
 
----
+### Backend
+| Layer | Technology |
+|---|---|
+| Runtime | Node.js 20 LTS |
+| Framework | Express.js 5 |
+| Language | TypeScript 5.9 |
+| Auth | Passport.js + Google OAuth 2.0 (passport-google-oauth20) |
+| Session | Stateless JWT (HTTP-only cookie + Bearer token) |
+| Validation | Zod (env schema + request schemas) |
+| File Upload | Multer (memory storage, 5 MB limit, PDF/DOCX only) |
+| CV Parsing | pdf-parse (Worker Thread) + mammoth (DOCX) |
+| Email | Nodemailer (MIME builder) + Gmail API (googleapis) |
+| Queue | RabbitMQ via amqplib (`cv.parse` queue) |
+| Worker | Node.js Worker Threads (CPU-bound PDF/DOCX parsing) |
+| Security | Helmet (CSP, HSTS, X-Frame-Options), CORS whitelist, DOMPurify (XSS), rate limiting |
+| DI | Custom lightweight DI container (factory-based, no decorators) |
+| Storage | Cloudinary (authenticated `raw` type, `postify/cvs/` folder) |
+| Logging | Custom JSON logger (winston-style levels) |
 
-## 3. System Architecture Diagram (Text Form)
+### Database
+| Layer | Technology |
+|---|---|
+| Primary DB | PostgreSQL 14+ |
+| ORM | Prisma 6 (type-safe queries, migrations) |
+| Hosting | Supabase / Railway / AWS RDS |
 
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                           USER'S BROWSER                                 │
-│              (Next.js 14 Frontend — Vercel CDN)                          │
-│                                                                          │
-│  ┌───────────────┐  ┌──────────────┐  ┌──────────┐  ┌───────────────┐  │
-│  │  Auth Page    │  │  Dashboard   │  │ Generate │  │   History     │  │
-│  │  (Sign in     │  │  (Upload CV) │  │  Page    │  │   Page        │  │
-│  │   with Google)│  │              │  │          │  │               │  │
-│  └──────┬────────┘  └──────┬───────┘  └────┬─────┘  └──────┬────────┘  │
-└─────────┼─────────────────┼───────────────┼───────────────┼────────────┘
-          │   HTTPS / TLS   │               │               │
-          ▼                 ▼               ▼               ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│             APPLICATION TIER — Express.js REST API (TypeScript)          │
-│                    [Railway / Render — Node.js 20]                       │
-│                                                                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌─────────────┐ │
-│  │ Auth Router  │  │  CV Router   │  │  AI Router   │  │Email Router │ │
-│  │  (Passport + │  │  (Multer +   │  │ (OpenAI SDK  │  │(Nodemailer+ │ │
-│  │  Google OAuth)│  │  pdf-parse) │  │  + Zod)      │  │ Gmail API)  │ │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬──────┘ │
-│         │                 │                  │                 │        │
-│  ┌──────▼─────────────────▼──────────────────▼─────────────────▼──────┐ │
-│  │                      Business Logic Layer                           │ │
-│  │          (Zod Validation, Rate Limiting, Error Handling)            │ │
-│  └──────────────────────────────┬───────────────────────────────────────┘│
-└─────────────────────────────────┼────────────────────────────────────────┘
-                                  │
-          ┌───────────────────────┼────────────────────────┐
-          ▼                       ▼                        ▼
-┌──────────────────┐   ┌────────────────────┐   ┌─────────────────────┐
-│   DATA TIER       │   │   AI SERVICE        │   │   EMAIL SERVICE     │
-│                  │   │                    │   │                     │
-│  ┌────────────┐  │   │  ┌──────────────┐ │   │  ┌───────────────┐  │
-│  │ PostgreSQL │  │   │  │ OpenAI GPT-4o│ │   │  │   Gmail API   │  │
-│  │ (Supabase) │  │   │  │     API      │ │   │  │  (OAuth 2.0)  │  │
-│  └────────────┘  │   │  └──────────────┘ │   │  └───────────────┘  │
-│                  │   │  ┌──────────────┐ │   └─────────────────────┘
-│  ┌────────────┐  │   │  │   Gemini     │ │
-│  │  AWS S3 /  │  │   │  │  (Fallback)  │ │
-│  │  Supabase  │  │   │  └──────────────┘ │
-│  │  Storage   │  │   └────────────────────┘
-│  │  (CVs)     │  │
-│  └────────────┘  │
-└──────────────────┘
-```
-
----
-
-## 4. Data Flow
-
-### Primary Flow: Generate & Send Application
-
-```
-Step 1: USER pastes Job Description → Next.js frontend validates (non-empty with 50 min carac)
-
-Step 2: Frontend sends POST https://api.yourdomain.com/api/generate
-        Headers: { Authorization: Bearer <session_token> }
-        Payload: { jobDescription: string }
-
-Step 3: Express Route → CV Service
-        - Fetches user's CV from S3 using user ID from JWT
-        - Parses CV content (PDF → text via pdf-parse)
-
-Step 4: Express Route → AI Service
-        - Builds structured prompt:
-            [System]: You are a professional career coach...
-            [User]: Job Description: {JD}
-                    My CV: {CV_content}
-                    Generate: cover letter, email subject, recruiter email
-        - Calls OpenAI GPT-4o API
-        - Returns structured JSON: { coverLetter, subject, recruiterEmail }
-
-Step 5: Express Route → Next.js Frontend
-        - Returns generated content as JSON
-        - Frontend displays in editable fields
-
-Step 6: USER reviews, edits, clicks "Send Email"
-
-Step 7: Frontend sends POST https://api.yourdomain.com/api/email/send
-        Payload: { to, subject, body }
-
-Step 8: Express Route → Email Service
-        - Fetches CV file from S3 (as buffer)
-        - Constructs email using Nodemailer:
-            To: recruiter email
-            Subject: generated subject
-            Body: cover letter (HTML formatted)
-            Attachment: CV file
-        - Calls Gmail API with user's stored OAuth tokens
-        - Gmail delivers email
-
-Step 9: Express Route → Database (Prisma → PostgreSQL)
-        - Logs application: { userId, recruiterEmail, subject, status, timestamp }
-
-Step 10: Express Route → Next.js Frontend
-         - Returns success/failure status
-         - Frontend shows success toast or error message
-```
-
----
-
-## 5. Database Design (ERD — Text Form)
-
-```
-┌──────────────────────────────────┐
-│              users               │
-├──────────────────────────────────┤
-│ id             UUID  PK          │
-│ email          VARCHAR(255) UNIQUE│
-│ name           VARCHAR(255)       │
-│ avatarUrl      VARCHAR(500)       │  ← from Google profile
-│ provider       ENUM('google')     │  ← Google OAuth only
-│ providerAccountId VARCHAR(255)    │
-│ createdAt      TIMESTAMP          │
-│ updatedAt      TIMESTAMP          │
-└───────────────┬──────────────────┘
-                │ 1
-                │
-                │ has many
-                │
-                ▼ N
-┌──────────────────────────────────┐
-│           user_cvs               │
-├──────────────────────────────────┤
-│ id             UUID  PK          │
-│ userId         UUID  FK → users  │
-│ fileName       VARCHAR(255)       │
-│ fileKey        VARCHAR(500)       │  ← S3 object key
-│ fileSize       INTEGER            │
-│ mimeType       VARCHAR(100)       │
-│ isActive       BOOLEAN DEFAULT true│
-│ uploadedAt     TIMESTAMP          │
-└───────────────┬──────────────────┘
-                │
-                │ 1 (active CV per user)
-                │
-                │ referenced by
-                │
-                ▼
-┌──────────────────────────────────┐
-│          applications            │
-├──────────────────────────────────┤
-│ id             UUID  PK          │
-│ userId         UUID  FK → users  │
-│ cvId           UUID  FK → user_cvs│
-│ jobDescription TEXT              │
-│ recruiterEmail VARCHAR(255)       │
-│ subject        VARCHAR(500)       │
-│ coverLetter    TEXT              │
-│ generatedAt    TIMESTAMP          │
-│ sentAt         TIMESTAMP          │
-│ status         ENUM('draft','sent','failed')│
-│ errorMessage   TEXT              │  ← null on success
-│ retryCount     INTEGER DEFAULT 0  │
-└──────────────────────────────────┘
-
-┌──────────────────────────────────┐
-│         oauth_tokens             │
-├──────────────────────────────────┤
-│ id             UUID  PK          │
-│ userId         UUID  FK → users UNIQUE│
-│ provider       ENUM('gmail')     │
-│ accessToken    TEXT  (encrypted) │
-│ refreshToken   TEXT  (encrypted) │
-│ tokenExpiry    TIMESTAMP         │
-│ scope          VARCHAR(500)       │
-│ createdAt      TIMESTAMP          │
-│ updatedAt      TIMESTAMP          │
-└──────────────────────────────────┘
-```
-
-**Relationships Summary:**
-- `users` → `user_cvs`: One-to-Many (user can upload multiple CVs; one marked `isActive`)
-- `users` → `applications`: One-to-Many
-- `user_cvs` → `applications`: One-to-Many (an application references the CV used)
-- `users` → `oauth_tokens`: One-to-One (per provider)
-
----
-
-## 6. API Endpoints
-
-### Authentication
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/auth/google` | Initiate Google OAuth 2.0 flow | ❌ |
-| `GET` | `/api/auth/google/callback` | Google OAuth callback — create/update user session | ❌ |
-| `POST` | `/api/auth/logout` | Invalidate session | ✅ |
-| `GET` | `/api/auth/me` | Get current authenticated user profile | ✅ |
-
-### CV Management
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/cv/upload` | Upload CV file (multipart/form-data) | ✅ |
-| `GET` | `/api/cv` | Get current active CV metadata | ✅ |
-| `DELETE` | `/api/cv/:id` | Delete a CV | ✅ |
-
-### AI Generation
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/generate` | Generate cover letter, subject, recruiter email | ✅ |
-
-**Request Body:**
-```json
-{
-  "jobDescription": "string (required, max 10000 chars)"
-}
-```
-**Response:**
-```json
-{
-  "coverLetter": "string",
-  "subject": "string",
-  "recruiterEmail": "string | null",
-  "generationId": "uuid"
-}
-```
-
-### Email Sending
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/email/send` | Send application email | ✅ |
-| `GET` | `/api/email/auth` | Initiate Gmail OAuth flow | ✅ |
-| `GET` | `/api/email/callback` | Gmail OAuth callback | ✅ |
-
-**Request Body:**
-```json
-{
-  "to": "recruiter@company.com",
-  "subject": "Application for Software Engineer",
-  "body": "Dear Hiring Manager...",
-  "applicationId": "uuid (optional, for logging)"
-}
-```
-
-### Application History
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/applications` | List user's applications (paginated) | ✅ |
-| `GET` | `/api/applications/:id` | Get application details | ✅ |
-| `DELETE` | `/api/applications/:id` | Delete an application record | ✅ |
-
-### Admin (Protected by Admin Role)
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/admin/users` | List all users | ✅ Admin |
-| `PUT` | `/api/admin/users/:id/suspend` | Suspend a user | ✅ Admin |
-| `GET` | `/api/admin/stats` | API usage, email stats | ✅ Admin |
-
----
-
-## 7. AI Integration Workflow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   AI INTEGRATION WORKFLOW                    │
-└─────────────────────────────────────────────────────────────┘
-
-1. USER submits Job Description via UI
-        │
-        ▼
-2. Express Route: POST /api/generate
-        │
-        ├── Fetch user's CV from S3 bucket
-        │
-        ├── Parse CV content:
-        │       PDF  → pdf-parse  → plain text
-        │       DOCX → mammoth    → plain text
-        │
-        ├── Truncate CV to 3000 tokens if needed
-        │   (to fit within AI context window)
-        │
-        ├── Build Structured Prompt:
-        │   ┌────────────────────────────────────────────────┐
-        │   │ SYSTEM: You are an expert career coach and     │
-        │   │ professional writer. Your task is to analyze   │
-        │   │ a job description and a candidate's CV to     │
-        │   │ produce:                                        │
-        │   │ 1. A tailored, professional cover letter       │
-        │   │    (max 350 words, formal tone)                │
-        │   │ 2. A concise email subject line                │
-        │   │ 3. The recruiter's email address (if present)  │
-        │   │                                                │
-        │   │ Respond ONLY in this JSON format:              │
-        │   │ {                                              │
-        │   │   "coverLetter": "...",                        │
-        │   │   "subject": "...",                            │
-        │   │   "recruiterEmail": "..." or null              │
-        │   │ }                                              │
-        │   └────────────────────────────────────────────────┘
-        │   ┌────────────────────────────────────────────────┐
-        │   │ USER: Job Description: {JD_TEXT}               │
-        │   │       My CV/Resume: {CV_TEXT}                  │
-        │   └────────────────────────────────────────────────┘
-        │
-        ├── Call OpenAI GPT-4o API:
-        │       model: "gpt-4o"
-        │       temperature: 0.7
-        │       max_tokens: 1500
-        │       response_format: { type: "json_object" }
-        │
-        ├── Parse JSON response
-        │
-        ├── Validate response fields (Zod schema)
-        │
-        ├── On error → Retry once → Fallback to Gemini Pro
-        │
-        └── Return structured result to frontend
-```
-
-**Prompt Engineering Principles:**
-- Use **structured JSON output** mode to guarantee parseable response
-- Include **few-shot examples** in system prompt for consistent formatting
-- Inject **user name** from profile to personalize salutation
-- Use **temperature 0.7** — balanced between creativity and professionalism
-- Apply **token budget** management to prevent context overflow
-
----
-
-## 8. Gmail API Integration Flow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  GMAIL API INTEGRATION FLOW                  │
-└─────────────────────────────────────────────────────────────┘
-
-STEP A: OAUTH AUTHORIZATION (One-time per user)
-──────────────────────────────────────────────
-1. User clicks "Connect Gmail" (or triggered on first "Send Email")
-        │
-        ▼
-2. Backend generates Google OAuth 2.0 Authorization URL:
-   - scopes: ["gmail.send", "gmail.readonly"] (minimal scopes)
-   - redirect_uri: https://yourdomain.com/api/email/callback
-   - state: {userId, csrfToken}
-        │
-        ▼
-3. User is redirected to Google Consent Screen
-   → User grants permission
-        │
-        ▼
-4. Google redirects to /api/email/callback with ?code=...
-        │
-        ▼
-5. Backend exchanges code for tokens:
-   - accessToken  (expires in 1 hour)
-   - refreshToken (long-lived)
-        │
-        ▼
-6. Backend encrypts tokens and stores in oauth_tokens table
-
-
-STEP B: SENDING EMAIL
-──────────────────────────────────────────────
-1. User clicks "Send Email"
-        │
-        ▼
-2. Backend retrieves oauth_tokens for user
-        │
-        ├── If accessToken expired → Use refreshToken to get new accessToken
-        │       (via googleapis oauth2Client.refreshAccessToken())
-        │       → Persist new tokens to DB
-        │
-        ├── Fetch CV file from S3 as Buffer
-        │
-        ├── Compose email using Nodemailer:
-        │   ┌────────────────────────────────────────────┐
-        │   │ const mailOptions = {                      │
-        │   │   from: user.email,                        │
-        │   │   to: recruiterEmail,                      │
-        │   │   subject: subject,                        │
-        │   │   text: coverLetter,           ← plaintext │
-        │   │   html: formatAsHTML(coverLetter), ← HTML  │
-        │   │   attachments: [{                          │
-        │   │     filename: 'CV.pdf',                    │
-        │   │     content: cvBuffer,                     │
-        │   │     contentType: 'application/pdf'         │
-        │   │   }]                                       │
-        │   │ }                                          │
-        │   └────────────────────────────────────────────┘
-        │
-        ├── Convert email to RFC 2822 Base64 format
-        │
-        ├── Send via Gmail API:
-        │   gmail.users.messages.send({
-        │     userId: 'me',
-        │     requestBody: { raw: base64EncodedEmail }
-        │   })
-        │
-        ├── On success → log application status = 'sent'
-        │
-        └── On failure → log error, increment retryCount
-                      → return error to frontend
-```
-
----
-
-## 9. Security Considerations
-
-### 9.1 Authentication & Session Security
-- Use **Passport.js** with Google OAuth 2.0; JWT access tokens issued after successful Google login
-- Enforce **HTTPS-only** cookies with `Secure`, `HttpOnly`, `SameSite=Strict` flags
-- Implement **CSRF protection** on all state-mutating Express API endpoints
-- **Rate limit** all API routes using `express-rate-limit` to prevent abuse
-
-### 9.2 Data Encryption
-| Data | At Rest | In Transit |
+### AI Integration
+| Provider | Config Key | Default Model |
 |---|---|---|
-| Google OAuth tokens (login) | JWT signed with server secret | TLS 1.3 |
-| Gmail OAuth tokens (email) | AES-256-GCM (server-side) | TLS 1.3 |
-| CV files | S3 SSE-S3 or SSE-KMS | TLS 1.3 + Presigned URLs |
-| Application data | PostgreSQL TDE (Supabase) | TLS 1.3 |
+| OpenAI | `AI_PROVIDER=openai` | `gpt-4o` |
+| OpenRouter | `AI_PROVIDER=openrouter` | `anthropic/claude-3-haiku` |
+| HuggingFace | `AI_PROVIDER=huggingface` | `deepseek-ai/DeepSeek-R1:novita` |
+| Ollama (local) | `AI_PROVIDER=ollama` | `llama3` |
 
-### 9.3 API Security
-- All API routes behind **authentication middleware** (auth check via NextAuth session)
-- **Input validation** on every endpoint using Zod schemas
-- **Rate limiting** on AI generation: **max 20 generations/day per user** (MVP quota — enforced via Redis counter or DB counter)
-- **File upload validation**: verify MIME type server-side, not just extension; scan for malware using ClamAV or S3 Macie
-
-### 9.4 CV & Personal Data
-- CVs stored in **private S3 buckets** — never publicly accessible
-- Access via **pre-signed URLs** with short expiry (5 minutes)
-- CV content sent to AI API only after user consent; documented in privacy policy
-- **GDPR**: implement `/api/user/export` and `/api/user/delete` endpoints
-
-### 9.5 Gmail OAuth Security
-- Request **minimum required scopes** (`gmail.send` only)
-- Store tokens **encrypted** in DB, never in localStorage or cookies
-- Implement **token refresh** silently; revoke tokens on account deletion
-- Log all email-sending actions for audit trail
-
-### 9.6 Infrastructure Security
-- Secrets stored in **Vercel Environment Variables** (server-side only)
-- Enable **Vercel WAF** (Web Application Firewall) for DDoS protection
-- Regular **dependency audits** (`npm audit`) in CI/CD pipeline
-- **Sentry** for error monitoring (filter PII before logging)
+All providers are consumed through the **OpenAI-compatible SDK** (`openai` npm package), switching only `baseURL` and `apiKey`. Response format is forced to `json_object` for OpenAI; other providers rely on JSON extraction via substring parsing.
 
 ---
 
-## 10. Scalable Architecture for Future Growth
+## 3. System Architecture Diagram
 
-### Phase 1 — MVP (Months 1–3)
 ```
-Postify — Monorepo structure:
-  frontend/  →  Next.js 14       → localhost:3000 (dev) / Vercel (prod)
-  backend/   →  Express.js + TS  → localhost:5000 (dev) / Railway (prod)
-
-+ Local PostgreSQL (dev) → Supabase (prod)
-+ Local file storage (dev) → AWS S3 / Supabase Storage (prod)
-+ OpenAI GPT-4o API
-+ Gmail API (Google OAuth)
-+ franc (language detection)
+┌──────────────────────────────────────────────────────────────────────┐
+│                        USER'S BROWSER                                │
+│              Next.js Frontend — Vercel CDN                           │
+│                                                                      │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────────┐  ┌────────────┐  │
+│  │ Auth     │  │ Dashboard    │  │ Generate     │  │ History    │  │
+│  │ (Google) │  │ (CV Upload)  │  │ (AI + Send)  │  │ (Apps)     │  │
+│  └────┬─────┘  └──────┬───────┘  └──────┬───────┘  └─────┬──────┘  │
+└───────┼───────────────┼─────────────────┼────────────────┼──────────┘
+        │   HTTPS + JWT Cookie / Bearer   │                │
+        ▼                                 ▼                ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│              APPLICATION TIER — Express.js 5 REST API                │
+│                     Node.js 20 — Render                              │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  Middleware Stack                                            │   │
+│  │  Helmet → CORS → JSON Parser → CookieParser                 │   │
+│  │  → Passport.initialize() → generalLimiter (100/15min)       │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌───────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐  │
+│  │/api/auth  │ │/api/cv   │ │/api/ai   │ │/api/email│ │/api/   │  │
+│  │           │ │          │ │          │ │          │ │admin   │  │
+│  │authLimiter│ │uploadLim.│ │protect   │ │protect   │ │protect │  │
+│  │Passport   │ │protect   │ │Zod valid.│ │Zod valid.│ │+admin  │  │
+│  │JWT cookie │ │Multer    │ │          │ │DOMPurify │ │guard   │  │
+│  └─────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └───┬────┘  │
+│        │            │            │             │           │       │
+│  ┌─────▼────────────▼────────────▼─────────────▼───────────▼─────┐ │
+│  │                    Controllers Layer                           │ │
+│  │  authController  cvController  aiController  emailController  │ │
+│  │                  adminController                               │ │
+│  └─────────────────────────┬──────────────────────────────────────┘ │
+│                             │                                        │
+│  ┌──────────────────────────▼──────────────────────────────────────┐ │
+│  │                    Services Layer                               │ │
+│  │  AIService  EmailService  FileStorageService  TokenManager      │ │
+│  │  ParserService  PromptBuilder                                   │ │
+│  └──────────────────────────┬──────────────────────────────────────┘ │
+│                             │                                        │
+│  ┌──────────────────────────▼──────────────────────────────────────┐ │
+│  │                  Repository Layer (DI Container)                │ │
+│  │  UserRepository  CVRepository  ApplicationRepository           │ │
+│  │  OAuthTokenRepository                                           │ │
+│  └──────────────────────────┬──────────────────────────────────────┘ │
+└─────────────────────────────┼────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼──────────────────────┐
+        ▼                     ▼                      ▼
+┌───────────────┐   ┌──────────────────┐   ┌────────────────────┐
+│  DATA TIER    │   │  ASYNC PIPELINE  │   │  EXTERNAL SERVICES │
+│               │   │                  │   │                    │
+│  PostgreSQL   │   │  RabbitMQ        │   │  Google OAuth 2.0  │
+│  (Prisma ORM) │   │  Queue: cv.parse │   │  Gmail API         │
+│               │   │       ↓          │   │  Cloudinary CDN    │
+│  Tables:      │   │  cvWorker.ts     │   │  OpenAI / OR / HF  │
+│  users        │   │  (amqplib)       │   │                    │
+│  user_cvs     │   │       ↓          │   └────────────────────┘
+│  applications │   │  parseWorker     │
+│  oauth_tokens │   │  (Worker Thread) │
+└───────────────┘   └──────────────────┘
 ```
-*Clean monorepo, local-first development, deploy when ready.*
 
 ---
 
-### Phase 2 — Growth (Months 4–12)
+## 4. Database Schema
+
 ```
-Introduce:
-+ Job Queue: BullMQ + Redis (for async AI generation tasks)
-+ CDN: Cloudflare for static assets
-+ Caching: Redis for AI responses (same JD = cache hit)
-+ Monitoring: Datadog / Grafana dashboards
-+ A/B Testing: prompt variations for cover letter quality
+users
+  id (uuid PK)
+  email (unique)
+  name, avatarUrl
+  provider: GOOGLE (enum)
+  providerAccountId
+  role: USER | ADMIN
+  createdAt, updatedAt
+
+user_cvs
+  id (uuid PK)
+  userId → users.id (CASCADE)
+  fileName, fileKey (Cloudinary public_id), fileSize, mimeType
+  parsedText (Text, nullable — populated async by worker)
+  status: PENDING | DONE | FAILED
+  isActive (bool), isArchived (bool), archivedAt
+  uploadedAt, updatedAt
+  indexes: (userId, isArchived), (userId, isActive)
+
+applications
+  id (uuid PK)
+  userId → users.id (CASCADE)
+  cvId → user_cvs.id
+  jobDescription (Text)
+  recruiterEmail, subject, coverLetter (Text)
+  status: DRAFT | SENT | FAILED
+  errorMessage (Text), retryCount
+  generatedAt, sentAt, updatedAt
+  indexes: (userId, status), (userId, generatedAt)
+
+oauth_tokens
+  id (uuid PK)
+  userId → users.id (CASCADE)
+  provider (default: "gmail")
+  accessToken, refreshToken (Text)
+  tokenExpiry, scope
+  unique: (userId, provider)
 ```
 
 ---
 
-### Phase 3 — Scale (Year 2+)
-```
-Microservices Extraction:
-┌──────────────┐  ┌──────────────┐  ┌────────────────┐
-│  Auth Service│  │  AI Service  │  │  Email Service │
-│  (dedicated) │  │  (dedicated) │  │  (dedicated)   │
-└──────────────┘  └──────────────┘  └────────────────┘
-         │                │                  │
-         └────────────────┼──────────────────┘
-                          │
-                   API Gateway (Kong / AWS API Gateway)
-                          │
-                   Message Queue (Kafka / RabbitMQ)
-                          │
-             Multiple Worker Pods (Kubernetes / ECS)
+## 5. Data Flows
 
-Database:
-  PostgreSQL (main) + Read Replicas
-  Redis Cluster (caching + queues)
-  S3 (multi-region replication for CVs)
+### 5.1 Authentication Flow
+
+```
+1. Browser → GET /api/auth/google
+   authLimiter (5/15min) → Passport GoogleStrategy
+   Scopes: profile, email, gmail.send (offline access)
+
+2. Google → GET /api/auth/google/callback
+   Passport verifies → finds or creates User in DB
+   Upserts OAuthToken (accessToken + refreshToken)
+   Signs JWT (7d expiry)
+   Sets HTTP-only cookie + redirects to /auth/callback?token=<jwt>
+   (token in URL to bypass Safari 3rd-party cookie blocking)
+
+3. All subsequent requests: JWT verified in protect middleware
+   Supports: Authorization: Bearer <token> OR cookie
 ```
 
-### Scalability Strategies Summary
+### 5.2 CV Upload & Parse Flow (Async Pipeline)
 
-| Strategy | Implementation | Benefit |
+```
+1. POST /api/cv/upload (Multer memory storage, 5MB, PDF/DOCX)
+   → DB transaction:
+     - Set all user CVs isActive=false
+     - Create UserCV record (status=PENDING, fileKey=temp-*)
+   → publishCVJob() → RabbitMQ queue: cv.parse
+   → Return 202 immediately
+
+2. cvWorker.ts (amqplib consumer, prefetch=3):
+   → Receives job payload (cvId, mimeType, base64 buffer)
+   → Uploads buffer to Cloudinary (authenticated raw, postify/cvs/)
+     - Retry logic: 3 attempts, exponential backoff on rate limit
+     - PQueue concurrency: 3
+   → Updates UserCV.fileKey with real Cloudinary public_id
+   → Spawns Worker Thread (parseWorkerThread.ts)
+     - PDF: pdf-parse library
+     - DOCX: mammoth library
+   → Updates UserCV: parsedText=<text>, status=DONE
+   → On failure: status=FAILED, nack message (no requeue)
+```
+
+### 5.3 AI Generation Flow
+
+```
+1. POST /api/ai/generate { jobDescription }
+   protect middleware → Zod validation (50–5000 chars)
+
+2. aiController:
+   → CVRepository.findActiveByUserId() — must have parsedText
+   → franc() language detection (eng/fra/deu/spa → English/French/German/Spanish)
+   → generateApplicationContent(jobDescription, cvText, userName, language)
+
+3. aiService:
+   → PromptBuilder.buildCoverLetterPrompt() — structured prompt:
+     * Job Description + CV text + candidate name + language
+     * Instructs: cover letter (max 150 words) + subject + recruiterEmail
+     * Response: strict JSON { coverLetter, subject, recruiterEmail }
+   → OpenAI-compatible SDK call (model varies by provider)
+   → JSON extraction: substring(indexOf('{'), lastIndexOf('}'))
+   → Returns GenerationResult
+
+4. ApplicationRepository.create() — status=DRAFT
+   → Response: { applicationId, content: { coverLetter, subject, recruiterEmail } }
+```
+
+### 5.4 Email Send Flow
+
+```
+1. POST /api/email/send { applicationId, to, subject, body }
+   protect middleware → Zod validation → isValidEmail(to)
+   DOMPurify sanitization (subject: no tags, body: br/p/strong/em only)
+
+2. emailController:
+   → ApplicationRepository.findById(applicationId, userId)
+   → EmailService.sendApplicationEmail(userId, to, subject, body, cvId)
+
+3. EmailService:
+   → TokenManager.getValidAccessToken(userId):
+     * Fetches OAuthToken from DB
+     * Calls google.auth.OAuth2.refreshAccessToken()
+     * Persists new accessToken to DB
+   → FileStorageService.downloadFile(cv.fileKey):
+     * Generates Cloudinary signed private_download_url (60s expiry)
+     * Fetches buffer via HTTP
+   → Nodemailer (streamTransport + buffer=true) builds raw MIME:
+     * From: user's Gmail, To: recruiter, Subject, HTML body, CV attachment
+   → Base64url encode MIME → Gmail API users.messages.send()
+
+4. ApplicationRepository.updateStatus() → status=SENT, sentAt=now
+```
+
+---
+
+## 6. Architecture Patterns
+
+### Dependency Injection Container
+A lightweight factory-based DI container (`Container.register / Container.resolve`) wires all repositories and services at startup via `initializeContainer()`. No decorators or reflection — pure factory functions.
+
+```
+Container
+  prisma → PrismaClient singleton
+  userRepository → UserRepository(prisma)
+  cvRepository → CVRepository(prisma)
+  applicationRepository → ApplicationRepository(prisma)
+  oauthTokenRepository → OAuthTokenRepository(prisma)
+  tokenManager → TokenManager(oauthTokenRepository)
+  emailService → EmailService(tokenManager, cvRepository, userRepository)
+```
+
+### Repository Pattern
+All DB access is abstracted behind typed repository classes. Controllers and services never call Prisma directly (exception: adminController uses prisma directly for complex admin queries).
+
+### Error Hierarchy
+```
+AppError (base, statusCode, isOperational)
+  ├── NotFoundError (404)
+  ├── ValidationError (400)
+  ├── UnauthorizedError (401)
+  ├── AIGenerationError (500)
+  ├── EmailSendError (500)
+  └── TokenRefreshError (401)
+```
+Global `errorHandler` middleware catches all errors, logs them, and returns structured JSON.
+
+### Rate Limiting (3 tiers)
+| Limiter | Window | Max | Applied to |
+|---|---|---|---|
+| `generalLimiter` | 15 min | 100 req | All `/api/*` routes |
+| `authLimiter` | 15 min | 5 req | `/api/auth/google` |
+| `uploadLimiter` | 60 min | 10 req | `/api/cv/upload` |
+
+---
+
+## 7. Security Measures
+
+| Measure | Implementation |
+|---|---|
+| Auth | JWT (HTTP-only cookie, 7d expiry) + Bearer token fallback |
+| OAuth | Google OAuth 2.0, stateless (session: false) |
+| Token storage | Encrypted at rest in `oauth_tokens` table |
+| Token refresh | Automatic via `TokenManager` on every email send |
+| CORS | Whitelist: CLIENT_URL + localhost:3000/5173 |
+| Security headers | Helmet (CSP, HSTS, X-Frame-Options, X-Content-Type) |
+| Input validation | Zod schemas on all endpoints |
+| XSS | DOMPurify on email subject/body before send |
+| SQL injection | Prisma parameterized queries only |
+| File upload | Type check (MIME + extension), 5 MB limit, memory storage (no disk) |
+| Admin guard | `requireAdmin` middleware checks `user.role === ADMIN` |
+| Admin assignment | Email whitelist via `ADMIN_EMAILS` env var at OAuth time |
+| Rate limiting | 3-tier express-rate-limit |
+| CV files | Cloudinary `authenticated` type — no public URLs |
+
+---
+
+## 8. API Endpoints Reference
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | No | Health check |
+| GET | `/cron` | No | Keep-alive ping (Render free tier) |
+| GET | `/api/auth/google` | No | Initiate Google OAuth |
+| GET | `/api/auth/google/callback` | No | OAuth callback → JWT cookie |
+| GET | `/api/auth/me` | JWT | Get current user |
+| POST | `/api/auth/logout` | No | Clear JWT cookie |
+| POST | `/api/cv/upload` | JWT | Upload CV (multipart, 202 async) |
+| GET | `/api/cv` | JWT | List user's CVs (non-archived) |
+| PUT | `/api/cv/:id/active` | JWT | Set CV as active |
+| PUT | `/api/cv/:id/archive` | JWT | Toggle archive status |
+| DELETE | `/api/cv/:id` | JWT | Delete CV (not active, no applications) |
+| POST | `/api/ai/generate` | JWT | Generate cover letter → DRAFT application |
+| POST | `/api/email/send` | JWT | Send application email via Gmail API |
+| GET | `/api/email/history` | JWT | Paginated application history |
+| GET | `/api/admin/users` | ADMIN | Paginated user list |
+| GET | `/api/admin/users/:id` | ADMIN | User details + CVs + applications |
+| DELETE | `/api/admin/users/:id` | ADMIN | Delete user (non-admin only) |
+| GET | `/api/admin/users/export` | ADMIN | Export users as CSV |
+| GET | `/api/admin/cv/:cvId/download` | ADMIN | Download any user's CV |
+
+---
+
+## 9. Infrastructure & Deployment
+
+### Services Map
+| Service | Platform | Notes |
 |---|---|---|
-| **Horizontal Scaling** | Stateless API → scale out with Kubernetes pods | Handle traffic spikes |
-| **Async Job Queue** | BullMQ — AI generation in background workers | Prevent request timeouts |
-| **Caching** | Redis for AI results; CDN for static assets | Reduce latency & API costs |
-| **Database Pooling** | PgBouncer / Supabase built-in pooler | Handle concurrent DB connections |
-| **Multi-region** | Deploy to EU + US regions (Vercel Edge) | Reduce latency globally |
-| **AI Cost Control** | Cache responses; use cheaper models for drafts | Control OpenAI spend |
-| **Rate Limiting** | Per-user quotas via Redis counters | Prevent abuse & cost overrun |
-| **Observability** | Distributed tracing (OpenTelemetry) | Diagnose issues at scale |
+| Frontend | Vercel | Next.js App Router |
+| Backend API | Render (free tier) | Express.js, `/cron` endpoint for keep-alive |
+| Database | Supabase / Railway | PostgreSQL 14+ |
+| File Storage | Cloudinary | Authenticated raw files, `postify/cvs/` folder |
+| Message Queue | CloudAMQP (RabbitMQ) | `cv.parse` queue, durable, classic type |
+| AI | OpenAI / OpenRouter / HF | Configurable via `AI_PROVIDER` env |
+
+### Render Free Tier Optimizations
+- `cvWorker.ts` runs **in-process** (same Node.js process as API) in production via dynamic `import()` — avoids needing a separate worker dyno
+- RabbitMQ `prefetch=3` — limits concurrent parse jobs to match free tier CPU
+- Cloudinary upload `PQueue concurrency=3` — prevents rate limit exhaustion
+- `/cron` endpoint — pinged externally to prevent Render free tier sleep
+
+### Environment Variables (Backend)
+```env
+NODE_ENV, PORT
+DATABASE_URL
+JWT_SECRET                    # min 32 chars
+RABBITMQ_URL                  # amqp(s):// URL
+GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL
+CLIENT_URL
+AI_PROVIDER                   # openai | ollama | openrouter | huggingface
+OPENAI_API_KEY, OPENAI_MODEL
+OPENROUTER_API_KEY, OPENROUTER_MODEL
+HF_TOKEN, HF_MODEL
+CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+ADMIN_EMAILS                  # comma-separated
+LOG_LEVEL
+```
 
 ---
 
-## Architecture Decision Record (ADR) Summary
+## 10. Project Structure
 
-| Decision | Choice | Rationale |
-|---|---|---|
-| Frontend Framework | **Next.js 14** | SSR, Vercel-native, great DX |
-| Backend Framework | **Express.js + TypeScript** | Flexible REST API, clean separation from frontend |
-| Authentication | **Passport.js + Google OAuth 2.0** | Google-only auth; no password management overhead |
+```
+backend/
+├── prisma/
+│   ├── schema.prisma          # 4 models: User, UserCV, Application, OAuthToken
+│   └── migrations/
+├── src/
+│   ├── config/
+│   │   ├── env.ts             # Zod-validated env schema
+│   │   ├── passport.ts        # GoogleStrategy: find-or-create user + upsert tokens
+│   │   ├── cloudinary.ts      # Cloudinary SDK init
+│   │   └── constants.ts       # FILE_UPLOAD, JWT, RATE_LIMIT, PROVIDERS, SMTP
+│   ├── controllers/           # Thin request handlers, delegate to services/repos
+│   │   ├── aiController.ts    # franc lang detect → generateApplicationContent → save DRAFT
+│   │   ├── cvController.ts    # upload (202) → queue, CRUD, active/archive toggle
+│   │   ├── emailController.ts # DOMPurify → EmailService → updateStatus SENT
+│   │   └── adminController.ts # User management, CSV export, CV download
+│   ├── di/
+│   │   ├── container.ts       # Factory-based DI (register/resolve/clear)
+│   │   └── bindings.ts        # Wire all repos + services at startup
+│   ├── infrastructure/
+│   │   ├── database/healthCheck.ts
+│   │   └── logging/logger.ts  # JSON structured logger
+│   ├── middleware/
+│   │   ├── auth.ts            # protect: JWT verify → attach req.user
+│   │   ├── admin.ts           # requireAdmin: role check
+│   │   ├── errorHandler.ts    # Global AppError handler
+│   │   ├── rateLimiter.ts     # general / auth / upload limiters
+│   │   └── validate.ts        # Zod middleware factory
+│   ├── queue/
+│   │   └── cvQueue.ts         # RabbitMQ producer: connectQueue, publishCVJob
+│   ├── repositories/          # Prisma data access layer
+│   │   ├── userRepository.ts
+│   │   ├── cvRepository.ts
+│   │   ├── applicationRepository.ts
+│   │   └── oauthTokenRepository.ts
+│   ├── routes/
+│   │   ├── auth.ts, cvRoutes.ts, aiRoutes.ts, emailRoutes.ts, adminRoutes.ts
+│   ├── services/
+│   │   ├── aiService.ts       # OpenAI-compat SDK, multi-provider, JSON extraction
+│   │   ├── emailService.ts    # TokenManager → download CV → Nodemailer MIME → Gmail API
+│   │   ├── fileStorageService.ts # Cloudinary upload/download/delete, PQueue, retry
+│   │   ├── parserService.ts   # pdf-parse + mammoth (used by worker)
+│   │   ├── promptBuilder.ts   # Structured prompt: cover letter + subject + email
+│   │   └── tokenManager.ts    # OAuth2 token refresh + persist
+│   ├── workers/
+│   │   ├── cvWorker.ts        # RabbitMQ consumer → Cloudinary upload → Worker Thread
+│   │   └── parseWorkerThread.ts # CPU-bound PDF/DOCX parsing in Worker Thread
+│   ├── types/, utils/, validators/
+│   ├── app.ts                 # Express app setup, middleware stack, routes
+│   └── index.ts               # Server start: RabbitMQ connect → in-process worker → listen
+```
+t overhead |
 | Email Strategy | **Gmail API** (OAuth) | Emails sent from user's real Gmail; highest deliverability & trust |
 | AI Provider | **OpenAI GPT-4o** (primary) | Best quality for professional writing; Gemini as fallback |
 | Database | **PostgreSQL via Supabase** | Managed, scalable, includes Storage |

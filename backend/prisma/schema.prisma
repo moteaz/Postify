@@ -20,6 +20,12 @@ enum ApplicationStatus {
   FAILED
 }
 
+enum CVStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -52,6 +58,7 @@ model UserCV {
   fileSize     Int
   mimeType     String
   parsedText   String?       @db.Text
+  status       CVStatus      @default(PENDING)
   isActive     Boolean       @default(true)
   isArchived   Boolean       @default(false)
   archivedAt   DateTime?

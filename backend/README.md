@@ -1,484 +1,334 @@
 # Backend API — Postify
 
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue)
-![Coverage](https://img.shields.io/badge/coverage-85%25-green)
+![Express](https://img.shields.io/badge/Express-5.2.1-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-**Express.js TypeScript REST API for AI-powered job application automation with Gmail integration.**
+**Express.js 5 TypeScript REST API for AI-powered job application automation with Gmail integration.**
 
 **Base URL:** `http://localhost:5000/api` (development) | `https://api.postify.app/api` (production)
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
-- [✨ Features](#-features)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [⚙️ Prerequisites](#️-prerequisites)
-- [🚀 Getting Started](#-getting-started)
-- [📁 Project Structure](#-project-structure)
-- [📝 API Reference](#-api-reference)
-- [🔐 Authentication](#-authentication)
-- [🔒 Security](#-security)
-- [📝 Logging](#-logging)
-- [🧪 Testing](#-testing)
-- [📊 Monitoring](#-monitoring)
-- [❌ Error Handling](#-error-handling)
-- [🚀 Deployment](#-deployment)
-- [📜 License](#-license)
-
----
-
-## ✨ Features
-
-### REST API Capabilities
-- **RESTful Architecture** - Clean, resource-based endpoints following REST principles
-- **Type-Safe API** - Full TypeScript implementation with strict type checking
-- **Dependency Injection** - Modular architecture with DI container for testability
-- **Repository Pattern** - Abstracted data access layer for maintainability
-
-### Authentication & Authorization
-- **OAuth 2.0 Integration** - Google OAuth authentication flow
-- **JWT Token Management** - Secure access tokens with HTTP-only cookies
-- **Role-Based Access Control** - User and Admin roles with middleware guards
-- **Automatic Token Refresh** - Gmail OAuth token refresh mechanism
-
-### Security Features
-- **Rate Limiting** - 100 req/15min (general), 5 req/15min (auth), 10 req/hour (uploads)
-- **Input Validation** - Zod schemas on all endpoints with detailed error messages
-- **XSS Protection** - DOMPurify sanitization for user-generated content
-- **Security Headers** - Helmet.js with CSP, HSTS, X-Frame-Options
-- **CORS Protection** - Whitelist-based origin validation
-- **SQL Injection Prevention** - Prisma ORM with parameterized queries
-
-### Performance & Reliability
-- **Database Indexing** - Optimized queries with composite indexes
-- **Connection Pooling** - Prisma connection pool management
-- **Structured Logging** - JSON-formatted logs with Winston-style logger
-- **Health Checks** - Database and AI provider status monitoring
-- **Graceful Shutdown** - SIGTERM/SIGINT handlers for clean process termination
-
-### Business Logic
-- **AI Cover Letter Generation** - Multi-provider support (OpenAI, Ollama, OpenRouter, HuggingFace)
-- **CV Parsing** - PDF and DOCX text extraction
-- **Gmail Integration** - OAuth-authenticated email sending with attachments
-- **File Storage** - Cloudinary CDN integration for CV management
-- **Multi-Language Support** - Auto-detection of job description language
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [API Reference](#api-reference)
+- [Authentication](#authentication)
+- [CV Upload Pipeline](#cv-upload-pipeline)
+- [AI Providers](#ai-providers)
+- [Security](#security)
+- [Error Handling](#error-handling)
+- [Logging](#logging)
+- [Deployment](#deployment)
 
 ---
 
-## 🛠️ Tech Stack
+## Features
 
-| Category | Technology | Version | Purpose |
-|----------|-----------|---------|---------|
-| **Runtime** | Node.js | ≥20.0.0 | JavaScript runtime |
-| **Language** | TypeScript | 5.9.3 | Type safety and developer experience |
-| **Framework** | Express.js | 5.2.1 | Web application framework |
-| **Database** | PostgreSQL | ≥14.0 | Relational database |
-| **ORM** | Prisma | 6.19.2 | Database toolkit and migrations |
-| **Authentication** | Passport.js | 0.7.0 | OAuth middleware |
-| | jsonwebtoken | 9.0.3 | JWT token generation/verification |
-| **Validation** | Zod | 3.24.1 | Schema validation |
-| **Security** | Helmet | 8.1.0 | Security headers |
-| | express-rate-limit | 7.5.0 | Rate limiting |
-| | DOMPurify | 3.3.2 | XSS sanitization |
-| | validator | 13.12.0 | String validation |
-| **File Handling** | Multer | 2.0.2 | File upload middleware |
-| | Cloudinary | 2.9.0 | Cloud file storage |
-| | pdf-parse | 2.4.5 | PDF text extraction |
-| | mammoth | 1.11.0 | DOCX text extraction |
-| **AI Integration** | OpenAI SDK | 6.24.0 | AI provider client |
-| **Email** | Nodemailer + Gmail API | 8.0.1 | Email MIME building and Delivery via OAuth |
-| | googleapis | 171.4.0 | Gmail API integration |
-| **Development** | tsx | 4.21.0 | TypeScript execution |
-| | ESLint | 9.39.4 | Code linting |
-| | Prettier | 3.8.1 | Code formatting |
+- **Google OAuth 2.0** — stateless JWT auth (HTTP-only cookie + Bearer token)
+- **Async CV Pipeline** — RabbitMQ queue + Node.js Worker Threads for non-blocking PDF/DOCX parsing
+- **Multi-Provider AI** — OpenAI, OpenRouter, HuggingFace, Ollama via unified OpenAI-compatible SDK
+- **Gmail Integration** — sends email from user's own Gmail account via OAuth 2.0 + automatic token refresh
+- **Cloudinary Storage** — authenticated CV file storage with signed download URLs
+- **Repository Pattern + DI** — custom lightweight factory-based DI container
+- **3-Tier Rate Limiting** — general / auth / upload limiters
+- **Role-Based Access** — USER / ADMIN roles, admin assigned via email whitelist at OAuth time
+- **Input Validation** — Zod schemas on all endpoints + DOMPurify XSS sanitization
+- **Graceful Shutdown** — SIGTERM/SIGINT handlers close HTTP server, RabbitMQ connection, then exit
 
 ---
 
-## ⚙️ Prerequisites
+## Tech Stack
 
-Before you begin, ensure you have the following installed:
-
-### Required Software
-- **Node.js** ≥ 20.0.0 ([Download](https://nodejs.org/))
-- **npm** ≥ 10.0.0 (comes with Node.js)
-- **PostgreSQL** ≥ 14.0 ([Download](https://www.postgresql.org/download/))
-- **Git** ([Download](https://git-scm.com/downloads))
-
-### External Services
-You'll need accounts and API keys for:
-
-1. **Google Cloud Console** ([console.cloud.google.com](https://console.cloud.google.com))
-   - Create a new project
-   - Enable Google+ API and Gmail API
-   - Create OAuth 2.0 credentials (Web application)
-   - Add authorized redirect URI: `http://localhost:5000/api/auth/google/callback`
-
-2. **Cloudinary** ([cloudinary.com](https://cloudinary.com/))
-   - Sign up for free account
-   - Get Cloud Name, API Key, and API Secret from dashboard
-
-3. **AI Provider** (choose one):
-   - **OpenAI** ([platform.openai.com](https://platform.openai.com/)) - Get API key
-   - **Ollama** ([ollama.ai](https://ollama.ai/)) - Install locally (free)
-   - **OpenRouter** ([openrouter.ai](https://openrouter.ai/)) - Get API key
-   - **HuggingFace** ([huggingface.co](https://huggingface.co/)) - Get access token
+| Category | Technology | Version |
+|---|---|---|
+| Runtime | Node.js | ≥ 20.0.0 |
+| Language | TypeScript | 5.9.3 |
+| Framework | Express.js | 5.2.1 |
+| Database | PostgreSQL | ≥ 14.0 |
+| ORM | Prisma | 6.19.2 |
+| Auth | Passport.js + passport-google-oauth20 | 0.7.0 |
+| JWT | jsonwebtoken | 9.0.3 |
+| Validation | Zod | 3.24.1 |
+| Security | Helmet, express-rate-limit, DOMPurify, validator | — |
+| File Upload | Multer (memory storage) | 2.0.2 |
+| File Storage | Cloudinary | 2.9.0 |
+| CV Parsing | pdf-parse + mammoth | — |
+| AI | openai SDK (multi-provider) | 6.24.0 |
+| Email | Nodemailer (MIME) + googleapis (Gmail API) | — |
+| Queue | amqplib (RabbitMQ) | 0.10.5 |
+| Concurrency | p-queue (Cloudinary uploads) | 9.1.1 |
+| Language Detection | franc | 6.2.0 |
+| Dev | tsx, ESLint, Prettier | — |
 
 ---
 
-## 🚀 Getting Started
+## Prerequisites
 
-### 1. Clone the Repository
+- **Node.js** ≥ 20.0.0
+- **PostgreSQL** ≥ 14.0
+- **RabbitMQ** instance (e.g. [CloudAMQP](https://www.cloudamqp.com/) free tier)
+- **Google Cloud Console** project with OAuth 2.0 credentials and Gmail API enabled
+- **Cloudinary** account
+- One AI provider: OpenAI / OpenRouter / HuggingFace / Ollama
+
+---
+
+## Getting Started
+
+### 1. Install dependencies
 
 ```bash
-git clone https://github.com/yourusername/postify.git
-cd postify/backend
+cd backend
+npm install
 ```
 
-### 2. Environment Variables
+### 2. Environment variables
 
-Create a `.env` file in the `backend` directory with the following variables:
+Create `backend/.env`:
 
 ```env
-# ============================================
-# SERVER CONFIGURATION
-# ============================================
+# Server
 NODE_ENV=development
 PORT=5000
 
-# ============================================
-# DATABASE
-# ============================================
-# PostgreSQL connection string
-# Format: postgresql://username:password@host:port/database
+# Database
 DATABASE_URL=postgresql://postgres:password@localhost:5432/postify
 
-# ============================================
-# JWT AUTHENTICATION
-# ============================================
-# Generate a secure secret (min 32 characters):
-# openssl rand -base64 32
-JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
+# JWT (min 32 chars — generate: openssl rand -base64 32)
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 
-# ============================================
-# GOOGLE OAUTH 2.0
-# ============================================
-# From Google Cloud Console > Credentials
-GOOGLE_CLIENT_ID=123456789-abcdefghijklmnop.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-your-client-secret
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
+
+# Google OAuth (Google Cloud Console > Credentials)
+GOOGLE_CLIENT_ID=123456789.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-your-secret
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 
-# ============================================
-# FRONTEND URL
-# ============================================
-# Used for CORS and OAuth redirects
+# Frontend
 CLIENT_URL=http://localhost:3000
 
-# ============================================
-# AI PROVIDER CONFIGURATION
-# ============================================
-# Options: openai | ollama | openrouter | huggingface
+# AI Provider: openai | ollama | openrouter | huggingface
 AI_PROVIDER=openai
-
-# OpenAI (if AI_PROVIDER=openai)
-OPENAI_API_KEY=sk-proj-your-openai-api-key
+OPENAI_API_KEY=sk-proj-...
 OPENAI_MODEL=gpt-4o
 
-# Ollama (if AI_PROVIDER=ollama) - Local AI
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
+# Ollama (local)
+# OLLAMA_BASE_URL=http://localhost:11434
+# OLLAMA_MODEL=llama3
 
-# OpenRouter (if AI_PROVIDER=openrouter)
-OPENROUTER_API_KEY=sk-or-your-openrouter-key
-OPENROUTER_MODEL=anthropic/claude-3-haiku
+# OpenRouter
+# OPENROUTER_API_KEY=sk-or-...
+# OPENROUTER_MODEL=anthropic/claude-3-haiku
 
-# HuggingFace (if AI_PROVIDER=huggingface)
-HF_TOKEN=hf_your-huggingface-token
-HF_MODEL=deepseek-ai/DeepSeek-R1:novita
+# HuggingFace
+# HF_TOKEN=hf_...
+# HF_MODEL=deepseek-ai/DeepSeek-R1:novita
 
-# ============================================
-# EMAIL CONFIGURATION
-# ============================================
-# Gmail API requires no additional SMTP configuration as it uses the Google OAuth credentials above.
-
-# ============================================
-# CLOUDINARY FILE STORAGE
-# ============================================
-# From Cloudinary Dashboard
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=123456789012345
 CLOUDINARY_API_SECRET=your-api-secret
 
-# ============================================
-# ADMIN CONFIGURATION
-# ============================================
-# Comma-separated list of admin emails
-ADMIN_EMAILS=admin@example.com,admin2@example.com
+# Admin (comma-separated emails — assigned ADMIN role at OAuth time)
+ADMIN_EMAILS=admin@example.com
 
-# ============================================
-# LOGGING
-# ============================================
-# Options: error | warn | info | debug
+# Logging: error | warn | info | debug
 LOG_LEVEL=info
 ```
 
-### 3. Install Dependencies
+### 3. Database setup
 
 ```bash
-npm install
+npm run prisma:generate   # generate Prisma client
+npm run prisma:migrate    # run migrations
+npm run prisma:studio     # (optional) open Prisma Studio
 ```
 
-### 4. Database Setup
+### 4. Run development server
 
 ```bash
-# Generate Prisma Client
-npm run prisma:generate
-
-# Run database migrations
-npm run prisma:migrate
-
-# (Optional) Open Prisma Studio to view database
-npm run prisma:studio
-```
-
-### 5. Run Development Server
-
-```bash
+# Terminal 1 — API server
 npm run dev
+
+# Terminal 2 — CV worker (only needed in development; runs in-process in production)
+npm run worker
 ```
 
-Server will start on **http://localhost:5000**
+Server starts on **http://localhost:5000**
 
-### 6. Run with Docker
-
-Create a `docker-compose.yml` in the backend directory:
-
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:14-alpine
-    environment:
-      POSTGRES_USER: postify
-      POSTGRES_PASSWORD: postify
-      POSTGRES_DB: postify
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  backend:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      DATABASE_URL: postgresql://postify:postify@postgres:5432/postify
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-
-volumes:
-  postgres_data:
-```
-
-Create a `Dockerfile`:
-
-```dockerfile
-FROM node:20-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-
-RUN npm run prisma:generate
-RUN npm run build
-
-EXPOSE 5000
-
-CMD ["npm", "start"]
-```
-
-Run with Docker:
+### 5. Build for production
 
 ```bash
-docker-compose up -d
+npm run build             # tsc → dist/
+npm run prisma:generate
+npx prisma migrate deploy
+npm start                 # node dist/index.js
 ```
+
+In production, `cvWorker.ts` is imported in-process automatically (no separate dyno needed).
 
 ---
-## 📁 Project Structure
+
+## Project Structure
 
 ```
 backend/
 ├── prisma/
-│   ├── migrations/              # Database migration files
-│   │   ├── 20260301134127_init/
-│   │   ├── 20260301151835_add_user_role/
-│   │   └── migration_lock.toml
-│   └── schema.prisma            # Database schema definition
-│
+│   ├── schema.prisma              # 4 models: User, UserCV, Application, OAuthToken
+│   └── migrations/
 ├── src/
-│   ├── config/                  # Configuration files
-│   │   ├── env.ts              # Environment variable validation (Zod)
-│   │   ├── passport.ts         # Passport OAuth strategy setup
-│   │   ├── cloudinary.ts       # Cloudinary SDK configuration
-│   │   └── constants.ts        # Application constants
-│   │
-│   ├── controllers/             # Request handlers (business logic entry)
-│   │   ├── adminController.ts  # Admin user management
-│   │   ├── aiController.ts     # AI cover letter generation
-│   │   ├── cvController.ts     # CV upload/management
-│   │   └── emailController.ts  # Email sending & history
-│   │
-│   ├── di/                      # Dependency Injection
-│   │   ├── container.ts        # DI container implementation
-│   │   └── bindings.ts         # Service registration
-│   │
-│   ├── infrastructure/          # Infrastructure layer
-│   │   ├── database/
-│   │   │   └── healthCheck.ts  # Database health monitoring
-│   │   └── logging/
-│   │       └── logger.ts       # Structured JSON logger
-│   │
-│   ├── middleware/              # Express middleware
-│   │   ├── auth.ts             # JWT authentication guard
-│   │   ├── admin.ts            # Admin role guard
-│   │   ├── errorHandler.ts     # Global error handler
-│   │   ├── rateLimiter.ts      # Rate limiting rules
-│   │   └── validate.ts         # Zod schema validation
-│   │
-│   ├── repositories/            # Data access layer (Repository pattern)
+│   ├── config/
+│   │   ├── env.ts                 # Zod-validated env schema (fails fast on startup)
+│   │   ├── passport.ts            # GoogleStrategy: find-or-create user, upsert OAuth tokens
+│   │   ├── cloudinary.ts          # Cloudinary SDK init
+│   │   └── constants.ts           # FILE_UPLOAD, JWT, RATE_LIMIT, PROVIDERS, SMTP
+│   ├── controllers/
+│   │   ├── aiController.ts        # franc lang detect → AI generate → save DRAFT application
+│   │   ├── cvController.ts        # upload (202 async) → RabbitMQ, CRUD, active/archive
+│   │   ├── emailController.ts     # DOMPurify sanitize → EmailService → mark SENT
+│   │   └── adminController.ts     # user management, CSV export, CV download
+│   ├── di/
+│   │   ├── container.ts           # factory-based DI (register / resolve / clear)
+│   │   └── bindings.ts            # wire all repos + services at startup
+│   ├── infrastructure/
+│   │   ├── database/healthCheck.ts
+│   │   └── logging/logger.ts      # JSON structured logger
+│   ├── middleware/
+│   │   ├── auth.ts                # protect: verify JWT → attach req.user
+│   │   ├── admin.ts               # requireAdmin: role === ADMIN guard
+│   │   ├── errorHandler.ts        # global AppError handler
+│   │   ├── rateLimiter.ts         # general / auth / upload limiters
+│   │   └── validate.ts            # Zod middleware factory
+│   ├── queue/
+│   │   └── cvQueue.ts             # RabbitMQ producer: connectQueue, publishCVJob
+│   ├── repositories/
 │   │   ├── userRepository.ts
 │   │   ├── cvRepository.ts
 │   │   ├── applicationRepository.ts
 │   │   └── oauthTokenRepository.ts
-│   │
-│   ├── routes/                  # API route definitions
-│   │   ├── auth.ts             # Authentication routes
-│   │   ├── cvRoutes.ts         # CV management routes
-│   │   ├── aiRoutes.ts         # AI generation routes
-│   │   ├── emailRoutes.ts      # Email sending routes
-│   │   └── adminRoutes.ts      # Admin routes
-│   │
-│   ├── services/                # Business logic services
-│   │   ├── aiService.ts        # AI provider integration
-│   │   ├── emailService.ts     # Email sending logic
-│   │   ├── parserService.ts    # CV parsing (PDF/DOCX)
-│   │   ├── fileStorageService.ts # Cloudinary operations
-│   │   ├── tokenManager.ts     # OAuth token refresh
-│   │   ├── promptBuilder.ts    # AI prompt construction
-│   │   └── healthCheckService.ts # Health check logic
-│   │
-│   ├── types/                   # TypeScript type definitions
-│   │   ├── dtos.ts             # Data Transfer Objects
-│   │   ├── express.d.ts        # Express type extensions
-│   │   └── jwt.types.ts        # JWT payload types
-│   │
-│   ├── utils/                   # Utility functions
-│   │   ├── asyncHandler.ts     # Async error wrapper
-│   │   ├── errors.ts           # Custom error classes
-│   │   ├── jwt.ts              # JWT sign/verify helpers
-│   │   ├── pagination.ts       # Pagination utilities
-│   │   ├── prisma.ts           # Prisma client instance
-│   │   ├── response.ts         # Standard response formatter
-│   │   └── validators.ts       # Custom validators
-│   │
-│   ├── validators/              # Zod validation schemas
+│   ├── routes/
+│   │   ├── auth.ts
+│   │   ├── cvRoutes.ts
+│   │   ├── aiRoutes.ts
+│   │   ├── emailRoutes.ts
+│   │   └── adminRoutes.ts
+│   ├── services/
+│   │   ├── aiService.ts           # OpenAI-compat SDK, 4 providers, JSON extraction
+│   │   ├── emailService.ts        # TokenManager → download CV → Nodemailer MIME → Gmail API
+│   │   ├── fileStorageService.ts  # Cloudinary upload/download/delete, PQueue(3), retry
+│   │   ├── parserService.ts       # pdf-parse + mammoth (called from worker thread)
+│   │   ├── promptBuilder.ts       # structured prompt: cover letter + subject + recruiterEmail
+│   │   └── tokenManager.ts        # OAuth2 token refresh + persist to DB
+│   ├── workers/
+│   │   ├── cvWorker.ts            # RabbitMQ consumer → Cloudinary upload → Worker Thread
+│   │   └── parseWorkerThread.ts   # CPU-bound PDF/DOCX parsing in isolated Worker Thread
+│   ├── types/
+│   │   ├── dtos.ts
+│   │   ├── express.d.ts
+│   │   └── jwt.types.ts
+│   ├── utils/
+│   │   ├── asyncHandler.ts
+│   │   ├── errors.ts              # AppError hierarchy
+│   │   ├── jwt.ts
+│   │   ├── pagination.ts
+│   │   ├── prisma.ts
+│   │   ├── response.ts
+│   │   └── validators.ts
+│   ├── validators/
 │   │   ├── aiValidation.ts
 │   │   └── emailValidation.ts
-│   │
-│   ├── app.ts                   # Express app setup
-│   └── index.ts                 # Server entry point
-│
-├── uploads/                     # Temporary file uploads (gitignored)
-├── .env                         # Environment variables (gitignored)
-├── .gitignore
-├── .prettierrc                  # Prettier configuration
-├── eslint.config.mjs            # ESLint configuration
+│   ├── app.ts                     # Express setup: middleware stack + routes
+│   └── index.ts                   # entry point: RabbitMQ → in-process worker → listen
+├── .env
+├── eslint.config.mjs
+├── .prettierrc
 ├── package.json
-├── tsconfig.json                # TypeScript configuration
-└── README.md                    # This file
-```
-
-### Folder Purposes
-
-- **`config/`** - Application configuration, environment validation, third-party SDK setup
-- **`controllers/`** - Handle HTTP requests, call services, return responses
-- **`di/`** - Dependency injection container for loose coupling and testability
-- **`infrastructure/`** - Cross-cutting concerns (logging, database health)
-- **`middleware/`** - Express middleware for auth, validation, error handling
-- **`repositories/`** - Database access layer, abstracts Prisma operations
-- **`routes/`** - API endpoint definitions, route-level middleware
-- **`services/`** - Core business logic, external API integrations
-- **`types/`** - TypeScript interfaces and type definitions
-- **`utils/`** - Reusable helper functions and utilities
-- **`validators/`** - Zod schemas for request validation
-
----
-
-## 📝 API Reference
-
-### Base URL
-- **Development:** `http://localhost:5000/api`
-- **Production:** `https://api.postify.app/api`
-
-### Authentication Header
-Protected endpoints require JWT token:
-```
-Authorization: Bearer <your_jwt_token>
+└── tsconfig.json
 ```
 
 ---
 
-### 🔑 Authentication Endpoints
+## API Reference
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| GET | `/auth/google` | No | Initiate Google OAuth flow |
-| GET | `/auth/google/callback` | No | OAuth callback (redirects to frontend) |
-| GET | `/auth/me` | Yes | Get current authenticated user |
-| POST | `/auth/logout` | No | Clear authentication cookie |
+### Endpoints overview
 
-#### GET `/auth/google`
-Redirects to Google OAuth consent screen.
-
-**Query Parameters:** None
-
-**Response:** Redirect to Google
-
----
-
-#### GET `/auth/google/callback`
-Handles OAuth callback, sets JWT cookie, redirects to frontend.
-
-**Query Parameters:**
-- `code` (string) - OAuth authorization code (auto-provided by Google)
-
-**Response:** Redirect to `CLIENT_URL/auth/callback`
-
-**Cookies Set:**
-```
-token=<jwt_token>; HttpOnly; Secure; SameSite=Strict; Max-Age=604800000
-```
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | No | Health check |
+| GET | `/cron` | No | Keep-alive ping |
+| GET | `/api/auth/google` | No | Initiate Google OAuth |
+| GET | `/api/auth/google/callback` | No | OAuth callback → JWT cookie |
+| GET | `/api/auth/me` | JWT | Get current user |
+| POST | `/api/auth/logout` | No | Clear JWT cookie |
+| POST | `/api/cv/upload` | JWT | Upload CV — returns 202, processes async |
+| GET | `/api/cv` | JWT | List non-archived CVs |
+| PUT | `/api/cv/:id/active` | JWT | Set CV as active |
+| PUT | `/api/cv/:id/archive` | JWT | Toggle archive status |
+| DELETE | `/api/cv/:id` | JWT | Delete CV |
+| POST | `/api/ai/generate` | JWT | Generate cover letter → DRAFT application |
+| POST | `/api/email/send` | JWT | Send application via Gmail API |
+| GET | `/api/email/history` | JWT | Paginated application history |
+| GET | `/api/admin/users` | ADMIN | Paginated user list |
+| GET | `/api/admin/users/export` | ADMIN | Export users as CSV |
+| GET | `/api/admin/users/:id` | ADMIN | User details + CVs + applications |
+| DELETE | `/api/admin/users/:id` | ADMIN | Delete user (non-admin only) |
+| GET | `/api/admin/cv/:cvId/download` | ADMIN | Download any user's CV |
 
 ---
 
-#### GET `/auth/me`
-Get current authenticated user profile.
+### Health
 
-**Headers:**
-```
-Authorization: Bearer <token>
+#### `GET /health`
+
+```json
+{ "status": "ok" }
 ```
 
-**Response:** `200 OK`
+#### `GET /cron`
+
+Keep-alive endpoint for Render free tier (prevents sleep).
+
+```json
+{ "status": "ok", "timestamp": "2026-07-10T10:00:00.000Z" }
+```
+
+---
+
+### Authentication
+
+#### `GET /api/auth/google`
+
+Rate limited: 5 req / 15 min. Redirects to Google OAuth consent screen.
+
+Scopes requested: `profile`, `email`, `gmail.send` (offline access + consent prompt to get refresh token).
+
+#### `GET /api/auth/google/callback`
+
+Handles OAuth callback. Finds or creates user. Upserts OAuth tokens. Signs JWT (7d). Sets HTTP-only cookie and redirects:
+
+```
+→ CLIENT_URL/auth/callback?token=<jwt>
+```
+
+The token is appended to the URL to bypass Safari's 3rd-party cookie blocking.
+
+**Cookie set:**
+```
+token=<jwt>; HttpOnly; Secure (prod); SameSite=None (prod) / Lax (dev); MaxAge=7d
+```
+
+#### `GET /api/auth/me`
+
+Returns the authenticated user with their active CV.
+
 ```json
 {
   "success": true,
@@ -487,91 +337,57 @@ Authorization: Bearer <token>
       "id": "uuid",
       "email": "user@example.com",
       "name": "John Doe",
-      "avatarUrl": "https://lh3.googleusercontent.com/...",
-      "provider": "GOOGLE",
-      "providerAccountId": "123456789",
+      "avatarUrl": "https://...",
       "role": "USER",
-      "createdAt": "2025-01-15T10:30:00.000Z",
-      "updatedAt": "2025-01-15T10:30:00.000Z"
+      "cvs": [{ "id": "uuid", "isActive": true, "..." : "..." }]
     }
   }
 }
 ```
 
----
+#### `POST /api/auth/logout`
 
-#### POST `/auth/logout`
-Clear authentication cookie.
+Clears the JWT cookie.
 
-**Response:** `200 OK`
 ```json
-{
-  "success": true,
-  "message": "Logged out successfully"
-}
+{ "success": true, "message": "Logged out successfully" }
 ```
 
 ---
 
-### 📄 CV Management Endpoints
+### CV Management
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| POST | `/cv/upload` | Yes | Upload a new CV (PDF/DOCX) |
-| GET | `/cv` | Yes | Get all user's CVs |
-| PUT | `/cv/:id/active` | Yes | Set CV as active |
-| PUT | `/cv/:id/archive` | Yes | Archive/unarchive CV |
-| DELETE | `/cv/:id` | Yes | Delete CV permanently |
+#### `POST /api/cv/upload`
 
-#### POST `/cv/upload`
-Upload a new CV file. Automatically sets as active CV.
+Upload a CV. Processing is **asynchronous** — returns `202 Accepted` immediately.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-```
+**Content-Type:** `multipart/form-data`  
+**Field:** `cv` (PDF or DOCX, max 5 MB)  
+**Rate limit:** 10 req / hour
 
-**Body (multipart/form-data):**
-- `cv` (file) - PDF or DOCX file (max 5MB)
-
-**Response:** `201 Created`
+**Response `202`:**
 ```json
 {
   "success": true,
-  "message": "CV uploaded successfully",
+  "message": "CV upload queued for processing",
   "data": {
     "cv": {
       "id": "uuid",
-      "userId": "uuid",
-      "fileName": "John_Doe_CV.pdf",
-      "fileKey": "postify/cvs/cv-1234567890-123456789",
-      "fileSize": 245678,
-      "mimeType": "application/pdf",
-      "isActive": true,
-      "isArchived": false,
-      "uploadedAt": "2025-01-15T10:30:00.000Z",
-      "url": "https://res.cloudinary.com/..."
+      "fileName": "John_CV.pdf",
+      "fileKey": "temp-1234567890-John_CV.pdf",
+      "status": "PENDING",
+      "isActive": true
     }
   }
 }
 ```
 
-**Errors:**
-- `400` - No file uploaded / Invalid file type / File too large
-- `401` - Unauthorized
+The worker then uploads to Cloudinary, updates `fileKey`, parses the text, and sets `status` to `DONE` or `FAILED`. Poll `GET /api/cv` to check status.
 
----
+#### `GET /api/cv`
 
-#### GET `/cv`
-Get all non-archived CVs for the authenticated user.
+Returns all non-archived CVs for the user, ordered by `uploadedAt` desc.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response:** `200 OK`
 ```json
 {
   "success": true,
@@ -579,124 +395,59 @@ Authorization: Bearer <token>
     "cvs": [
       {
         "id": "uuid",
-        "fileName": "John_Doe_CV.pdf",
+        "fileName": "John_CV.pdf",
         "fileSize": 245678,
         "mimeType": "application/pdf",
+        "status": "DONE",
         "isActive": true,
         "isArchived": false,
-        "uploadedAt": "2025-01-15T10:30:00.000Z"
+        "uploadedAt": "2026-07-10T10:00:00.000Z"
       }
     ]
   }
 }
 ```
 
----
+#### `PUT /api/cv/:id/active`
 
-#### PUT `/cv/:id/active`
-Set a specific CV as the active one (used for applications).
+Sets the CV as active (deactivates all others in a transaction).
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+- `400` if CV is archived
 
-**Response:** `200 OK`
-```json
-{
-  "success": true,
-  "message": "Active CV updated",
-  "data": {
-    "cv": {
-      "id": "uuid",
-      "isActive": true
-    }
-  }
-}
-```
+#### `PUT /api/cv/:id/archive`
 
-**Errors:**
-- `404` - CV not found
-- `400` - Cannot set archived CV as active
+Toggles `isArchived`. Cannot archive the active CV.
+
+#### `DELETE /api/cv/:id`
+
+Permanently deletes CV record and Cloudinary file.
+
+- `400` if CV is active
+- `400` if CV has linked applications (archive instead)
 
 ---
 
-#### PUT `/cv/:id/archive`
-Toggle archive status of a CV.
+### AI Generation
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+#### `POST /api/ai/generate`
 
-**Response:** `200 OK`
-```json
-{
-  "success": true,
-  "message": "CV archived successfully",
-  "data": {
-    "cv": {
-      "id": "uuid",
-      "isArchived": true
-    }
-  }
-}
-```
-
-**Errors:**
-- `404` - CV not found
-- `400` - Cannot archive active CV
-
----
-
-#### DELETE `/cv/:id`
-Permanently delete a CV.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "success": true,
-  "message": "CV deleted successfully"
-}
-```
-
-**Errors:**
-- `404` - CV not found
-- `400` - Cannot delete active CV / Cannot delete CV with applications
-
----
-
-### 🤖 AI Generation Endpoints
-
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| POST | `/ai/generate` | Yes | Generate cover letter from job description |
-
-#### POST `/ai/generate`
-Generate a personalized cover letter using AI based on job description and active CV.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
+Generates a cover letter from the job description using the active CV.
 
 **Body:**
 ```json
-{
-  "jobDescription": "We are looking for a Senior Full-Stack Developer with 5+ years of experience in React, Node.js, and TypeScript. The ideal candidate will have strong problem-solving skills and experience with cloud platforms like AWS..."
-}
+{ "jobDescription": "We are looking for a senior full-stack developer..." }
 ```
 
-**Validation:**
-- `jobDescription` (string, required) - Min 50 chars, max 5000 chars
+**Validation:** `jobDescription` — min 50 chars, max 5000 chars.
 
-**Response:** `200 OK`
+**Flow:**
+1. Fetches active CV (must have `status=DONE` and `parsedText`)
+2. Detects language via `franc` (English / French / German / Spanish)
+3. Calls AI provider via `PromptBuilder` prompt
+4. Saves result as `DRAFT` application
+5. Returns `applicationId` + generated content
+
+**Response `200`:**
 ```json
 {
   "success": true,
@@ -704,81 +455,65 @@ Content-Type: application/json
   "data": {
     "applicationId": "uuid",
     "content": {
-      "coverLetter": "Dear Hiring Manager,\n\nI am writing to express my strong interest in the Senior Full-Stack Developer position...",
-      "subject": "Application for Senior Full-Stack Developer Position",
+      "coverLetter": "Dear Hiring Manager,\n\nI am writing to...",
+      "subject": "Application for Senior Full-Stack Developer",
       "recruiterEmail": "hr@company.com"
     }
   }
 }
 ```
 
+`recruiterEmail` is `null` if not found in the job description.
+
 **Errors:**
-- `400` - Validation error (job description too short/long)
-- `404` - No active CV found
-- `500` - AI generation failed
+- `404` — no active CV / CV not yet parsed (`PENDING`)
+- `500` — AI provider error (connection refused, model not found, malformed JSON)
 
 ---
 
-### 📧 Email Endpoints
+### Email
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| POST | `/email/send` | Yes | Send application email via Gmail |
-| GET | `/email/history` | Yes | Get application history with pagination |
+#### `POST /api/email/send`
 
-#### POST `/email/send`
-Send a job application email with CV attachment via Gmail.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
+Sends the application email via the user's Gmail account with CV attached.
 
 **Body:**
 ```json
 {
   "applicationId": "uuid",
   "to": "hr@company.com",
-  "subject": "Application for Senior Full-Stack Developer Position",
-  "body": "Dear Hiring Manager,\n\nI am writing to express my strong interest..."
+  "subject": "Application for Senior Full-Stack Developer",
+  "body": "Dear Hiring Manager,\n\nI am writing to..."
 }
 ```
 
-**Validation:**
-- `applicationId` (uuid, required)
-- `to` (email, required)
-- `subject` (string, required, max 200 chars)
-- `body` (string, required, max 10000 chars)
+**Flow:**
+1. Validates email address
+2. DOMPurify sanitizes `subject` (no tags) and `body` (`br`, `p`, `strong`, `em` only)
+3. Fetches application (must belong to user)
+4. `TokenManager.getValidAccessToken()` — refreshes OAuth token if needed, persists new token
+5. Downloads CV buffer from Cloudinary (signed URL, 60s expiry)
+6. Nodemailer builds raw MIME (HTML body + CV attachment)
+7. Gmail API `users.messages.send()` delivers from user's own Gmail
+8. Updates application `status=SENT`, `sentAt=now`
 
-**Response:** `200 OK`
+**Response `200`:**
 ```json
-{
-  "success": true,
-  "message": "Application sent successfully!"
-}
+{ "success": true, "message": "Application sent successfully!" }
 ```
 
 **Errors:**
-- `400` - Invalid email address / Validation error
-- `404` - Application not found
-- `500` - Email sending failed
+- `400` — invalid email
+- `404` — application not found
+- `401` — Gmail token expired and refresh failed (user must re-login)
+- `500` — email send failed
 
----
+#### `GET /api/email/history`
 
-#### GET `/email/history`
-Get paginated application history for the authenticated user.
+Paginated application history.
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+**Query params:** `page` (default: 1), `limit` (default: 20)
 
-**Query Parameters:**
-- `page` (number, optional, default: 1)
-- `limit` (number, optional, default: 20, max: 100)
-
-**Response:** `200 OK`
 ```json
 {
   "success": true,
@@ -786,27 +521,17 @@ Authorization: Bearer <token>
     "data": [
       {
         "id": "uuid",
-        "userId": "uuid",
-        "cvId": "uuid",
-        "jobDescription": "We are looking for...",
         "recruiterEmail": "hr@company.com",
-        "subject": "Application for Senior Developer",
-        "coverLetter": "Dear Hiring Manager...",
+        "subject": "Application for...",
         "status": "SENT",
-        "generatedAt": "2025-01-15T10:30:00.000Z",
-        "sentAt": "2025-01-15T10:35:00.000Z",
-        "cv": {
-          "fileName": "John_Doe_CV.pdf"
-        }
+        "generatedAt": "2026-07-10T10:00:00.000Z",
+        "sentAt": "2026-07-10T10:05:00.000Z",
+        "cv": { "fileName": "John_CV.pdf" }
       }
     ],
     "pagination": {
-      "page": 1,
-      "limit": 20,
-      "total": 45,
-      "totalPages": 3,
-      "hasNext": true,
-      "hasPrev": false
+      "page": 1, "limit": 20, "total": 45,
+      "totalPages": 3, "hasNext": true, "hasPrev": false
     }
   }
 }
@@ -814,1262 +539,218 @@ Authorization: Bearer <token>
 
 ---
 
-### 👑 Admin Endpoints
+### Admin
 
-| Method | Endpoint | Auth Required | Description |
-|--------|----------|---------------|-------------|
-| GET | `/admin/users` | Admin | Get all users with pagination |
-| GET | `/admin/users/export` | Admin | Export users to CSV |
-| GET | `/admin/users/:id` | Admin | Get user details with applications |
-| DELETE | `/admin/users/:id` | Admin | Delete a user |
-| GET | `/admin/cv/:cvId/download` | Admin | Download user's CV |
+All admin endpoints require `role=ADMIN`. Admin role is assigned at OAuth time based on `ADMIN_EMAILS` env var.
 
-#### GET `/admin/users`
-Get all users with pagination.
+#### `GET /api/admin/users`
 
-**Headers:**
-```
-Authorization: Bearer <admin_token>
-```
+Paginated user list with CV and application counts.
 
-**Query Parameters:**
-- `page` (number, optional, default: 1)
-- `limit` (number, optional, default: 20, max: 100)
+#### `GET /api/admin/users/export`
 
-**Response:** `200 OK`
-```json
-{
-  "success": true,
-  "data": {
-    "data": [
-      {
-        "id": "uuid",
-        "email": "user@example.com",
-        "name": "John Doe",
-        "avatarUrl": "https://...",
-        "role": "USER",
-        "createdAt": "2025-01-15T10:30:00.000Z",
-        "_count": {
-          "cvs": 2,
-          "applications": 15
-        }
-      }
-    ],
-    "pagination": {
-      "page": 1,
-      "limit": 20,
-      "total": 150,
-      "totalPages": 8,
-      "hasNext": true,
-      "hasPrev": false
-    }
-  }
-}
-```
-
-**Errors:**
-- `401` - Unauthorized
-- `403` - Admin access required
-
----
-
-#### GET `/admin/users/export`
-Export all users to CSV file.
-
-**Headers:**
-```
-Authorization: Bearer <admin_token>
-```
-
-**Response:** `200 OK`
+Returns a CSV file:
 ```
 Content-Type: text/csv
-Content-Disposition: attachment; filename=users-1234567890.csv
+Content-Disposition: attachment; filename=users-<timestamp>.csv
 
 Email,Name,Role,Joined,CVs,Applications
-user@example.com,John Doe,USER,1/15/2025,2,15
+user@example.com,John Doe,USER,7/10/2026,2,15
 ```
+
+#### `GET /api/admin/users/:id`
+
+Full user details including CVs (last 10) and paginated applications.
+
+#### `DELETE /api/admin/users/:id`
+
+- `400` if deleting own account
+- `400` if target is ADMIN
+
+#### `GET /api/admin/cv/:cvId/download`
+
+Streams the CV file buffer with correct `Content-Type` and `Content-Disposition` headers.
 
 ---
 
-#### DELETE `/admin/users/:id`
-Delete a user and all associated data.
+## Authentication
 
-**Headers:**
+### JWT flow
+
 ```
-Authorization: Bearer <admin_token>
+1. GET /api/auth/google
+   → Passport GoogleStrategy (offline, consent prompt)
+
+2. GET /api/auth/google/callback
+   → find-or-create User in DB
+   → upsert OAuthToken (accessToken + refreshToken)
+   → signToken(user.id) → JWT (7d)
+   → set HTTP-only cookie
+   → redirect CLIENT_URL/auth/callback?token=<jwt>
+
+3. All protected requests
+   → protect middleware: reads cookie OR Authorization: Bearer <token>
+   → verifyToken() → prisma.user.findUnique (includes active CV)
+   → attaches req.user
 ```
 
-**Response:** `200 OK`
+### Token details
+
 ```json
-{
-  "success": true,
-  "message": "User deleted successfully"
-}
+{ "userId": "uuid", "iat": 1234567890, "exp": 1235172690 }
 ```
 
-**Errors:**
-- `400` - Cannot delete your own account / Cannot delete admin users
-- `404` - User not found
+Expiry: **7 days**. Cookie: `HttpOnly`, `Secure` (prod), `SameSite=None` (prod) / `Lax` (dev).
 
 ---
 
-### 🏥 Health Check Endpoint
+## CV Upload Pipeline
 
-#### GET `/health`
-Check API health status.
+```
+POST /api/cv/upload
+  │
+  ├─ Multer (memory, 5MB, PDF/DOCX only)
+  ├─ DB transaction: deactivate all CVs → create UserCV (status=PENDING, fileKey=temp-*)
+  ├─ publishCVJob() → RabbitMQ queue: cv.parse (persistent, durable)
+  └─ Return 202
 
-**Auth Required:** No
-
-**Response:** `200 OK`
-```json
-{
-  "status": "ok",
-  "timestamp": "2025-01-15T10:30:00.000Z",
-  "service": "Postify Backend",
-  "ai_provider": "openai",
-  "ai_status": "online",
-  "database": "connected"
-}
+RabbitMQ consumer (cvWorker.ts, prefetch=3):
+  │
+  ├─ Decode base64 buffer
+  ├─ FileStorageService.uploadFile() → Cloudinary (authenticated raw, postify/cvs/)
+  │    └─ PQueue concurrency=3, retry×3 with exponential backoff on rate limit
+  ├─ Update UserCV.fileKey = Cloudinary public_id
+  ├─ Spawn Worker Thread (parseWorkerThread.ts)
+  │    ├─ PDF → pdf-parse
+  │    └─ DOCX → mammoth
+  ├─ Update UserCV: parsedText=<text>, status=DONE
+  └─ On error: status=FAILED, nack (no requeue)
 ```
 
----
-## 🔐 Authentication
-
-### JWT Token Flow
-
-Postify uses **JWT (JSON Web Tokens)** for stateless authentication with HTTP-only cookies.
-
-#### Authentication Flow
-
-1. **User initiates OAuth:**
-   ```
-   GET /api/auth/google
-   → Redirects to Google OAuth consent screen
-   ```
-
-2. **Google redirects back with authorization code:**
-   ```
-   GET /api/auth/google/callback?code=...
-   → Backend exchanges code for access/refresh tokens
-   → Creates or updates user in database
-   → Generates JWT token
-   → Sets HTTP-only cookie
-   → Redirects to frontend
-   ```
-
-3. **Frontend receives authenticated user:**
-   ```
-   GET /api/auth/me
-   Authorization: Bearer <token>
-   → Returns user profile
-   ```
-
-4. **Subsequent requests include token:**
-   ```
-   GET /api/cv
-   Authorization: Bearer <token>
-   Cookie: token=<jwt_token>
-   ```
-
-### Token Details
-
-**JWT Payload:**
-```json
-{
-  "userId": "uuid",
-  "iat": 1705315800,
-  "exp": 1705920600
-}
-```
-
-**Token Expiry:** 7 days
-
-**Cookie Configuration:**
-- `httpOnly: true` - Prevents JavaScript access (XSS protection)
-- `secure: true` - HTTPS only (production)
-- `sameSite: 'strict'` - CSRF protection
-- `maxAge: 604800000` - 7 days in milliseconds
-
-### Authorization Header Format
-
-Include JWT token in requests:
-
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-Or rely on HTTP-only cookie (automatically sent by browser).
-
-### OAuth Token Refresh
-
-Gmail OAuth tokens are automatically refreshed when expired:
-
-1. User sends email via `/api/email/send`
-2. Backend checks token expiry
-3. If expired, uses refresh token to get new access token
-4. Updates token in database
-5. Proceeds with email sending
-
-**Token Storage:** OAuth tokens stored in `oauth_tokens` table with encryption.
+In **production**, `cvWorker.ts` runs in-process (same Node.js process as the API) via dynamic `import()` in `index.ts` — no separate worker dyno required.
 
 ---
 
-## 🔒 Security
+## AI Providers
 
-### Security Measures Implemented
+All providers use the `openai` npm SDK with a different `baseURL` and `apiKey`. Switch via `AI_PROVIDER` env var.
 
-#### 1. Helmet Security Headers
+| Provider | `AI_PROVIDER` | Default model |
+|---|---|---|
+| OpenAI | `openai` | `gpt-4o` |
+| OpenRouter | `openrouter` | `anthropic/claude-3-haiku` |
+| HuggingFace | `huggingface` | `deepseek-ai/DeepSeek-R1:novita` |
+| Ollama (local) | `ollama` | `llama3` |
 
-```javascript
-helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  }
-})
-```
-
-**Headers Set:**
-- `Strict-Transport-Security` - Force HTTPS
-- `X-Content-Type-Options: nosniff` - Prevent MIME sniffing
-- `X-Frame-Options: DENY` - Prevent clickjacking
-- `X-XSS-Protection: 1; mode=block` - XSS filter
-- `Content-Security-Policy` - Restrict resource loading
-
-#### 2. Rate Limiting
-
-**General API Endpoints:**
-- **Window:** 15 minutes
-- **Max Requests:** 100
-- **Response:** `429 Too Many Requests`
-
-**Authentication Endpoints:**
-- **Window:** 15 minutes
-- **Max Requests:** 5
-- **Applies to:** `/api/auth/google`
-
-**File Upload Endpoints:**
-- **Window:** 1 hour
-- **Max Requests:** 10
-- **Applies to:** `/api/cv/upload`
-
-#### 3. Input Validation
-
-All endpoints use **Zod schemas** for validation:
-
-```typescript
-// Example: AI generation validation
-{
-  jobDescription: z.string()
-    .min(50, "Job description too short")
-    .max(5000, "Job description too long")
-}
-```
-
-**Validation Errors Return:**
-```json
-{
-  "success": false,
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "body.jobDescription",
-      "message": "Job description too short"
-    }
-  ]
-}
-```
-
-#### 4. XSS Protection
-
-**DOMPurify** sanitizes all user-generated content before email sending:
-
-```typescript
-const sanitizedSubject = purify.sanitize(subject, { ALLOWED_TAGS: [] });
-const sanitizedBody = purify.sanitize(body, { 
-  ALLOWED_TAGS: ['br', 'p', 'strong', 'em'] 
-});
-```
-
-#### 5. CORS Configuration
-
-**Whitelist-based origin validation:**
-
-```typescript
-cors({
-  origin: (origin, callback) => {
-    if (!origin || env.CLIENT_URL === origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-})
-```
-
-**Allowed Origins:**
-- `CLIENT_URL` from environment variable
-- No origin (for same-origin requests)
-
-#### 6. SQL Injection Prevention
-
-**Prisma ORM** with parameterized queries:
-
-```typescript
-// Safe - Prisma handles parameterization
-await prisma.user.findUnique({
-  where: { email: userInput }
-});
-```
-
-#### 7. File Upload Security
-
-**Validation:**
-- **Allowed Types:** `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`
-- **Allowed Extensions:** `.pdf`, `.docx`
-- **Max Size:** 5MB
-- **Storage:** Cloudinary CDN (not local filesystem)
-
-**Multer Configuration:**
-```typescript
-const fileFilter = (req, file, cb) => {
-  if (ALLOWED_TYPES.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type'), false);
-  }
-};
-```
-
-#### 8. Environment Variable Validation
-
-**Zod schema** validates all environment variables on startup:
-
-```typescript
-const envSchema = z.object({
-  JWT_SECRET: z.string().min(32),
-  DATABASE_URL: z.string().min(1),
-  // ... all required variables
-});
-```
-
-**Fails fast** if any required variable is missing or invalid.
-
-### Security Best Practices
-
-- ✅ Never log sensitive data (tokens, passwords)
-- ✅ Use HTTPS in production
-- ✅ Rotate JWT secrets regularly
-- ✅ Keep dependencies updated (`npm audit`)
-- ✅ Use environment variables for secrets
-- ✅ Implement graceful shutdown for cleanup
-- ✅ Validate all user input
-- ✅ Use prepared statements (Prisma)
+`response_format: { type: 'json_object' }` is set only for OpenAI. Other providers rely on substring JSON extraction (`indexOf('{')` → `lastIndexOf('}')`).
 
 ---
 
-## 📝 Logging
+## Security
 
-### Log Levels
+| Measure | Implementation |
+|---|---|
+| Security headers | Helmet (CSP, HSTS, X-Frame-Options, X-Content-Type-Options) |
+| CORS | Whitelist: `CLIENT_URL`, `localhost:3000`, `localhost:5173` |
+| Auth | JWT HTTP-only cookie (7d) + Bearer token fallback |
+| OAuth tokens | Stored in `oauth_tokens` table, auto-refreshed on use |
+| Rate limiting | 100/15min (general), 5/15min (auth), 10/hr (upload) |
+| Input validation | Zod schemas on all endpoints |
+| XSS | DOMPurify on email subject + body before send |
+| SQL injection | Prisma parameterized queries only |
+| File upload | MIME type + extension check, 5 MB limit, memory storage (no disk write) |
+| CV files | Cloudinary `authenticated` type — no public URLs, signed download (60s) |
+| Admin access | `requireAdmin` middleware + email whitelist at OAuth time |
+| Env validation | Zod schema on startup — fails fast if any required var is missing |
 
-Postify uses a custom JSON logger with four levels:
+---
 
-| Level | Priority | Use Case |
-|-------|----------|----------|
-| `error` | 0 | Critical errors, exceptions |
-| `warn` | 1 | Warnings, deprecated features |
-| `info` | 2 | General information, startup messages |
-| `debug` | 3 | Detailed debugging (development only) |
+## Error Handling
 
-### Configuration
+### Error hierarchy
 
-Set log level via environment variable:
-
-```env
-LOG_LEVEL=info
+```
+AppError (base — statusCode, isOperational)
+  ├── NotFoundError       404
+  ├── ValidationError     400
+  ├── UnauthorizedError   401
+  ├── AIGenerationError   500
+  ├── EmailSendError      500
+  └── TokenRefreshError   401
 ```
 
-### Log Format
+### Response format
 
-All logs are output in **JSON format** for easy parsing:
+```json
+{ "success": false, "error": "Error message" }
+```
+
+Development adds `"stack": "..."`.
+
+### Status codes
+
+| Code | Meaning |
+|---|---|
+| 200 | OK |
+| 202 | Accepted (CV upload queued) |
+| 400 | Validation / business rule error |
+| 401 | Missing/invalid token or expired OAuth |
+| 403 | Admin access required |
+| 404 | Resource not found |
+| 429 | Rate limit exceeded |
+| 500 | AI / email / server error |
+
+---
+
+## Logging
+
+JSON-structured logger with four levels: `error`, `warn`, `info`, `debug`.
+
+Set via `LOG_LEVEL` env var. Debug is suppressed in production.
 
 ```json
 {
-  "timestamp": "2025-01-15T10:30:00.000Z",
+  "timestamp": "2026-07-10T10:00:00.000Z",
   "level": "info",
-  "message": "Server started",
-  "meta": {
-    "port": 5000
-  }
+  "message": "CV parsed successfully",
+  "meta": { "cvId": "uuid" }
 }
-```
-
-### Usage Examples
-
-```typescript
-import { logger } from './infrastructure/logging/logger.js';
-
-// Info log
-logger.info('User logged in', { userId: user.id });
-
-// Error log
-logger.error('Database connection failed', { 
-  error: err.message,
-  stack: err.stack 
-});
-
-// Warning log
-logger.warn('Rate limit exceeded', { ip: req.ip });
-
-// Debug log (only in development)
-logger.debug('Processing request', { body: req.body });
-```
-
-### Log Output
-
-**Development:**
-- Logs to `stdout` (console)
-- Includes all levels based on `LOG_LEVEL`
-
-**Production:**
-- Logs to `stdout` (captured by container orchestration)
-- Recommended: Forward to centralized logging (CloudWatch, Datadog, etc.)
-
-### Log Rotation
-
-For production deployments, use external log rotation:
-
-**PM2:**
-```bash
-pm2 start dist/index.js --log-date-format="YYYY-MM-DD HH:mm:ss" --max-memory-restart 500M
-```
-
-**Docker:**
-```yaml
-logging:
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    max-file: "3"
 ```
 
 ---
 
-## 🧪 Testing
+## Deployment
 
-### Test Structure
+### Render (recommended — matches current setup)
 
-```
-backend/
-├── src/
-│   └── __tests__/
-│       ├── unit/
-│       │   ├── services/
-│       │   ├── repositories/
-│       │   └── utils/
-│       ├── integration/
-│       │   ├── auth.test.ts
-│       │   ├── cv.test.ts
-│       │   └── email.test.ts
-│       └── e2e/
-│           └── application-flow.test.ts
-```
+1. Connect GitHub repo, select **Web Service**
+2. Build command: `npm ci && npm run prisma:generate && npm run build`
+3. Start command: `npm start`
+4. Add all env vars from `.env` in the Render dashboard
+5. Add a PostgreSQL database (or use Supabase)
+6. Add a CloudAMQP RabbitMQ instance
 
-### Running Tests
+The `/cron` endpoint should be pinged every 14 minutes by an external cron service (e.g. cron-job.org) to prevent Render free tier sleep.
+
+### npm scripts
 
 ```bash
-# Run all tests
-npm test
-
-# Run with coverage
-npm run test:coverage
-
-# Run specific test file
-npm test -- userRepository.test.ts
-
-# Run in watch mode
-npm test -- --watch
-
-# Run integration tests only
-npm test -- integration/
-```
-
-### Test Coverage Goals
-
-| Category | Target |
-|----------|--------|
-| Statements | ≥ 80% |
-| Branches | ≥ 75% |
-| Functions | ≥ 80% |
-| Lines | ≥ 80% |
-
-### Example Test
-
-```typescript
-import request from 'supertest';
-import app from '../app';
-
-describe('POST /api/auth/logout', () => {
-  it('should clear authentication cookie', async () => {
-    const response = await request(app)
-      .post('/api/auth/logout')
-      .expect(200);
-
-    expect(response.body).toEqual({
-      success: true,
-      message: 'Logged out successfully'
-    });
-  });
-});
-```
-
-### Linting & Formatting
-
-```bash
-# Check for linting errors
-npm run lint
-
-# Auto-fix linting errors
+npm run dev              # tsx watch src/index.ts
+npm run worker           # tsx watch src/workers/cvWorker.ts (dev only)
+npm run build            # tsc
+npm start                # node dist/index.js
+npm run lint             # eslint src
 npm run lint:fix
-
-# Format code with Prettier
-npm run format
-
-# Check formatting without changes
+npm run format           # prettier --write
 npm run format:check
-
-# Run both lint and format check
-npm run check
-```
-
-### Security Testing
-
-```bash
-# Check for vulnerabilities
-npm audit
-
-# Fix vulnerabilities automatically
-npm audit fix
-
-# Force fix (may introduce breaking changes)
-npm audit fix --force
-```
-
----
-
-## 📊 Monitoring
-
-### Health Check Endpoint
-
-**Endpoint:** `GET /health`
-
-**Purpose:** Monitor API availability, database connection, and AI provider status.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2025-01-15T10:30:00.000Z",
-  "service": "Postify Backend",
-  "ai_provider": "openai",
-  "ai_status": "online",
-  "database": "connected"
-}
-```
-
-**Status Values:**
-- `ok` - All systems operational
-- `degraded` - Database disconnected but API running
-
-**Usage:**
-```bash
-# Check health
-curl http://localhost:5000/health
-
-# Use in Docker healthcheck
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:5000/health || exit 1
-```
-
-### Database Health
-
-**Connection Pool Monitoring:**
-
-```typescript
-const stats = await dbHealthCheck.getConnectionPoolStats();
-// Returns: { total_connections, active_connections, idle_connections }
-```
-
-**Prisma Logging:**
-
-Development mode logs all queries:
-```typescript
-new PrismaClient({
-  log: ['query', 'error', 'warn']
-});
-```
-
-### AI Provider Health
-
-**Ollama Status Check:**
-```bash
-curl http://localhost:11434/api/tags
-```
-
-**OpenAI Status:**
-- Assumed online (no health endpoint)
-- Errors logged on generation failure
-
-### Application Metrics
-
-**Key Metrics to Monitor:**
-
-1. **Request Rate**
-   - Total requests per minute
-   - Requests by endpoint
-   - Failed requests (4xx, 5xx)
-
-2. **Response Time**
-   - Average response time
-   - P95, P99 latency
-   - Slow endpoints (>1s)
-
-3. **Error Rate**
-   - 4xx errors (client errors)
-   - 5xx errors (server errors)
-   - AI generation failures
-   - Email sending failures
-
-4. **Database**
-   - Connection pool usage
-   - Query execution time
-   - Failed queries
-
-5. **Business Metrics**
-   - User registrations
-   - CV uploads
-   - Applications generated
-   - Emails sent
-
-### Monitoring Tools (Recommended)
-
-**Production Monitoring:**
-
-1. **Sentry** - Error tracking
-   ```bash
-   npm install @sentry/node
-   ```
-
-2. **Prometheus + Grafana** - Metrics and dashboards
-   ```bash
-   npm install prom-client
-   ```
-
-3. **AWS CloudWatch** - For AWS deployments
-   - Log aggregation
-   - Custom metrics
-   - Alarms
-
-4. **Datadog** - Full-stack monitoring
-   - APM (Application Performance Monitoring)
-   - Log management
-   - Infrastructure monitoring
-
-### Graceful Shutdown
-
-The API handles `SIGTERM` and `SIGINT` signals for graceful shutdown:
-
-```typescript
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    logger.info('Server closed');
-    process.exit(0);
-  });
-});
-```
-
-**Shutdown Process:**
-1. Stop accepting new connections
-2. Complete in-flight requests
-3. Close database connections
-4. Exit process
-
----
-## ❌ Error Handling
-
-### Standard Error Response Format
-
-All errors follow a consistent JSON structure:
-
-```json
-{
-  "success": false,
-  "error": "Error message here"
-}
-```
-
-**Development Mode** includes stack trace:
-```json
-{
-  "success": false,
-  "error": "Error message here",
-  "stack": "Error: ...\n    at ..."
-}
-```
-
-### HTTP Status Codes
-
-| Code | Meaning | Use Case |
-|------|---------|----------|
-| `200` | OK | Successful request |
-| `201` | Created | Resource created successfully |
-| `400` | Bad Request | Validation error, invalid input |
-| `401` | Unauthorized | Missing or invalid authentication |
-| `403` | Forbidden | Insufficient permissions (not admin) |
-| `404` | Not Found | Resource doesn't exist |
-| `429` | Too Many Requests | Rate limit exceeded |
-| `500` | Internal Server Error | Unexpected server error |
-
-### Custom Error Classes
-
-```typescript
-// Base error class
-class AppError extends Error {
-  constructor(message: string, statusCode: number = 500) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
-
-// Specific error types
-class NotFoundError extends AppError {
-  constructor(message = 'Resource not found') {
-    super(message, 404);
-  }
-}
-
-class ValidationError extends AppError {
-  constructor(message = 'Validation failed') {
-    super(message, 400);
-  }
-}
-
-class UnauthorizedError extends AppError {
-  constructor(message = 'Unauthorized') {
-    super(message, 401);
-  }
-}
-
-class AIGenerationError extends AppError {
-  constructor(message = 'AI generation failed') {
-    super(message, 500);
-  }
-}
-
-class EmailSendError extends AppError {
-  constructor(message = 'Email sending failed') {
-    super(message, 500);
-  }
-}
-
-class TokenRefreshError extends AppError {
-  constructor(message = 'Token refresh failed') {
-    super(message, 401);
-  }
-}
-```
-
-### Error Codes Reference
-
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `VALIDATION_ERROR` | 400 | Request validation failed |
-| `INVALID_FILE_TYPE` | 400 | Unsupported file format |
-| `FILE_TOO_LARGE` | 400 | File exceeds size limit |
-| `UNAUTHORIZED` | 401 | Authentication required |
-| `TOKEN_EXPIRED` | 401 | JWT token expired |
-| `TOKEN_REFRESH_FAILED` | 401 | OAuth token refresh failed |
-| `FORBIDDEN` | 403 | Admin access required |
-| `NOT_FOUND` | 404 | Resource not found |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `AI_GENERATION_FAILED` | 500 | AI provider error |
-| `EMAIL_SEND_FAILED` | 500 | Email sending error |
-| `DATABASE_ERROR` | 500 | Database operation failed |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
-
-### Validation Error Response
-
-Zod validation errors include detailed field information:
-
-```json
-{
-  "success": false,
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "body.jobDescription",
-      "message": "Job description is too short (minimum 50 characters)"
-    },
-    {
-      "field": "body.email",
-      "message": "Invalid email address"
-    }
-  ]
-}
-```
-
-### Error Handling Examples
-
-**404 Not Found:**
-```json
-{
-  "success": false,
-  "error": "CV not found"
-}
-```
-
-**401 Unauthorized:**
-```json
-{
-  "success": false,
-  "error": "Not authorized, no token"
-}
-```
-
-**400 Validation Error:**
-```json
-{
-  "success": false,
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "body.to",
-      "message": "Invalid email address"
-    }
-  ]
-}
-```
-
-**429 Rate Limit:**
-```json
-{
-  "success": false,
-  "error": "Too many requests, please try again later"
-}
-```
-
-**500 AI Generation Error:**
-```json
-{
-  "success": false,
-  "error": "AI Provider Error: Connection refused to AI provider. Is Ollama running at http://localhost:11434?"
-}
-```
-
-### Global Error Handler
-
-All errors are caught by the global error handler middleware:
-
-```typescript
-app.use(errorHandler);
-```
-
-**Features:**
-- Logs all errors with context (path, method, user)
-- Returns consistent error format
-- Hides sensitive information in production
-- Includes stack trace in development
-
----
-
-## 🚀 Deployment
-
-### Build for Production
-
-```bash
-# Install dependencies
-npm ci
-
-# Generate Prisma Client
+npm run check            # lint + format:check
 npm run prisma:generate
-
-# Compile TypeScript to JavaScript
-npm run build
-
-# Output directory: dist/
-```
-
-### Production Environment Variables
-
-Ensure all environment variables are set in your hosting platform:
-
-```env
-NODE_ENV=production
-PORT=5000
-DATABASE_URL=postgresql://user:pass@host:5432/postify
-JWT_SECRET=<64-char-random-string>
-GOOGLE_CLIENT_ID=<production-client-id>
-GOOGLE_CLIENT_SECRET=<production-secret>
-GOOGLE_CALLBACK_URL=https://api.postify.app/api/auth/google/callback
-CLIENT_URL=https://postify.app
-AI_PROVIDER=openai
-OPENAI_API_KEY=<production-key>
-CLOUDINARY_CLOUD_NAME=<cloud-name>
-CLOUDINARY_API_KEY=<api-key>
-CLOUDINARY_API_SECRET=<api-secret>
-ADMIN_EMAILS=admin@postify.app
-LOG_LEVEL=info
-```
-
-### Database Migrations
-
-**Run migrations in production:**
-
-```bash
-# Apply all pending migrations
-npm run prisma:migrate
-
-# Or use Prisma CLI directly
-npx prisma migrate deploy
-```
-
-**Important:** Always backup database before running migrations.
-
-### Deployment Platforms
-
-#### 1. Railway
-
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
-# Initialize project
-railway init
-
-# Deploy
-railway up
-```
-
-**Environment Variables:** Set in Railway dashboard
-
-**Database:** Use Railway PostgreSQL plugin
-
-#### 2. Render
-
-1. Connect GitHub repository
-2. Select "Web Service"
-3. Build Command: `npm ci && npm run prisma:generate && npm run build`
-4. Start Command: `npm start`
-5. Add environment variables in dashboard
-6. Add PostgreSQL database
-
-#### 3. AWS EC2
-
-```bash
-# SSH into EC2 instance
-ssh -i key.pem ubuntu@ec2-xx-xx-xx-xx.compute.amazonaws.com
-
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# Clone repository
-git clone https://github.com/yourusername/postify.git
-cd postify/backend
-
-# Install dependencies
-npm ci
-
-# Build
-npm run build
-
-# Install PM2
-sudo npm install -g pm2
-
-# Start with PM2
-pm2 start dist/index.js --name postify-backend
-
-# Save PM2 configuration
-pm2 save
-pm2 startup
-```
-
-#### 4. Docker Deployment
-
-**Build Docker image:**
-
-```bash
-docker build -t postify-backend .
-```
-
-**Run container:**
-
-```bash
-docker run -d \
-  --name postify-backend \
-  -p 5000:5000 \
-  --env-file .env \
-  postify-backend
-```
-
-**Docker Compose (with PostgreSQL):**
-
-```bash
-docker-compose up -d
-```
-
-#### 5. Vercel (Serverless)
-
-**Note:** Express.js requires adapter for serverless deployment.
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy
-vercel --prod
-```
-
-**vercel.json:**
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "dist/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/index.js"
-    }
-  ]
-}
-```
-
-### PM2 Process Manager
-
-**Start application:**
-
-```bash
-pm2 start dist/index.js --name postify-backend
-```
-
-**Monitor:**
-
-```bash
-pm2 monit
-pm2 logs postify-backend
-pm2 status
-```
-
-**Restart:**
-
-```bash
-pm2 restart postify-backend
-```
-
-**Auto-restart on file changes:**
-
-```bash
-pm2 start dist/index.js --name postify-backend --watch
-```
-
-**Ecosystem file (pm2.config.js):**
-
-```javascript
-module.exports = {
-  apps: [{
-    name: 'postify-backend',
-    script: './dist/index.js',
-    instances: 2,
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 5000
-    },
-    error_file: './logs/err.log',
-    out_file: './logs/out.log',
-    log_date_format: 'YYYY-MM-DD HH:mm:ss',
-    max_memory_restart: '500M'
-  }]
-};
-```
-
-Start with ecosystem:
-```bash
-pm2 start pm2.config.js
-```
-
-### Nginx Reverse Proxy
-
-**Configuration (`/etc/nginx/sites-available/postify`):**
-
-```nginx
-server {
-    listen 80;
-    server_name api.postify.app;
-
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-**Enable site:**
-```bash
-sudo ln -s /etc/nginx/sites-available/postify /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-### SSL Certificate (Let's Encrypt)
-
-```bash
-# Install Certbot
-sudo apt install certbot python3-certbot-nginx
-
-# Obtain certificate
-sudo certbot --nginx -d api.postify.app
-
-# Auto-renewal (runs twice daily)
-sudo systemctl status certbot.timer
-```
-
-### Health Check Configuration
-
-**Docker:**
-```dockerfile
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
-```
-
-**Kubernetes:**
-```yaml
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 5000
-  initialDelaySeconds: 30
-  periodSeconds: 10
-```
-
-### Monitoring in Production
-
-1. **Set up Sentry for error tracking**
-2. **Configure CloudWatch/Datadog for metrics**
-3. **Set up uptime monitoring (UptimeRobot, Pingdom)**
-4. **Configure log aggregation (CloudWatch Logs, Papertrail)**
-5. **Set up alerts for critical errors**
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2025 Postify
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+npm run prisma:migrate   # prisma migrate dev
+npm run prisma:studio
 ```
 
 ---
 
-## 👤 Author
+## License
 
-**Postify Team**
-
-- GitHub: [@moteaz](https://github.com/yourusername)
-- Email: support@postify.app
-- Website: [postify.app](https://postify.app)
-
----
-
-## 🙏 Acknowledgments
-
-- [Express.js](https://expressjs.com/) - Fast, unopinionated web framework
-- [Prisma](https://www.prisma.io/) - Next-generation ORM
-- [Passport.js](http://www.passportjs.org/) - Authentication middleware
-- [OpenAI](https://openai.com/) - AI language models
-- [Cloudinary](https://cloudinary.com/) - Media management platform
-- [Zod](https://zod.dev/) - TypeScript-first schema validation
-
----
-
-## 📞 Support
-
-- **Issues:** [GitHub Issues](https://github.com/yourusername/postify/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/postify/discussions)
-- **Email:** support@postify.app
-- **Documentation:** [docs.postify.app](https://docs.postify.app)
-
----
-
-## 🔄 API Versioning
-
-Current API version: **v1**
-
-All endpoints are prefixed with `/api` (no version number yet).
-
-Future versions will use: `/api/v2`, `/api/v3`, etc.
-
----
-
-## 📚 Additional Resources
-
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Express.js Best Practices](https://expressjs.com/en/advanced/best-practice-performance.html)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
-- [REST API Design Guide](https://restfulapi.net/)
-
----
-
-<div align="center">
-
-**⭐ Star this repo if you find it helpful!**
-
-Made with ❤️ by the Moetaz
-
-[Report Bug](https://github.com/moteaz/postify/issues) · [Request Feature](https://github.com/moteaz/postify/issues) · 
-
-</div>
+MIT © 2026 Postify

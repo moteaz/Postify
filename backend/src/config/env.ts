@@ -8,6 +8,7 @@ const envSchema = z.object({
   PORT: z.string().default('5000'),
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
+  RABBITMQ_URL: z.string().url().min(1, 'RabbitMQ URL is required'),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   GOOGLE_CALLBACK_URL: z.string().url(),
