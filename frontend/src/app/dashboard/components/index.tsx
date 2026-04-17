@@ -24,6 +24,11 @@ export const CVsTab = dynamic(
   { loading: LoadingFallback }
 );
 
+export const ContactsTab = dynamic(
+  () => import("./ContactsTab").then(mod => ({ default: mod.ContactsTab })),
+  { loading: LoadingFallback }
+);
+
 export const AdminTab = dynamic(
   () => import("./AdminTab").then(mod => ({ default: mod.AdminTab })),
   { loading: LoadingFallback }

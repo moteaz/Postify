@@ -17,42 +17,15 @@ interface CVJobPayload {
   fileKey: string;
   mimeType: string;
   userId: string;
-  buffer?: string; // Base64 encoded buffer
+  // buffer removed - worker downloads from Cloudinary
 }
 
 const processJob = async (payload: CVJobPayload): Promise<string> => {
   const { fileStorage } = await import('../services/fileStorageService.js');
   
-  let buffer: Buffer;
-  let finalFileKey: string;
-  
-  // If buffer is provided, upload to Cloudinary first
-  if (payload.buffer) {
-    logger.info('Uploading CV to Cloudinary', { cvId: payload.cvId });
-    buffer = Buffer.from(payload.buffer, 'base64');
-    const uploadResult = await fileStorage.uploadFile(buffer, payload.fileKey);
-    finalFileKey = uploadResult.fileKey;
-    logger.info('Cloudinary upload complete', { cvId: payload.cvId, fileKey: finalFileKey });
-    
-    // Update CV with real Cloudinary fileKey (handle if record was deleted)
-    try {
-      await prisma.userCV.update({
-        where: { id: payload.cvId },
-        data: { fileKey: finalFileKey },
-      });
-    } catch (error: any) {
-      if (error.code === 'P2025') {
-        logger.warn('CV record not found, likely deleted by user', { cvId: payload.cvId });
-        throw new Error('CV record was deleted');
-      }
-      throw error;
-    }
-  } else {
-    // Download from Cloudinary (legacy path)
-    logger.info('Downloading CV from Cloudinary', { cvId: payload.cvId });
-    buffer = await fileStorage.downloadFile(payload.fileKey);
-    finalFileKey = payload.fileKey;
-  }
+  // Download from Cloudinary
+  logger.info('Downloading CV from Cloudinary', { cvId: payload.cvId, fileKey: payload.fileKey });
+  const buffer = await fileStorage.downloadFile(payload.fileKey);
   
   logger.info('Starting Worker Thread for parsing', { cvId: payload.cvId });
   

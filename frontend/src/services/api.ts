@@ -6,7 +6,8 @@ import type {
   User,
   AdminUser,
   AdminUserDetails,
-  PaginatedResponse
+  PaginatedResponse,
+  UserContact
 } from "@/types";
 
 // ============================================
@@ -119,5 +120,29 @@ export const adminService = {
 
   getDownloadCVUrl(cvId: string): string {
     return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/admin/cv/${cvId}/download`;
+  }
+};
+
+// ============================================
+// CONTACT SERVICE
+// ============================================
+export const contactService = {
+  async getAll(): Promise<UserContact[]> {
+    const res = await apiClient.get<{ data: { contacts: UserContact[] } }>("/contacts");
+    return res.data.data.contacts;
+  },
+
+  async create(type: string, value: string): Promise<UserContact> {
+    const res = await apiClient.post<{ data: { contact: UserContact } }>("/contacts", { type, value });
+    return res.data.data.contact;
+  },
+
+  async update(id: string, value: string): Promise<UserContact> {
+    const res = await apiClient.put<{ data: { contact: UserContact } }>(`/contacts/${id}`, { value });
+    return res.data.data.contact;
+  },
+
+  async delete(id: string): Promise<void> {
+    await apiClient.delete(`/contacts/${id}`);
   }
 };

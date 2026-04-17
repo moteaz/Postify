@@ -8,6 +8,7 @@ export const DashboardTab = {
   NEW: "new",
   HISTORY: "history",
   CVS: "cvs",
+  CONTACTS: "contacts",
   ADMIN: "admin"
 } as const;
 

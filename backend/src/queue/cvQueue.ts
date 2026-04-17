@@ -16,7 +16,7 @@ export interface CVJobPayload {
   fileKey: string;
   mimeType: string;
   userId: string;
-  buffer?: string; // Base64 encoded buffer
+  // buffer removed - worker downloads from Cloudinary
 }
 
 const setupConnectionHandlers = (conn: ChannelModel): void => {

@@ -3,10 +3,11 @@ import { useDashboardState } from "./useDashboardState";
 import { useApplications } from "./useApplications";
 import { useCVManagement } from "./useCVManagement";
 import { useApplicationGenerator } from "./useApplicationGenerator";
+import { useContactManagement } from "./useContactManagement";
 import { useAuth } from "./useAuth";
 import { useAdmin } from "./useAdmin";
 import { DashboardTab, type DashboardTabType } from "@/types/enums";
-import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails, PaginationMeta } from "@/types";
+import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails, PaginationMeta, UserContact } from "@/types";
 
 interface UseDashboardReturn {
   user: User;
@@ -51,6 +52,13 @@ interface UseDashboardReturn {
   handleHistoryPageChange: (page: number) => Promise<void>;
   handleUserDetailsPageChange: (page: number) => Promise<void>;
   handleAdminPageChange: (page: number) => Promise<void>;
+  contacts: UserContact[];
+  isLoadingContacts: boolean;
+  isUpdatingContact: boolean;
+  updatingContactId?: string;
+  handleAddContact: (type: string, value: string) => Promise<void>;
+  handleUpdateContact: (id: string, value: string) => Promise<void>;
+  handleDeleteContact: (id: string) => Promise<void>;
 }
 
 export function useDashboard(): UseDashboardReturn | null {
@@ -58,6 +66,7 @@ export function useDashboard(): UseDashboardReturn | null {
   const [hasFetchedHistory, setHasFetchedHistory] = useState(false);
   const [hasFetchedCvs, setHasFetchedCvs] = useState(false);
   const [hasFetchedAdmin, setHasFetchedAdmin] = useState(false);
+  const [hasFetchedContacts, setHasFetchedContacts] = useState(false);
 
   const { user, handleLogout } = useAuth();
   const applications = useApplications();
@@ -68,6 +77,7 @@ export function useDashboard(): UseDashboardReturn | null {
     () => state.setActiveTab(DashboardTab.CVS)
   );
   const admin = useAdmin(state.setSuccess, state.setError);
+  const contactManagement = useContactManagement(state.setSuccess, state.setError);
 
   useEffect(() => {
     if (!user) return;
@@ -80,6 +90,10 @@ export function useDashboard(): UseDashboardReturn | null {
     if (!hasFetchedCvs) {
       cvManagement.fetchCvs();
       setHasFetchedCvs(true);
+    }
+
+    if (!hasFetchedContacts) {
+      setHasFetchedContacts(true);
     }
 
     // Fetch admin data on mount if already on admin tab
@@ -130,6 +144,10 @@ export function useDashboard(): UseDashboardReturn | null {
       setHasFetchedCvs(true);
     }
 
+    if (tab === DashboardTab.CONTACTS && !hasFetchedContacts) {
+      setHasFetchedContacts(true);
+    }
+
     // Always refresh admin data when opening the Admin tab
     if (tab === DashboardTab.ADMIN && user.role === "ADMIN") {
       admin.fetchUsers();
@@ -178,5 +196,12 @@ export function useDashboard(): UseDashboardReturn | null {
     handleHistoryPageChange,
     handleAdminPageChange,
     handleUserDetailsPageChange,
+    contacts: contactManagement.contacts,
+    isLoadingContacts: contactManagement.isLoadingContacts,
+    isUpdatingContact: contactManagement.isUpdatingContact,
+    updatingContactId: contactManagement.updatingContactId,
+    handleAddContact: contactManagement.handleAddContact,
+    handleUpdateContact: contactManagement.handleUpdateContact,
+    handleDeleteContact: contactManagement.handleDeleteContact,
   };
 }

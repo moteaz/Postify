@@ -9,6 +9,7 @@ import cvRoutes from './routes/cvRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import { env } from './config/env.js';
@@ -64,6 +65,7 @@ app.use('/api/cv', cvRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/contacts', contactRoutes);
 
 app.use(errorHandler);
 

@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import Image from "next/image";
-import { PlusCircle, History, FileText, ShieldCheck, LogOut, Menu, X } from "lucide-react";
+import { PlusCircle, History, FileText, ShieldCheck, LogOut, Menu, X, Contact } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import { LogoutConfirmSheet } from "./LogoutConfirmSheet";
@@ -8,8 +8,8 @@ import type { User } from "@/types";
 
 interface SidebarProps {
   user: User | null;
-  activeTab: "new" | "history" | "cvs" | "admin";
-  onTabChange: (tab: "new" | "history" | "cvs" | "admin") => void;
+  activeTab: "new" | "history" | "cvs" | "contacts" | "admin";
+  onTabChange: (tab: "new" | "history" | "cvs" | "contacts" | "admin") => void;
   onLogout: () => void;
   isOpen: boolean;
   onClose: () => void;
@@ -19,6 +19,7 @@ const tabs = [
   { id: "new" as const, icon: PlusCircle, label: "New Application" },
   { id: "history" as const, icon: History, label: "History" },
   { id: "cvs" as const, icon: FileText, label: "My CVs" },
+  { id: "contacts" as const, icon: Contact, label: "My Contacts" },
 ];
 
 export const Sidebar = memo(({ user, activeTab, onTabChange, onLogout, isOpen, onClose }: SidebarProps) => {

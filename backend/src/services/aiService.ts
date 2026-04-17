@@ -51,13 +51,25 @@ export interface GenerationResult {
   recruiterEmail: string | null;
 }
 
+export interface UserContact {
+  type: string;
+  value: string;
+}
+
 export const generateApplicationContent = async (
   jobDescription: string,
   cvText: string,
   userName: string,
-  language: string = 'English'
+  language: string = 'English',
+  userContacts: UserContact[] = []
 ): Promise<GenerationResult> => {
-  const prompt = PromptBuilder.buildCoverLetterPrompt(jobDescription, cvText, userName, language);
+  const prompt = PromptBuilder.buildCoverLetterPrompt(
+    jobDescription,
+    cvText,
+    userName,
+    language,
+    userContacts
+  );
 
   try {
     const response = await aiClient.chat.completions.create({

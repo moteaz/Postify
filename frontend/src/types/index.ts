@@ -82,3 +82,11 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: PaginationMeta;
 }
+
+export interface UserContact {
+  id: string;
+  type: string;
+  value: string;
+  createdAt: string;
+  updatedAt: string;
+}

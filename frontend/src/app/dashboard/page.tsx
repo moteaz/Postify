@@ -9,6 +9,7 @@ import {
   NewApplicationTab,
   HistoryTab,
   CVsTab,
+  ContactsTab,
   AdminTab,
   ApplicationDetailModal,
 } from "./components";
@@ -91,6 +92,13 @@ export default function Dashboard() {
     handleHistoryPageChange,
     handleAdminPageChange,
     handleUserDetailsPageChange,
+    contacts,
+    isLoadingContacts,
+    isUpdatingContact,
+    updatingContactId,
+    handleAddContact,
+    handleUpdateContact,
+    handleDeleteContact,
   } = dashboardData;
 
   const handleTabChange = (tab: typeof activeTab) => {
@@ -177,6 +185,23 @@ export default function Dashboard() {
               onUpload={handleUploadCV}
               onSetActive={handleSetActiveCV}
               onSetArchived={handleSetArchivedCV}
+              success={success}
+              onClearSuccess={() => setSuccess(null)}
+              error={error}
+              onClearError={() => setError(null)}
+            />
+          )}
+
+          {activeTab === "contacts" && (
+            <ContactsTab
+              key="contacts"
+              contacts={contacts}
+              isLoading={isLoadingContacts}
+              isUpdating={isUpdatingContact}
+              updatingContactId={updatingContactId}
+              onAdd={handleAddContact}
+              onUpdate={handleUpdateContact}
+              onDelete={handleDeleteContact}
               success={success}
               onClearSuccess={() => setSuccess(null)}
               error={error}

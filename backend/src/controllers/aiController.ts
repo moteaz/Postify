@@ -30,12 +30,19 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
   const activeCV = await cvRepo.findActiveByUserId(userId);
 
   if (!activeCV) {
-    throw new NotFoundError('Please upload a CV first');
+    throw new NotFoundError('Please upload a CV first or set an existing CV as active');
   }
 
   if (!activeCV.parsedText) {
     throw new NotFoundError('CV content not available. Please re-upload your CV');
   }
+
+  // Fetch user contacts
+  const { prisma } = await import('../utils/prisma.js');
+  const userContacts = await prisma.userContacts.findMany({
+    where: { userId },
+    select: { type: true, value: true },
+  });
 
   const language = detectLanguage(jobDescription);
 
@@ -43,7 +50,8 @@ export const generateContent = asyncHandler(async (req: AuthRequest, res: Respon
     jobDescription,
     activeCV.parsedText,
     req.user.name || 'Candidate',
-    language
+    language,
+    userContacts
   );
 
   const application = await appRepo.create({
