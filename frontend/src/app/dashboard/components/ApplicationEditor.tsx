@@ -88,7 +88,7 @@ export const ApplicationEditor = memo(({
             type="text"
             value={content.subject}
             onChange={handleSubjectChange}
-            error={content.subject && !isSubjectValid}
+            error={!!(content.subject && !isSubjectValid)}
             placeholder="Application for [Position]"
           />
           {content.subject && !isSubjectValid && (
