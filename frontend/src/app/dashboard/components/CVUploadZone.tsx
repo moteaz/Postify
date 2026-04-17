@@ -1,26 +1,26 @@
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface CVUploadZoneProps {
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isUploading: boolean;
 }
 
-// REDESIGNED: Soft, inviting upload zone optimized for mobile
 export const CVUploadZone = ({ onUpload, isUploading }: CVUploadZoneProps) => (
-  <div className="p-8 sm:p-12 rounded-2xl border-2 border-dashed border-[var(--border)] bg-white flex flex-col items-center text-center space-y-3 sm:space-y-4 hover:border-[var(--accent-primary)]/50 hover:bg-[var(--bg-muted)]/30 transition-all duration-200 group">
-    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/10 flex items-center justify-center text-[var(--accent-primary)] group-hover:scale-110 transition-transform duration-200">
+  <div className="p-8 sm:p-12 rounded-2xl border-2 border-dashed border-neutral-200 bg-white flex flex-col items-center text-center space-y-4 hover:border-primary/50 hover:bg-primary-50/30 transition-all duration-300 group">
+    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-accent-500/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
       {isUploading ? (
-        <div className="w-6 h-6 border-2 border-[var(--accent-primary)]/30 border-t-[var(--accent-primary)] rounded-full animate-spin" />
+        <Loader2 className="w-7 h-7 animate-spin" />
       ) : (
-        <Upload size={24} className="sm:w-7 sm:h-7" strokeWidth={1.5} />
+        <Upload className="w-7 h-7" strokeWidth={1.5} />
       )}
     </div>
-    <div className="space-y-1 sm:space-y-2">
-      <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] font-[family-name:var(--font-display)]">
-        {isUploading ? "Uploading..." : "Upload Your CV"}
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold text-neutral-900 font-display">
+        {isUploading ? "Uploading Your CV..." : "Upload Your CV"}
       </h3>
-      <p className="text-[var(--text-secondary)] text-xs sm:text-sm px-2 sm:px-4 leading-relaxed">
-        {isUploading ? "Please wait while we process your CV" : "PDF or DOCX (max 5MB). AI will use it to tailor letters."}
+      <p className="text-neutral-600 text-sm px-4 leading-relaxed">
+        {isUploading ? "Please wait while we process your CV" : "PDF or DOCX (max 5MB). AI will use it to generate tailored cover letters."}
       </p>
     </div>
     <input
@@ -31,13 +31,26 @@ export const CVUploadZone = ({ onUpload, isUploading }: CVUploadZoneProps) => (
       onChange={onUpload}
       disabled={isUploading}
     />
-    <label
-      htmlFor="cv-upload"
-      className={`h-10 sm:h-10 px-6 sm:px-6 bg-[var(--accent-primary)] text-white rounded-xl font-semibold hover:bg-[var(--accent-primary)]/90 transition-all flex items-center justify-center text-sm shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] active:scale-95 ${
-        isUploading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-      }`}
-    >
-      {isUploading ? "Uploading..." : "Choose File"}
+    <label htmlFor="cv-upload" className="cursor-pointer">
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        disabled={isUploading}
+        className="gap-2 font-display font-semibold pointer-events-none"
+      >
+        {isUploading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Uploading...
+          </>
+        ) : (
+          <>
+            <Upload className="w-5 h-5" />
+            Select CV File
+          </>
+        )}
+      </Button>
     </label>
   </div>
 );

@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { ToastContainer } from "@/components/ToastContainer";
 import { useApplicationValidation } from "@/hooks/useApplicationValidation";
+import { GenerationProgress } from "@/components/dashboard/GenerationProgress";
 import { JobDescriptionInput } from "./JobDescriptionInput";
 import { ApplicationEditor } from "./ApplicationEditor";
 import type { GeneratedContent, CV } from "@/types";
@@ -49,6 +50,7 @@ export const NewApplicationTab = memo((props: NewApplicationTabProps) => {
 
   return (
     <>
+      <GenerationProgress isGenerating={isGenerating} />
       <ToastContainer
         success={success}
         error={error}

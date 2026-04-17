@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -13,8 +12,6 @@ import Logo from "@/assets/Logo.png";
 export default function AuthPage() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
-  const mode = searchParams.get("mode") as "login" | "signup" | null;
-  const [activeTab, setActiveTab] = useState<"login" | "signup">(mode || "login");
 
   const handleGoogleAuth = async () => {
     window.location.href = `${env.apiUrl}/auth/google`;
@@ -23,7 +20,7 @@ export default function AuthPage() {
   return (
     <AuthRedirect>
       <div className="flex min-h-screen bg-[#F9F7F4]">
-        <BrandPanel activeTab={activeTab} />
+        <BrandPanel />
 
         <main id="main-content" className="flex-1 flex items-center justify-center p-8 sm:p-12 overflow-y-auto">
           <div className="w-full max-w-md">
@@ -38,20 +35,9 @@ export default function AuthPage() {
               </div>
             )}
 
-            <AuthCard activeTab={activeTab} onTabChange={setActiveTab} onGoogleAuth={handleGoogleAuth} />
+            <AuthCard onGoogleAuth={handleGoogleAuth} />
           </div>
         </main>
-
-        <style jsx global>{`
-          @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-          }
-          .animate-shake {
-            animation: shake 0.3s ease-in-out;
-          }
-        `}</style>
       </div>
     </AuthRedirect>
   );

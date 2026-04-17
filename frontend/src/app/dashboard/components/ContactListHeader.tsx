@@ -10,8 +10,7 @@ export const ContactListHeader = ({ onAdd }: ContactListHeaderProps) => {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Contacts</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage your contact information</p>
+          <p className="text-sm text-gray-500 mt-1">Add your contact details to create a tailored cover letter</p>
         </div>
         <Button
           onClick={onAdd}

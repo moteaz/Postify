@@ -32,7 +32,7 @@ export const JobDescriptionInput = memo(({
   onGenerate,
   onNavigateToCvs,
 }: JobDescriptionInputProps) => {
-  if (isLoading) return <Skeleton className="h-20 w-full rounded-2xl" />;
+  if (isLoading) return <Skeleton className="h-20 w-full rounded-lg" />;
 
   const hasActiveCV = !!activeCV;
 
@@ -42,8 +42,7 @@ export const JobDescriptionInput = memo(({
 
   return (
     <div className="space-y-4">
-      {/* Subtle gradient blob */}
-      <div className="fixed top-0 right-0 w-96 h-96 bg-[#7C9EE8]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-0 right-0 w-96 h-96 bg-primary/8 rounded-full blur-3xl pointer-events-none" />
 
       {!hasActiveCV && (
         <Alert
@@ -52,7 +51,7 @@ export const JobDescriptionInput = memo(({
           title={MESSAGES.NO_ACTIVE_CV}
           message={MESSAGES.NO_ACTIVE_CV_DESC}
           action={
-            <Button onClick={onNavigateToCvs} size="sm" className="whitespace-nowrap rounded-xl">
+            <Button onClick={onNavigateToCvs} size="sm" className="whitespace-nowrap">
               Upload
             </Button>
           }
@@ -60,7 +59,7 @@ export const JobDescriptionInput = memo(({
       )}
 
       {hasActiveCV && (
-        <div className="px-3 py-1.5 rounded-xl bg-[#DCFCE7] text-[#16A34A] text-xs font-medium border border-[#BBF7D0] flex items-center gap-1.5 w-fit max-w-full">
+        <div className="px-3 py-1.5 rounded-lg bg-success-bg text-success text-xs font-medium border border-success/20 flex items-center gap-1.5 w-fit max-w-full">
           <CheckCircle2 size={12} className="flex-shrink-0" />
           <span className="truncate" title={activeCV.fileName}>
             {truncateFilename(activeCV.fileName, 50)}
@@ -68,21 +67,49 @@ export const JobDescriptionInput = memo(({
         </div>
       )}
 
-      <textarea
-        value={value}
-        onChange={handleTextareaChange}
-        placeholder="Paste the job description here (e.g., from LinkedIn or Indeed)..."
-        className="w-full h-80 p-6 rounded-2xl bg-white border border-[#EAE7E3] focus:ring-2 focus:ring-[#7C9EE8]/20 focus:border-[#7C9EE8] outline-none transition-all resize-none text-base leading-relaxed disabled:opacity-50 disabled:bg-[#F5F3F0] shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
-        disabled={!hasActiveCV}
-        spellCheck={false}
-      />
+      {!value && (
+        <div className="mb-3 p-4 bg-primary-50 rounded-lg border border-primary/20">
+          <p className="text-sm font-semibold text-primary mb-2">
+            💡 What to paste:
+          </p>
+          <ul className="text-sm text-neutral-600 space-y-1">
+            <li>• Full job posting from LinkedIn/Indeed</li>
+            <li>• Job requirements section</li>
+            <li>• Company description + role details</li>
+          </ul>
+        </div>
+      )}
+
+      <div className="relative">
+        <textarea
+          value={value}
+          onChange={handleTextareaChange}
+          placeholder="Paste job description here... (minimum 50 words for best results)"
+          className="w-full h-80 p-6 rounded-lg bg-white border border-neutral-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-base leading-relaxed disabled:opacity-50 disabled:bg-neutral-100 shadow-sm font-body"
+          disabled={!hasActiveCV}
+          spellCheck={false}
+        />
+        <div className="absolute bottom-3 right-3 text-xs text-neutral-500">
+          {value.length} characters
+          {value.length > 0 && value.length < 50 && (
+            <span className="text-warning ml-1">(need 50+ for best results)</span>
+          )}
+        </div>
+      </div>
 
       <Button
         onClick={onGenerate}
-        disabled={!value?.trim() || isGenerating || !hasActiveCV}
-        className="w-full h-12 gap-3 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+        disabled={!value?.trim() || isGenerating || !hasActiveCV || value.length < 50}
+        variant="primary"
+        size="lg"
+        className="w-full gap-3"
       >
-        {isGenerating ? (
+        {!hasActiveCV ? (
+          <>
+            <CheckCircle2 size={18} />
+            Upload CV First
+          </>
+        ) : isGenerating ? (
           <>
             <Loader2 className="animate-spin" size={18} />
             <span className="hidden sm:inline">AI is Crafting Magic...</span>
@@ -91,7 +118,7 @@ export const JobDescriptionInput = memo(({
         ) : (
           <>
             <Sparkles size={18} />
-            <span className="hidden sm:inline">Generate Targeted Application</span>
+            <span className="hidden sm:inline">Generate Cover Letter</span>
             <span className="sm:hidden">Generate</span>
           </>
         )}
@@ -99,9 +126,9 @@ export const JobDescriptionInput = memo(({
 
       <div className="grid grid-cols-3 gap-4 pt-2">
         {FEATURE_BADGES.map(({ label, icon: Icon }) => (
-          <div key={label} className="flex flex-col sm:flex-row items-center gap-2 text-[#78716C] text-xs font-medium justify-center">
-            <div className="w-8 h-8 rounded-xl bg-[#EEF3FD] flex items-center justify-center">
-              <Icon size={14} className="text-[#7C9EE8]" />
+          <div key={label} className="flex flex-col sm:flex-row items-center gap-2 text-neutral-500 text-xs font-medium justify-center">
+            <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center">
+              <Icon size={14} className="text-primary" />
             </div>
             <span className="text-center sm:text-left">{label}</span>
           </div>

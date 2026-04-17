@@ -3,22 +3,7 @@ import Image from "next/image";
 import { Mail, Sparkles, Zap } from "lucide-react";
 import Logo from "@/assets/Logo.png";
 
-interface BrandPanelProps {
-  activeTab: "login" | "signup";
-}
-
-export default function BrandPanel({ activeTab }: BrandPanelProps) {
-  const copy = {
-    login: {
-      headline: "Welcome back.",
-      sub: "Your next cover letter is one click away.",
-    },
-    signup: {
-      headline: "Land your dream job.",
-      sub: "Generate tailored cover letters in seconds and send them directly.",
-    },
-  };
-
+export default function BrandPanel() {
   return (
     <div className="hidden md:flex bg-gradient-to-br from-[#1C1917] to-[#2D2A27] h-screen sticky top-0 flex-col justify-between p-12 relative overflow-hidden">
       <div className="w-72 h-72 bg-[#7C9EE8]/15 rounded-full blur-3xl absolute -top-20 -right-20 pointer-events-none" />
@@ -33,11 +18,11 @@ export default function BrandPanel({ activeTab }: BrandPanelProps) {
 
       <div className="relative z-10">
         <div className="min-h-[180px]">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight transition-opacity duration-200">
-            {copy[activeTab].headline}
+          <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
+            Welcome to Postify.
           </h1>
-          <p className="text-[#A8A29E] text-base mt-3 leading-relaxed max-w-xs transition-opacity duration-200">
-            {copy[activeTab].sub}
+          <p className="text-[#A8A29E] text-base mt-3 leading-relaxed max-w-xs">
+            Your next cover letter is one click away.
           </p>
         </div>
 

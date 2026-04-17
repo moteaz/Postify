@@ -1,17 +1,16 @@
 interface GoogleButtonProps {
   isLoading: boolean;
-  activeTab: "login" | "signup";
   onClick: () => void;
 }
 
-export default function GoogleButton({ isLoading, activeTab, onClick }: GoogleButtonProps) {
+export default function GoogleButton({ isLoading, onClick }: GoogleButtonProps) {
   return (
     <button
       onClick={onClick}
       disabled={isLoading}
-      className="w-full flex items-center justify-center gap-3.5 bg-white border-2 border-[#EAE7E3] hover:border-[#7C9EE8] hover:shadow-[0_4px_20px_rgba(124,158,232,0.2)] rounded-2xl px-5 py-4 transition-all duration-200 active:scale-[0.98] group relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7C9EE8]/40 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+      className="w-full flex items-center justify-center gap-3.5 bg-white border-2 border-neutral-200 hover:border-primary hover:shadow-lg rounded-lg px-5 py-4 transition-all duration-200 active:scale-[0.98] group relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#7C9EE8]/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
 
       {!isLoading && (
         <svg width="20" height="20" viewBox="0 0 24 24">
@@ -22,12 +21,12 @@ export default function GoogleButton({ isLoading, activeTab, onClick }: GoogleBu
         </svg>
       )}
 
-      <span className="text-sm font-semibold text-[#1C1917] group-hover:text-[#7C9EE8] transition-colors duration-200">
-        {isLoading ? "Connecting..." : activeTab === "login" ? "Continue with Google" : "Sign up with Google"}
+      <span className="text-sm font-semibold text-neutral-900 group-hover:text-primary transition-colors duration-200">
+        {isLoading ? "Connecting..." : "Continue with Google"}
       </span>
 
       {isLoading && (
-        <div className="w-4 h-4 rounded-full border-2 border-[#7C9EE8]/30 border-t-[#7C9EE8] animate-spin ml-auto" />
+        <div className="w-4 h-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin ml-auto" />
       )}
     </button>
   );

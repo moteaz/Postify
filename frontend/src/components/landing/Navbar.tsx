@@ -27,7 +27,7 @@ const NAV_LINKS = [
     iconColor: "text-[#F0A8C0]",
   },
   {
-    href: "/auth?mode=login",
+    href: "/auth",
     label: "Sign in",
     description: "Access your account",
     icon: LogIn,
@@ -67,17 +67,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Features</a>
             <a href="#how-it-works" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">How it works</a>
-            <Link href="/auth?mode=login" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Sign in</Link>
+            <Link href="/auth" className="text-sm font-medium text-[#78716C] hover:text-[#1C1917] transition">Sign in</Link>
           </div>
 
-          <Link href="/auth?mode=signup" className="hidden sm:block bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:shadow-[0_4px_16px_rgba(124,158,232,0.3)] hover:-translate-y-0.5 transition-all duration-200">
+          <Link href="/auth" className="hidden sm:block bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:shadow-[0_4px_16px_rgba(124,158,232,0.3)] hover:-translate-y-0.5 transition-all duration-200">
             Get Started Free
           </Link>
 
           <motion.button 
             onClick={() => setIsOpen(prev => !prev)}
             whileTap={{ scale: 0.9 }}
-            className="w-9 h-9 rounded-xl bg-[#F5F3F0] border border-[#EAE7E3] flex items-center justify-center hover:bg-white hover:border-[#7C9EE8] transition-all duration-150 md:hidden"
+            className="w-11 h-11 rounded-xl bg-[#F5F3F0] border border-[#EAE7E3] flex items-center justify-center hover:bg-white hover:border-[#7C9EE8] transition-all duration-150 md:hidden"
             aria-label={isOpen ? "Close menu" : "Open menu"}
           >
             <AnimatePresence mode="wait">
@@ -159,7 +159,7 @@ export default function Navbar() {
                 <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-2">
                   <motion.div variants={fadeUp}>
                     <Link
-                      href="/auth?mode=signup"
+                      href="/auth"
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-gradient-to-br from-[#7C9EE8] to-[#6B8DD6] text-white text-sm font-semibold hover:shadow-[0_8px_24px_rgba(124,158,232,0.3)] transition-all duration-200"
                     >
@@ -169,7 +169,7 @@ export default function Navbar() {
                   </motion.div>
                   <motion.div variants={fadeUp}>
                     <Link
-                      href="/auth?mode=login"
+                      href="/auth"
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-[#F5F3F0] border border-[#EAE7E3] text-sm font-medium text-[#78716C] hover:border-[#7C9EE8] hover:text-[#7C9EE8] transition-all duration-150"
                     >

@@ -96,7 +96,7 @@ export const Toast = ({
         </div>
         <button
           onClick={handleClose}
-          className="flex-shrink-0 p-1.5 hover:bg-accent rounded-lg transition-all text-muted-foreground hover:text-foreground group"
+          className="flex-shrink-0 p-2 hover:bg-accent rounded-lg transition-all text-muted-foreground hover:text-foreground group min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Close"
         >
           <X size={16} className="transition-transform group-hover:rotate-90" />

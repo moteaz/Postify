@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
+import { WelcomeModal } from "@/components/dashboard/WelcomeModal";
 
 import {
   Sidebar,
@@ -14,35 +15,49 @@ import {
   ApplicationDetailModal,
 } from "./components";
 
-// REDESIGNED: Warm base background, generous spacing
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function Dashboard() {
   const dashboardData = useDashboard();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('postify_onboarded');
+    if (!hasSeenWelcome && dashboardData?.user) {
+      setShowWelcome(true);
+    }
+  }, [dashboardData?.user]);
+
+  const handleWelcomeComplete = () => {
+    localStorage.setItem('postify_onboarded', 'true');
+    setShowWelcome(false);
+  };
 
   if (!dashboardData) {
     return (
       <div className="flex flex-col lg:flex-row h-screen bg-[var(--bg-base,#F9F7F4)] overflow-hidden" aria-busy="true" aria-label="Loading dashboard">
         {/* Sidebar skeleton */}
         <div className="hidden lg:flex flex-col w-56 border-r border-[#EAE7E3] bg-white/70 p-4 gap-4">
-          <div className="h-8 w-28 rounded-lg bg-[#EAE7E3] animate-pulse mb-4" />
+          <Skeleton className="h-8 w-28 mb-4" />
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-9 w-full rounded-lg bg-[#EAE7E3] animate-pulse" />
+            <Skeleton key={i} className="h-9 w-full" />
           ))}
-          <div className="mt-auto h-9 w-full rounded-lg bg-[#EAE7E3] animate-pulse" />
+          <Skeleton className="mt-auto h-9 w-full" />
         </div>
         {/* Main content skeleton */}
         <main className="flex-1 overflow-y-auto flex flex-col">
           {/* Mobile topbar skeleton */}
           <div className="lg:hidden h-14 border-b border-[#EAE7E3] bg-white/80 flex items-center px-4">
-            <div className="h-8 w-8 rounded-lg bg-[#EAE7E3] animate-pulse" />
+            <Skeleton className="h-8 w-8" />
           </div>
           <div className="max-w-5xl mx-auto p-6 sm:p-8 w-full space-y-6">
             {/* Header skeleton */}
-            <div className="h-8 w-48 rounded-lg bg-[#EAE7E3] animate-pulse" />
-            <div className="h-4 w-72 rounded-lg bg-[#EAE7E3] animate-pulse" />
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-72" />
             {/* Content block skeletons */}
-            <div className="h-40 w-full rounded-2xl bg-[#EAE7E3] animate-pulse" />
-            <div className="h-24 w-full rounded-2xl bg-[#EAE7E3] animate-pulse" />
+            <Skeleton className="h-40 w-full rounded-2xl" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
           </div>
         </main>
       </div>
@@ -124,7 +139,7 @@ export default function Dashboard() {
             onClick={() => setSidebarOpen(true)}
             aria-label="Open navigation menu"
             aria-expanded={sidebarOpen}
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-[#78716C] hover:bg-[#F5F3F0] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none min-w-[44px] min-h-[44px]"
+            className="w-11 h-11 rounded-lg flex items-center justify-center text-[#78716C] hover:bg-[#F5F3F0] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[#7C9EE8] focus-visible:outline-none"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12" />
@@ -232,6 +247,10 @@ export default function Dashboard() {
           application={selectedApplication}
           onClose={() => setSelectedApplication(null)}
         />
+      )}
+
+      {showWelcome && (
+        <WelcomeModal onComplete={handleWelcomeComplete} />
       )}
     </div>
   );
