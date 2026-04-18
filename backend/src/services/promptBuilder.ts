@@ -31,11 +31,8 @@ Language to respond in: ${language}
 
 Task:
 1. Write a professional, tailored cover letter (max 150 words, formal tone).
-- Highlight 2–3 key skills that match the job description
 - Do NOT include the subject line inside the cover letter.
-- If contact info is provided, add it at the END in this format:
- Phone: xxx  
- LinkedIn: xxx"
+- If contact info is provided, add it at the END .
 2. Create a concise, compelling email subject line for the job application.
 3. Extract the recruiter's email address if found in the job description.
 
