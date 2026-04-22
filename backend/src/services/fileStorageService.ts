@@ -96,19 +96,40 @@ export class FileStorageService {
     const cleanKey = fileKey.replace('postify/cvs/cvs/', 'postify/cvs/');
 
     try {
+      logger.info('Downloading file from Cloudinary', { fileKey: cleanKey });
+      
       const url = cloudinary.utils.private_download_url(cleanKey, 'pdf', {
         resource_type: 'raw',
         type: 'authenticated',
         expires_at: Math.floor(Date.now() / 1000) + 60,
       });
 
+      logger.debug('Generated download URL', { url: url.substring(0, 50) + '...' });
+
       const response = await fetch(url);
+      
+      logger.debug('Fetch response', { status: response.status, ok: response.ok });
+      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        logger.error('Cloudinary download failed', { 
+          status: response.status, 
+          statusText: response.statusText,
+          error: errorText 
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
-      return Buffer.from(await response.arrayBuffer());
+      
+      const buffer = Buffer.from(await response.arrayBuffer());
+      logger.info('File downloaded successfully', { size: buffer.length });
+      return buffer;
     } catch (error) {
-      throw new Error(`Failed to download file: ${(error as Error).message}`);
+      logger.error('Failed to download file', { 
+        fileKey: cleanKey,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      throw new Error(`Failed to download file: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }
