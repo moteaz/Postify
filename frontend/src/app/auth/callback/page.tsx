@@ -15,41 +15,24 @@ function AuthCallbackContent() {
 
     useEffect(() => {
         if (attempted.current) return;
+        attempted.current = true;
 
-        // Force check vanilla window.location to bypass any Next.js hydration lag
-        let token = searchParams.get('token');
-        if (!token && typeof window !== 'undefined') {
-            const urlParams = new URLSearchParams(window.location.search);
-            token = urlParams.get('token');
-        }
-
+        // Get token from URL (backend should send it for Safari/iOS compatibility)
+        const token = searchParams.get('token');
+        
         if (token) {
             localStorage.setItem('auth_token', token);
-        } else {
-            // Check if it's already in localStorage (e.g., page refresh)
-            token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
         }
 
-        if (token) {
-            attempted.current = true;
-            apiClient.get<{ data: { user: User } }>("/auth/me")
-                .then((res) => {
-                    setUser(res.data.data.user);
-                    router.push("/dashboard");
-                })
-                .catch(() => {
-                    localStorage.removeItem('auth_token');
-                    router.push("/auth?mode=login&error=auth_failed");
-                });
-        } else {
-            // If genuinely no token, bump back to login after a brief hydration wait
-            const timeout = setTimeout(() => {
-                if (!localStorage.getItem('auth_token')) {
-                    router.push("/auth?mode=login&error=missing_token");
-                }
-            }, 1000);
-            return () => clearTimeout(timeout);
-        }
+        apiClient.get<{ data: { user: User } }>("/auth/me")
+            .then((res) => {
+                setUser(res.data.data.user);
+                router.push("/dashboard");
+            })
+            .catch(() => {
+                localStorage.removeItem('auth_token');
+                router.push("/auth?mode=login&error=auth_failed");
+            });
     }, [router, setUser, searchParams]);
 
     return (

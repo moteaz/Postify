@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAutoReset } from "./useAutoReset";
+import { useAutoReset } from "@/shared/hooks/use-auto-reset";
 import { TIMEOUTS } from "@/config/messages";
 import { DashboardTab, type DashboardTabType } from "@/types/enums";
 import { useAuthStore } from "@/store/useAuthStore";

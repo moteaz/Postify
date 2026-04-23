@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { validateEmail, validateSubject } from "@/utils/security/validation";
+import { validateEmail, validateSubject } from "@/shared/utils/security/validation";
 import type { GeneratedContent } from "@/types";
 
 export const useApplicationValidation = (content: GeneratedContent | null) => {

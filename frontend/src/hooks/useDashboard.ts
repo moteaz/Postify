@@ -1,11 +1,17 @@
-import { useState, useEffect } from "react";
-import { useDashboardState } from "./useDashboardState";
-import { useApplications } from "./useApplications";
-import { useCVManagement } from "./useCVManagement";
-import { useApplicationGenerator } from "./useApplicationGenerator";
-import { useContactManagement } from "./useContactManagement";
+import { useState } from "react";
 import { useAuth } from "./useAuth";
-import { useAdmin } from "./useAdmin";
+import { useDashboardState } from "./useDashboardState";
+
+import { useApplicationsQuery } from "@/features/applications/hooks/use-applications-query";
+import { useCVsQuery } from "@/features/cvs/hooks/use-cvs-query";
+import { useContactsQuery } from "@/features/contacts/hooks/use-contacts-query";
+import { useAdminUsersQuery, useAdminUserDetailsQuery } from "@/features/admin/hooks/use-admin-query";
+import { useGenerateApplication } from "@/features/applications/hooks/use-generate-application";
+import { useSendApplication } from "@/features/applications/hooks/use-send-application";
+import { useUploadCV } from "@/features/cvs/hooks/use-upload-cv";
+import { useSetActiveCV, useArchiveCV, useDeleteCV } from "@/features/cvs/hooks/use-cv-mutations";
+import { useAddContact, useUpdateContact, useDeleteContact } from "@/features/contacts/hooks/use-contact-mutations";
+import { useDeleteUser, useExportUsers } from "@/features/admin/hooks/use-admin-mutations";
 import { DashboardTab, type DashboardTabType } from "@/types/enums";
 import type { User, CV, Application, GeneratedContent, AdminUser, AdminUserDetails, PaginationMeta, UserContact } from "@/types";
 
@@ -43,15 +49,15 @@ interface UseDashboardReturn {
   adminUsers: AdminUser[];
   isLoadingAdminUsers: boolean;
   selectedAdminUser: AdminUserDetails | null;
-  handleViewUser: (id: string, page?: number) => Promise<void>;
+  handleViewUser: (id: string, page?: number) => void;
   handleDeleteUser: (id: string) => Promise<void>;
   handleExportUsers: () => Promise<void>;
   handleCloseUserDetails: () => void;
   historyPagination: PaginationMeta | null;
   adminPagination: PaginationMeta | null;
-  handleHistoryPageChange: (page: number) => Promise<void>;
-  handleUserDetailsPageChange: (page: number) => Promise<void>;
-  handleAdminPageChange: (page: number) => Promise<void>;
+  handleHistoryPageChange: (page: number) => void;
+  handleUserDetailsPageChange: (page: number) => void;
+  handleAdminPageChange: (page: number) => void;
   contacts: UserContact[];
   isLoadingContacts: boolean;
   isUpdatingContact: boolean;
@@ -63,145 +69,229 @@ interface UseDashboardReturn {
 
 export function useDashboard(): UseDashboardReturn | null {
   const state = useDashboardState();
-  const [hasFetchedHistory, setHasFetchedHistory] = useState(false);
-  const [hasFetchedCvs, setHasFetchedCvs] = useState(false);
-  const [hasFetchedAdmin, setHasFetchedAdmin] = useState(false);
-  const [hasFetchedContacts, setHasFetchedContacts] = useState(false);
-
   const { user, handleLogout } = useAuth();
-  const applications = useApplications();
-  const cvManagement = useCVManagement(state.setSuccess, state.setError);
-  const generator = useApplicationGenerator(
-    state.setSuccess,
-    state.setError,
-    () => state.setActiveTab(DashboardTab.CVS)
+  
+  // Pagination state
+  const [historyPage, setHistoryPage] = useState(1);
+  const [adminPage, setAdminPage] = useState(1);
+  const [adminDetailsPage, setAdminDetailsPage] = useState(1);
+  const [selectedAdminUserId, setSelectedAdminUserId] = useState<string | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [archiveConfirm, setArchiveConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [updatingCvId, setUpdatingCvId] = useState<string | undefined>(undefined);
+  const [updatingContactId, setUpdatingContactId] = useState<string | undefined>(undefined);
+  
+  // Application generation state (managed locally)
+  const [jobDescription, setJobDescription] = useState("");
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
+
+  // ============================================
+  // REACT QUERY HOOKS (Lazy Loading)
+  // ============================================
+  
+  // Only fetch when respective tab is active
+  const applicationsQuery = useApplicationsQuery(
+    historyPage,
+    state.activeTab === DashboardTab.HISTORY
   );
-  const admin = useAdmin(state.setSuccess, state.setError);
-  const contactManagement = useContactManagement(state.setSuccess, state.setError);
+  
+  // CVs from /auth/me (already includes all non-archived CVs)
+  // Only fetch separately if user.cvs is not available
+  const cvsQuery = useCVsQuery(
+    state.activeTab === DashboardTab.CVS && !user?.cvs
+  );
+  
+  const contactsQuery = useContactsQuery(
+    state.activeTab === DashboardTab.CONTACTS
+  );
+  
+  const adminUsersQuery = useAdminUsersQuery(
+    adminPage,
+    state.activeTab === DashboardTab.ADMIN && user?.role === "ADMIN"
+  );
+  
+  const adminUserDetailsQuery = useAdminUserDetailsQuery(
+    selectedAdminUserId,
+    adminDetailsPage
+  );
 
-  useEffect(() => {
-    if (!user) return;
+  // ============================================
+  // MUTATIONS
+  // ============================================
+  
+  const generateMutation = useGenerateApplication(state.setSuccess, state.setError);
+  const sendMutation = useSendApplication(state.setSuccess, state.setError);
+  const uploadCVMutation = useUploadCV(state.setSuccess, state.setError);
+  const setActiveCVMutation = useSetActiveCV(state.setSuccess, state.setError);
+  const archiveCVMutation = useArchiveCV(state.setSuccess, state.setError);
+  const deleteCVMutation = useDeleteCV(state.setSuccess, state.setError);
+  const addContactMutation = useAddContact(state.setSuccess, state.setError);
+  const updateContactMutation = useUpdateContact(state.setSuccess, state.setError);
+  const deleteContactMutation = useDeleteContact(state.setSuccess, state.setError);
+  const deleteUserMutation = useDeleteUser(state.setSuccess, state.setError);
+  const exportUsersMutation = useExportUsers(state.setSuccess, state.setError);
 
-    if (!hasFetchedHistory) {
-      applications.fetchHistory();
-      setHasFetchedHistory(true);
-    }
-
-    if (!hasFetchedCvs) {
-      cvManagement.fetchCvs();
-      setHasFetchedCvs(true);
-    }
-
-    if (!hasFetchedContacts) {
-      setHasFetchedContacts(true);
-    }
-
-    // Fetch admin data on mount if already on admin tab
-    if (state.activeTab === DashboardTab.ADMIN && user.role === "ADMIN" && !hasFetchedAdmin) {
-      admin.fetchUsers();
-      setHasFetchedAdmin(true);
-    }
-  }, [user, hasFetchedHistory, hasFetchedCvs, hasFetchedAdmin, state.activeTab, applications, cvManagement, admin]);
-
-  const handleGenerateWithRefresh = async (): Promise<void> => {
-    await generator.handleGenerate();
-    await applications.fetchHistory(1);
-    setHasFetchedHistory(true);
+  // ============================================
+  // HANDLERS
+  // ============================================
+  
+  const handleGenerate = async () => {
+    if (!jobDescription.trim()) return;
+    
+    const result = await generateMutation.mutateAsync(jobDescription);
+    setGeneratedContent(result.content);
+    setApplicationId(result.applicationId);
   };
 
-  const handleSendWithRefresh = async (): Promise<void> => {
-    await generator.handleSend();
-    await applications.fetchHistory(1);
-    setHasFetchedHistory(true);
+  const handleSend = async () => {
+    if (!generatedContent || !applicationId) return;
+    
+    await sendMutation.mutateAsync({
+      applicationId,
+      to: generatedContent.recruiterEmail,
+      subject: generatedContent.subject,
+      body: generatedContent.coverLetter,
+    });
+    
+    // Reset form
+    setGeneratedContent(null);
+    setJobDescription("");
+    setApplicationId(null);
   };
 
-  const handleHistoryPageChange = async (page: number): Promise<void> => {
-    await applications.fetchHistory(page);
+  const handleUploadCV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    await uploadCVMutation.mutateAsync(file);
+    e.target.value = '';
   };
 
-  const handleAdminPageChange = async (page: number): Promise<void> => {
-    await admin.fetchUsers(page);
-  };
-
-  const handleUserDetailsPageChange = async (page: number): Promise<void> => {
-    if (admin.selectedUser) {
-      await admin.viewUser(admin.selectedUser.id, page);
+  const handleSetActiveCV = async (id: string) => {
+    setUpdatingCvId(id);
+    try {
+      await setActiveCVMutation.mutateAsync(id);
+    } finally {
+      setUpdatingCvId(undefined);
     }
+  };
+
+  const handleSetArchivedCV = async (id: string) => {
+    setUpdatingCvId(id);
+    try {
+      await archiveCVMutation.mutateAsync(id);
+    } finally {
+      setUpdatingCvId(undefined);
+      setArchiveConfirm(null);
+    }
+  };
+
+  const handleAddContact = async (type: string, value: string) => {
+    await addContactMutation.mutateAsync({ type, value });
+  };
+
+  const handleUpdateContact = async (id: string, value: string) => {
+    setUpdatingContactId(id);
+    try {
+      await updateContactMutation.mutateAsync({ id, value });
+    } finally {
+      setUpdatingContactId(undefined);
+    }
+  };
+
+  const handleDeleteContact = async (id: string) => {
+    await deleteContactMutation.mutateAsync(id);
+  };
+
+  const handleViewUser = (id: string, page: number = 1) => {
+    setSelectedAdminUserId(id);
+    setAdminDetailsPage(page);
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    await deleteUserMutation.mutateAsync(id);
+    if (selectedAdminUserId === id) {
+      setSelectedAdminUserId(null);
+    }
+  };
+
+  const handleExportUsers = async () => {
+    await exportUsersMutation.mutateAsync();
   };
 
   const handleTabChange = (tab: DashboardTabType) => {
     state.setActiveTab(tab);
-
-    if (!user) return;
-
-    if (tab === DashboardTab.HISTORY && !hasFetchedHistory) {
-      applications.fetchHistory();
-      setHasFetchedHistory(true);
-    }
-
-    if (tab === DashboardTab.CVS && !hasFetchedCvs) {
-      cvManagement.fetchCvs();
-      setHasFetchedCvs(true);
-    }
-
-    if (tab === DashboardTab.CONTACTS && !hasFetchedContacts) {
-      setHasFetchedContacts(true);
-    }
-
-    // Always refresh admin data when opening the Admin tab
-    if (tab === DashboardTab.ADMIN && user.role === "ADMIN") {
-      admin.fetchUsers();
-      setHasFetchedAdmin(true);
-    }
+    localStorage.setItem('activeTab', tab);
   };
 
+  // ============================================
+  // RETURN
+  // ============================================
+  
   if (!user) return null;
 
   return {
     user,
-    ...state,
+    activeTab: state.activeTab,
     setActiveTab: handleTabChange,
-    jobDescription: generator.jobDescription,
-    setJobDescription: generator.setJobDescription,
-    isGenerating: generator.isGenerating,
-    generatedContent: generator.generatedContent,
-    setGeneratedContent: generator.setGeneratedContent,
-    isSending: generator.isSending,
-    history: applications.history,
-    isLoadingHistory: applications.isLoadingHistory,
-    selectedApplication: applications.selectedApplication,
-    setSelectedApplication: applications.setSelectedApplication,
-    cvs: cvManagement.cvs,
-    isLoadingCvs: cvManagement.isLoadingCvs,
-    isUpdatingCV: cvManagement.isUpdatingCV,
-    isUploadingCV: cvManagement.isUploadingCV,
-    updatingCvId: cvManagement.updatingCvId,
-    archiveConfirm: cvManagement.archiveConfirmation,
-    setArchiveConfirm: cvManagement.setArchiveConfirmation,
-    handleUploadCV: cvManagement.handleUploadCV,
-    handleSetActiveCV: cvManagement.handleSetActiveCV,
-    handleSetArchivedCV: cvManagement.handleArchiveCV,
-    handleGenerate: handleGenerateWithRefresh,
-    handleSend: handleSendWithRefresh,
+    success: state.success,
+    setSuccess: state.setSuccess,
+    error: state.error,
+    setError: state.setError,
+    
+    // Application Generation
+    jobDescription,
+    setJobDescription,
+    generatedContent,
+    setGeneratedContent,
+    isGenerating: generateMutation.isPending,
+    isSending: sendMutation.isPending,
+    handleGenerate,
+    handleSend,
+    
+    // History Tab
+    history: applicationsQuery.data?.data || [],
+    isLoadingHistory: applicationsQuery.isLoading,
+    historyPagination: applicationsQuery.data?.pagination || null,
+    handleHistoryPageChange: setHistoryPage,
+    selectedApplication,
+    setSelectedApplication,
+    
+    // CVs Tab - use CVs from /auth/me response
+    cvs: user?.cvs || cvsQuery.data || [],
+    isLoadingCvs: !user?.cvs && cvsQuery.isLoading,
+    isUploadingCV: uploadCVMutation.isPending,
+    isUpdatingCV: setActiveCVMutation.isPending || archiveCVMutation.isPending || deleteCVMutation.isPending,
+    updatingCvId,
+    handleUploadCV,
+    handleSetActiveCV,
+    handleSetArchivedCV,
+    archiveConfirm,
+    setArchiveConfirm,
+    
+    // Contacts Tab
+    contacts: contactsQuery.data || [],
+    isLoadingContacts: contactsQuery.isLoading,
+    isUpdatingContact: updateContactMutation.isPending || deleteContactMutation.isPending,
+    updatingContactId,
+    handleAddContact,
+    handleUpdateContact,
+    handleDeleteContact,
+    
+    // Admin Tab
+    adminUsers: adminUsersQuery.data?.data || [],
+    isLoadingAdminUsers: adminUsersQuery.isLoading,
+    adminPagination: adminUsersQuery.data?.pagination || null,
+    handleAdminPageChange: setAdminPage,
+    selectedAdminUser: adminUserDetailsQuery.data || null,
+    handleViewUser,
+    handleDeleteUser,
+    handleExportUsers,
+    handleCloseUserDetails: () => setSelectedAdminUserId(null),
+    handleUserDetailsPageChange: setAdminDetailsPage,
+    
+    // Auth
     handleLogout,
-    adminUsers: admin.users,
-    isLoadingAdminUsers: admin.isLoading,
-    selectedAdminUser: admin.selectedUser,
-    handleViewUser: admin.viewUser,
-    handleDeleteUser: admin.deleteUser,
-    handleExportUsers: admin.exportUsers,
-    handleCloseUserDetails: admin.closeDetails,
-    historyPagination: applications.pagination,
-    adminPagination: admin.pagination,
-    handleHistoryPageChange,
-    handleAdminPageChange,
-    handleUserDetailsPageChange,
-    contacts: contactManagement.contacts,
-    isLoadingContacts: contactManagement.isLoadingContacts,
-    isUpdatingContact: contactManagement.isUpdatingContact,
-    updatingContactId: contactManagement.updatingContactId,
-    handleAddContact: contactManagement.handleAddContact,
-    handleUpdateContact: contactManagement.handleUpdateContact,
-    handleDeleteContact: contactManagement.handleDeleteContact,
   };
 }

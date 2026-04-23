@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useScrollReveal } from "@/shared/hooks/use-scroll-reveal";
 import { staggerContainer, fadeUp } from "@/lib/animations";
 
 export default function SocialProof() {

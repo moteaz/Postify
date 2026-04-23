@@ -10,30 +10,30 @@ const LoadingFallback = () => (
 );
 
 export const NewApplicationTab = dynamic(
-  () => import("./NewApplicationTab").then(mod => ({ default: mod.NewApplicationTab })),
+  () => import("@/features/applications/components/new-application-tab").then(mod => ({ default: mod.NewApplicationTab })),
   { loading: LoadingFallback }
 );
 
 export const HistoryTab = dynamic(
-  () => import("./HistoryTab").then(mod => ({ default: mod.HistoryTab })),
+  () => import("@/features/applications/components/history-tab").then(mod => ({ default: mod.HistoryTab })),
   { loading: LoadingFallback }
 );
 
 export const CVsTab = dynamic(
-  () => import("./CVsTab").then(mod => ({ default: mod.CVsTab })),
+  () => import("@/features/cvs/components/cvs-tab").then(mod => ({ default: mod.CVsTab })),
   { loading: LoadingFallback }
 );
 
 export const ContactsTab = dynamic(
-  () => import("./ContactsTab").then(mod => ({ default: mod.ContactsTab })),
+  () => import("@/features/contacts/components/contacts-tab").then(mod => ({ default: mod.ContactsTab })),
   { loading: LoadingFallback }
 );
 
 export const AdminTab = dynamic(
-  () => import("./AdminTab").then(mod => ({ default: mod.AdminTab })),
+  () => import("@/features/admin/components/admin-tab").then(mod => ({ default: mod.AdminTab })),
   { loading: LoadingFallback }
 );
 
-export { Sidebar } from "./Sidebar";
-export { DashboardHeader } from "./DashboardHeader";
-export { ApplicationDetailModal } from "./ApplicationDetailModal";
+export { Sidebar } from "@/shared/components/layout/sidebar";
+export { DashboardHeader } from "@/shared/components/layout/dashboard-header";
+export { ApplicationDetailModal } from "@/features/applications/components/application-detail-modal";

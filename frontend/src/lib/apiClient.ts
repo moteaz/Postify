@@ -17,6 +17,7 @@ class ApiClient {
   private setupInterceptors() {
     this.client.interceptors.request.use(
       (config) => {
+        // Fallback to localStorage for Safari/iOS (cookies may be blocked)
         if (typeof window !== 'undefined') {
           const token = localStorage.getItem('auth_token');
           if (token) {
@@ -34,8 +35,6 @@ class ApiClient {
         const requestUrl = error.config?.url ?? '';
         const isAuthCheck = requestUrl.includes('/auth/me');
 
-        // Only redirect on 401 for protected routes, NOT for the initial
-        // /auth/me check — otherwise we get an infinite redirect loop on "/"
         if (error.response?.status === 401 && !isAuthCheck) {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('auth_token');

@@ -11,6 +11,13 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
         user: null,
         setUser: (user) => set({ user }),
-        logout: () => set({ user: null }),
+        logout: () => {
+            set({ user: null });
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('postify-auth-storage');
+                localStorage.removeItem('postify-user');
+            }
+        },
     })
 );

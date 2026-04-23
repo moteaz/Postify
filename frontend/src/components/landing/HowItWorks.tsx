@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ClipboardPaste, Sparkles, Send } from "lucide-react";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useScrollReveal } from "@/shared/hooks/use-scroll-reveal";
 import { staggerContainer, staggerContainerSlow, fadeUp, popIn, cardEntrance } from "@/lib/animations";
 
 export default function HowItWorks() {

@@ -28,8 +28,8 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
       where: { id: decoded.userId },
       include: {
         cvs: {
-          where: { isActive: true },
-          take: 1,
+          where: { isArchived: false },
+          orderBy: { uploadedAt: 'desc' },
         },
       },
     });
